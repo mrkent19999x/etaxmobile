@@ -1,0 +1,98 @@
+{
+  "name": "eTax Mobile",
+  "short_name": "eTax",
+  "description": "Ứng dụng quản lý thuế điện tử",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#b71c1c",
+  "background_color": "#f5f5f5",
+  "scope": "./",
+  "lang": "vi",
+  "categories": ["business", "finance", "productivity"],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "protocol_handlers": [],
+  "file_handlers": [],
+  "screenshots": [],
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "icons": [
+    {
+      "src": "./assets/logo.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/logo.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/logo.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/logo.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/logo.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/logo.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Tra cứu chứng từ",
+      "short_name": "Chứng từ",
+      "description": "Tra cứu chứng từ thuế",
+      "url": "./tra-cuu-chung-tu.html",
+      "icons": [{ "src": "./assets/icon14.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Tra cứu thông báo",
+      "short_name": "Thông báo",
+      "description": "Tra cứu thông báo thuế",
+      "url": "./thongbao.html",
+      "icons": [{ "src": "./assets/icon10.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Đăng ký thuế",
+      "short_name": "Đăng ký",
+      "description": "Đăng ký thuế trực tuyến",
+      "url": "./dangky.html",
+      "icons": [{ "src": "./assets/icon5.png", "sizes": "96x96" }]
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": []
+}

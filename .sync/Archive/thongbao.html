@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tra cứu thông báo</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; padding: 1rem; }
+    h1 { background: #b71c1c; color: white; padding: 1rem; margin: -1rem -1rem 1rem -1rem; text-align: center; font-size: 20px; }
+    .notice-list { background: white; border-radius: 8px; padding: 0; list-style: none; margin: 0; }
+    .notice-item {
+      border-bottom: 1px solid #eee;
+      padding: 1rem;
+      cursor: pointer;
+    }
+    .notice-item:hover {
+      background: #f0f0f0;
+    }
+    .notice-code { font-weight: bold; color: #b71c1c; }
+    .notice-title { margin-top: 4px; }
+    .notice-meta { font-size: 13px; color: gray; margin-top: 4px; display: flex; justify-content: space-between; }
+  </style>
+</head>
+<body>
+  <h1>Tra cứu thông báo</h1>
+  <ul class="notice-list" id="notice-list">
+    <li>Đang tải thông báo...</li>
+  </ul>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+      authDomain: "etax-7fbf8.firebaseapp.com",
+      databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "etax-7fbf8"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const uid = localStorage.getItem("user");
+    const list = document.getElementById("notice-list");
+
+    if (!uid) {
+      list.innerHTML = "<li>Không tìm thấy người dùng.</li>";
+    } else {
+      db.ref("notifications/" + uid).once("value", (snap) => {
+        const data = snap.val();
+        if (!data) {
+          list.innerHTML = "<li>Không có thông báo nào.</li>";
+          return;
+        }
+
+        const items = Object.entries(data)
+          .sort((a, b) => b[1].created_at - a[1].created_at)
+          .map(([ts, val]) => {
+            const created = new Date(val.created_at).toLocaleString("vi-VN");
+            return `
+              <li class="notice-item" onclick="location.href='page-thongbao.html?ts=${ts}'">
+                <div class="notice-code">${val.code || "Không có mã"}</div>
+                <div class="notice-title">${val.title || "Không có tiêu đề"}</div>
+                <div class="notice-meta">
+                  <span>${created}</span>
+                  <span>🔔</span>
+                </div>
+              </li>`;
+          });
+
+        list.innerHTML = items.join("");
+      });
+    }
+  </script>
+</body>
+</html>

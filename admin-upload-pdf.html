@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="eTax Admin">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#d62828">
+  
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <title>Tạo Chứng Từ Nộp Thuế - Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f5f5f5;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: white;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #d62828, #b71c1c);
+      color: white;
+      padding: 30px 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .form-section {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e0e0e0;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #d62828;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .required {
+      color: #d62828;
+    }
+
+    .form-input {
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s ease;
+      background: #fafafa;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #d62828;
+      background: white;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .generate-btn {
+      background: #2196f3;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.3s;
+    }
+
+    .generate-btn:hover {
+      background: #1976d2;
+    }
+
+    .info-box {
+      background: #e8f5e9;
+      border: 2px solid #4caf50;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+
+    .info-box h3 {
+      color: #2e7d32;
+      margin-bottom: 10px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .info-box p {
+      color: #388e3c;
+      line-height: 1.6;
+    }
+
+    .submit-section {
+      text-align: center;
+      padding: 30px 0;
+    }
+
+    .submit-btn {
+      background: linear-gradient(135deg, #d62828, #b71c1c);
+      color: white;
+      border: none;
+      padding: 16px 40px;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(214, 40, 40, 0.3);
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(214, 40, 40, 0.4);
+    }
+
+    .submit-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .progress-container {
+      display: none;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #d62828, #b71c1c);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .back-btn {
+      background: #666;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: background 0.3s;
+    }
+
+    .back-btn:hover {
+      background: #555;
+    }
+
+    /* History Section Styles */
+    .history-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .refresh-btn {
+      background: #2196f3;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.3s;
+    }
+
+    .refresh-btn:hover {
+      background: #1976d2;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      max-width: 300px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 40px 10px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .search-box i {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #666;
+    }
+
+    .history-container {
+      max-height: 500px;
+      overflow-y: auto;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+
+    .loading-history {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+      font-size: 16px;
+    }
+
+    .history-item {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin: 10px;
+      padding: 15px;
+      transition: box-shadow 0.3s;
+    }
+
+    .history-item:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .history-code {
+      font-weight: bold;
+      color: #d62828;
+      font-size: 16px;
+    }
+
+    .history-date {
+      color: #666;
+      font-size: 12px;
+    }
+
+    .history-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .detail-label {
+      color: #666;
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+
+    .detail-value {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .history-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn-small {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.3s;
+    }
+
+    .btn-view {
+      background: #4caf50;
+      color: white;
+    }
+
+    .btn-view:hover {
+      background: #45a049;
+    }
+
+    .btn-copy {
+      background: #ff9800;
+      color: white;
+    }
+
+    .btn-copy:hover {
+      background: #f57c00;
+    }
+
+    .btn-delete {
+      background: #f44336;
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background: #d32f2f;
+    }
+
+    .empty-history {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .empty-history i {
+      font-size: 48px;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+      
+      .form-section {
+        padding: 20px;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .history-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-box {
+        max-width: none;
+      }
+
+      .history-details {
+        grid-template-columns: 1fr;
+      }
+
+      .history-actions {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="back-btn" onclick="goBack()">
+      <i class="fas fa-arrow-left"></i> Quay lại Admin Panel
+    </button>
+
+    <div class="header">
+      <h1>Tạo Chứng Từ Nộp Thuế</h1>
+      <p>Nhập thông tin chứng từ để tạo giấy nộp tiền vào ngân sách nhà nước</p>
+    </div>
+
+    <!-- Thông báo chế độ hoạt động -->
+    <div class="info-box">
+      <h3>
+        <i class="fas fa-info-circle"></i>
+        Chế độ tạo chứng từ điện tử
+      </h3>
+      <p>
+        Hệ thống sẽ lưu thông tin chứng từ vào database và tự động tạo giao diện xem chứng từ chuẩn. 
+        Không cần upload file PDF. Chứng từ sẽ được hiển thị với định dạng chuẩn của Ngân hàng TMCP Quân đội.
+      </p>
+    </div>
+
+    <form id="uploadForm" onsubmit="uploadPDFDocument(event)">
+      <!-- Thông tin chứng từ -->
+      <div class="form-section">
+        <h2 class="section-title">Thông Tin Chứng Từ</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="mst">
+              Mã Tham Chiếu <span class="required">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="mst" 
+              class="form-input" 
+              placeholder="1102025xxxxxxxxxx"
+              required
+              maxlength="17"
+              readonly
+              style="background-color: #f0f0f0; cursor: not-allowed;"
+            />
+            <button type="button" onclick="generateNewMST()" class="generate-btn">
+              <i class="fas fa-refresh"></i> Tạo mã mới
+            </button>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="taxTNCN">
+              Thuế TNCN (1003) <span class="required">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="taxTNCN" 
+              class="form-input" 
+              placeholder="VD: 255,000"
+              required
+              oninput="formatCurrency(this); calculateTotalAmount()"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="taxGTGT">
+              Thuế GTGT (1701) <span class="required">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="taxGTGT" 
+              class="form-input" 
+              placeholder="VD: 510,000"
+              required
+              oninput="formatCurrency(this); calculateTotalAmount()"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="amount">
+              Tổng Số Tiền <span class="required">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="amount" 
+              class="form-input" 
+              placeholder="Tự động tính từ 2 loại thuế"
+              required
+              readonly
+              style="background-color: #f0f0f0; font-weight: bold; color: #d62828;"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="amountInWords">
+              Số tiền bằng chữ
+            </label>
+            <input 
+              type="text" 
+              id="amountInWords" 
+              class="form-input" 
+              placeholder="Tự động chuyển đổi"
+              readonly
+              style="background-color: #f0f0f0; font-style: italic;"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="paymentDate">
+              Ngày Nộp <span class="required">*</span>
+            </label>
+            <input 
+              type="date" 
+              id="paymentDate" 
+              class="form-input" 
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="paymentTime">
+              Giờ Nộp <span class="required">*</span>
+            </label>
+            <input 
+              type="time" 
+              id="paymentTime" 
+              class="form-input" 
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="taxpayerName">
+              Tên Người Nộp Thuế
+            </label>
+            <input 
+              type="text" 
+              id="taxpayerName" 
+              class="form-input" 
+              placeholder="VD: HỘ KINH DOANH KHUẤT TIẾN DŨNG"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="taxpayerMST">
+              MST Người Nộp Thuế
+            </label>
+            <input 
+              type="text" 
+              id="taxpayerMST" 
+              class="form-input" 
+              placeholder="VD: 8131535469-001"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="bankName">
+              Tên Ngân Hàng
+            </label>
+            <input 
+              type="text" 
+              id="bankName" 
+              class="form-input" 
+              value="Ngân Hàng TMCP Quân Đội"
+              readonly
+              style="background-color: #f0f0f0; font-weight: 500;"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="dbhc">
+              Mã ĐBHC <span class="required">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="dbhc" 
+              class="form-input" 
+              placeholder="VD: 269HH"
+              required
+              maxlength="10"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="status">
+              Trạng Thái
+            </label>
+            <select id="status" class="form-input">
+              <option value="Thành công - NH/ TGTT đã trừ tiền thành công">Thành công - NH/ TGTT đã trừ tiền thành công</option>
+              <option value="Đang xử lý">Đang xử lý</option>
+              <option value="Thất bại">Thất bại</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 20px;">
+          <label class="form-label" for="notes">
+            Ghi Chú
+          </label>
+          <textarea 
+            id="notes" 
+            class="form-input form-textarea" 
+            placeholder="Thông tin bổ sung về chứng từ..."
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-container" id="progressContainer">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">Đang lưu thông tin... 0%</div>
+      </div>
+
+      <!-- Submit -->
+      <div class="submit-section">
+        <button type="submit" class="submit-btn" id="submitBtn" disabled>
+          <i class="fas fa-save"></i> Tạo Chứng Từ
+        </button>
+      </div>
+    </form>
+
+    <!-- Lịch sử chứng từ của khách hàng hiện tại -->
+    <div class="form-section" id="historySection">
+      <h2 class="section-title">
+        <i class="fas fa-history"></i>
+        Lịch Sử Chứng Từ Của Khách Hàng
+      </h2>
+      <div class="history-controls">
+        <button type="button" class="refresh-btn" onclick="loadHistory()">
+          <i class="fas fa-sync-alt"></i> Làm mới
+        </button>
+        <div class="search-box">
+          <input type="text" id="searchHistory" placeholder="Tìm kiếm theo mã..." onkeyup="filterHistory()">
+          <i class="fas fa-search"></i>
+        </div>
+      </div>
+      <div class="history-container" id="historyContainer">
+        <div class="loading-history">
+          <i class="fas fa-spinner fa-spin"></i>
+          Đang tải lịch sử...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+      authDomain: "etax-7fbf8.firebaseapp.com",
+      databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "etax-7fbf8",
+      storageBucket: "etax-7fbf8.appspot.com",
+      messagingSenderId: "1030026724634",
+      appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3",
+      measurementId: "G-YS5DLECJE6"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Global variables
+    let allHistory = {};
+    let filteredHistory = {};
+    let currentUserMst = null;
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get user MST from URL parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      currentUserMst = urlParams.get('user_mst');
+
+      const now = new Date();
+      const today = now.toISOString().split('T')[0];
+      const currentTime = now.toTimeString().split(' ')[0].slice(0, 5);
+      
+      document.getElementById('paymentDate').value = today;
+      document.getElementById('paymentTime').value = currentTime;
+      
+      // Generate initial MST
+      generateNewMST();
+      
+      // If we have user MST, pre-fill taxpayer MST field
+      if (currentUserMst) {
+        document.getElementById('taxpayerMST').value = currentUserMst;
+        updateHistoryTitle();
+      }
+      
+      validateForm();
+      loadHistory();
+    });
+
+    // Update history section title based on current user
+    function updateHistoryTitle() {
+      if (currentUserMst) {
+        document.querySelector('#historySection .section-title').innerHTML = `
+          <i class="fas fa-history"></i>
+          Lịch Sử Chứng Từ - MST: ${currentUserMst}
+        `;
+      }
+    }
+
+    // Generate unique MST code
+    function generateNewMST() {
+      const prefix = "1102025";
+      const timestamp = Date.now().toString();
+      const randomPart = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+      const combinedSuffix = (timestamp.slice(-4) + randomPart).slice(0, 10);
+      const fullMST = prefix + combinedSuffix;
+      
+      // Check if MST already exists in database
+      db.ref('pdf_documents/' + fullMST).once('value')
+        .then(snapshot => {
+          if (snapshot.exists()) {
+            generateNewMST();
+          } else {
+            document.getElementById('mst').value = fullMST;
+            validateForm();
+          }
+        })
+        .catch(error => {
+          console.log('Error checking MST uniqueness:', error);
+          document.getElementById('mst').value = fullMST;
+          validateForm();
+        });
+    }
+
+    // Calculate total amount from TNCN and GTGT
+    function calculateTotalAmount() {
+      const taxTNCN = parseFloat(document.getElementById('taxTNCN').value.replace(/,/g, '')) || 0;
+      const taxGTGT = parseFloat(document.getElementById('taxGTGT').value.replace(/,/g, '')) || 0;
+      const total = taxTNCN + taxGTGT;
+      
+      document.getElementById('amount').value = total.toLocaleString('vi-VN');
+      document.getElementById('amountInWords').value = convertToVietnameseWords(total);
+      
+      validateForm();
+    }
+
+    // Convert number to Vietnamese words
+    function convertToVietnameseWords(amount) {
+      if (amount === 0) return "Không đồng";
+      
+      const ones = ["", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"];
+      const tens = ["", "", "hai mươi", "ba mươi", "bốn mươi", "năm mươi", "sáu mươi", "bảy mươi", "tám mươi", "chín mươi"];
+      const hundreds = ["", "một trăm", "hai trăm", "ba trăm", "bốn trăm", "năm trăm", "sáu trăm", "bảy trăm", "tám trăm", "chín trăm"];
+      
+      function convertThreeDigits(num) {
+        let result = "";
+        const h = Math.floor(num / 100);
+        const t = Math.floor((num % 100) / 10);
+        const o = num % 10;
+        
+        if (h > 0) result += hundreds[h] + " ";
+        if (t > 1) {
+          result += tens[t] + " ";
+          if (o > 0) result += ones[o] + " ";
+        } else if (t === 1) {
+          result += "mười ";
+          if (o > 0) result += ones[o] + " ";
+        } else if (o > 0) {
+          result += ones[o] + " ";
+        }
+        
+        return result.trim();
+      }
+      
+      if (amount < 1000) {
+        return convertThreeDigits(amount) + " đồng";
+      } else if (amount < 1000000) {
+        const thousands = Math.floor(amount / 1000);
+        const remainder = amount % 1000;
+        let result = convertThreeDigits(thousands) + " nghìn";
+        if (remainder > 0) result += " " + convertThreeDigits(remainder);
+        return result + " đồng";
+      } else if (amount < 1000000000) {
+        const millions = Math.floor(amount / 1000000);
+        const remainder = amount % 1000000;
+        let result = convertThreeDigits(millions) + " triệu";
+        if (remainder > 0) {
+          if (remainder >= 1000) {
+            const thousands = Math.floor(remainder / 1000);
+            const lastThree = remainder % 1000;
+            result += " " + convertThreeDigits(thousands) + " nghìn";
+            if (lastThree > 0) result += " " + convertThreeDigits(lastThree);
+          } else {
+            result += " " + convertThreeDigits(remainder);
+          }
+        }
+        return result + " đồng";
+      }
+      
+      return amount.toLocaleString('vi-VN') + " đồng";
+    }
+
+    // Format currency input
+    function formatCurrency(input) {
+      let value = input.value.replace(/[^\d]/g, '');
+      if (value) {
+        value = parseInt(value).toLocaleString('vi-VN');
+        input.value = value;
+      }
+    }
+
+    // Validate form
+    function validateForm() {
+      const mst = document.getElementById('mst').value.trim();
+      const taxTNCN = document.getElementById('taxTNCN').value.trim();
+      const taxGTGT = document.getElementById('taxGTGT').value.trim();
+      const paymentDate = document.getElementById('paymentDate').value;
+      const paymentTime = document.getElementById('paymentTime').value;
+      const dbhc = document.getElementById('dbhc').value.trim();
+      
+      const isValid = mst && taxTNCN && taxGTGT && paymentDate && paymentTime && dbhc;
+      document.getElementById('submitBtn').disabled = !isValid;
+    }
+
+    // Add event listeners for form validation
+    document.getElementById('mst').addEventListener('input', validateForm);
+    document.getElementById('taxTNCN').addEventListener('input', validateForm);
+    document.getElementById('taxGTGT').addEventListener('input', validateForm);
+    document.getElementById('paymentDate').addEventListener('change', validateForm);
+    document.getElementById('paymentTime').addEventListener('change', validateForm);
+    document.getElementById('dbhc').addEventListener('input', validateForm);
+
+    // Upload PDF document
+    function uploadPDFDocument(event) {
+      event.preventDefault();
+      
+      console.log('Starting metadata save process...');
+      
+      const formData = {
+        mst: document.getElementById('mst').value.trim(),
+        taxTNCN: document.getElementById('taxTNCN').value.trim(),
+        taxGTGT: document.getElementById('taxGTGT').value.trim(),
+        amount: document.getElementById('amount').value.trim(),
+        amountInWords: document.getElementById('amountInWords').value.trim(),
+        date: document.getElementById('paymentDate').value,
+        time: document.getElementById('paymentTime').value,
+        taxpayerName: document.getElementById('taxpayerName').value.trim(),
+        taxpayerMST: document.getElementById('taxpayerMST').value.trim(),
+        bankName: document.getElementById('bankName').value.trim(),
+        dbhc: document.getElementById('dbhc').value.trim(),
+        status: document.getElementById('status').value,
+        notes: document.getElementById('notes').value.trim()
+      };
+      
+      console.log('Form data:', formData);
+      
+      // Validate required fields
+      if (!formData.mst || !formData.taxTNCN || !formData.taxGTGT || !formData.date || !formData.time || !formData.dbhc) {
+        alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+        return;
+      }
+      
+      // Show progress
+      showProgress();
+      
+      // Prepare document data for database
+      const documentData = {
+        ...formData,
+        uploadDate: new Date().toISOString(),
+        uploadedBy: 'admin',
+        type: 'payment_document'
+      };
+      
+      console.log('Saving to database:', documentData);
+      
+      // Save to Firebase Database
+      const dbRef = db.ref('pdf_documents/' + formData.mst);
+      
+      dbRef.set(documentData)
+        .then(() => {
+          console.log('Data saved to database successfully');
+          hideProgress();
+          alert('Tạo chứng từ thành công!\n\nCó thể xem tại: xem-chung-tu.html?mst=' + formData.mst);
+          resetForm();
+          loadHistory(); // Reload history after creating new document
+        })
+        .catch((error) => {
+          console.error('Database save error:', error);
+          hideProgress();
+          alert('Có lỗi khi lưu thông tin vào database: ' + error.message);
+        });
+    }
+
+    // Load history from Firebase - Filter by current user MST
+    function loadHistory() {
+      const container = document.getElementById('historyContainer');
+      container.innerHTML = '<div class="loading-history"><i class="fas fa-spinner fa-spin"></i> Đang tải lịch sử...</div>';
+
+      db.ref('pdf_documents').orderByChild('uploadDate').once('value')
+        .then(snapshot => {
+          allHistory = {};
+          if (snapshot.exists()) {
+            snapshot.forEach(child => {
+              const data = child.val();
+              // Filter by current user MST if available
+              if (!currentUserMst || data.taxpayerMST === currentUserMst) {
+                allHistory[child.key] = data;
+              }
+            });
+          }
+          
+          filteredHistory = { ...allHistory };
+          renderHistory();
+        })
+        .catch(error => {
+          console.error('Error loading history:', error);
+          container.innerHTML = `
+            <div class="empty-history">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p>Có lỗi khi tải lịch sử: ${error.message}</p>
+            </div>
+          `;
+        });
+    }
+
+    // Render history list
+    function renderHistory() {
+      const container = document.getElementById('historyContainer');
+      const historyKeys = Object.keys(filteredHistory);
+
+      if (historyKeys.length === 0) {
+        const emptyMessage = currentUserMst 
+          ? `Chưa có chứng từ nào cho MST: ${currentUserMst}`
+          : 'Chưa có chứng từ nào được tạo';
+        
+        container.innerHTML = `
+          <div class="empty-history">
+            <i class="fas fa-file-alt"></i>
+            <p>${emptyMessage}</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Sort by upload date (newest first)
+      const sortedHistory = historyKeys.sort((a, b) => {
+        const dateA = new Date(filteredHistory[a].uploadDate || 0);
+        const dateB = new Date(filteredHistory[b].uploadDate || 0);
+        return dateB - dateA;
+      });
+
+      const html = sortedHistory.map(mst => {
+        const item = filteredHistory[mst];
+        const uploadDate = new Date(item.uploadDate);
+        const createdDate = new Date(item.date);
+        const monthsAgo = Math.floor((new Date() - createdDate) / (1000 * 60 * 60 * 24 * 30));
+        
+        return `
+          <div class="history-item">
+            <div class="history-header">
+              <div class="history-code">${mst}</div>
+              <div class="history-date">
+                Tạo: ${formatDateTime(uploadDate)}
+                ${monthsAgo > 0 ? `(${monthsAgo} tháng trước)` : '(Tháng này)'}
+              </div>
+            </div>
+            
+            <div class="history-details">
+              <div class="detail-item">
+                <span class="detail-label">Người nộp thuế</span>
+                <span class="detail-value">${item.taxpayerName || 'N/A'}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">MST</span>
+                <span class="detail-value">${item.taxpayerMST || 'N/A'}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Số tiền</span>
+                <span class="detail-value">${formatAmount(item.amount)} VND</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Ngày nộp</span>
+                <span class="detail-value">${item.date} ${item.time}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Trạng thái</span>
+                <span class="detail-value">${item.status}</span>
+              </div>
+            </div>
+
+            <div class="history-actions">
+              <a href="xem-chung-tu.html?mst=${mst}" target="_blank" class="action-btn-small btn-view">
+                <i class="fas fa-eye"></i> Xem chứng từ
+              </a>
+              <button class="action-btn-small btn-copy" onclick="copyLink('${mst}')">
+                <i class="fas fa-copy"></i> Copy link
+              </button>
+              <button class="action-btn-small btn-delete" onclick="deleteHistoryItem('${mst}')">
+                <i class="fas fa-trash"></i> Xóa
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = html;
+    }
+
+    // Filter history based on search
+    function filterHistory() {
+      const searchTerm = document.getElementById('searchHistory').value.toLowerCase();
+      
+      if (!searchTerm) {
+        filteredHistory = { ...allHistory };
+      } else {
+        filteredHistory = {};
+        Object.keys(allHistory).forEach(mst => {
+          const item = allHistory[mst];
+          const matchesMst = mst.toLowerCase().includes(searchTerm);
+          const matchesName = (item.taxpayerName || '').toLowerCase().includes(searchTerm);
+          const matchesAmount = (item.amount || '').toString().includes(searchTerm);
+          
+          if (matchesMst || matchesName || matchesAmount) {
+            filteredHistory[mst] = item;
+          }
+        });
+      }
+      
+      renderHistory();
+    }
+
+    // Copy link to clipboard
+    function copyLink(mst) {
+      const link = `${window.location.origin}/xem-chung-tu.html?mst=${mst}`;
+      navigator.clipboard.writeText(link)
+        .then(() => {
+          alert('Đã copy link vào clipboard!');
+        })
+        .catch(() => {
+          const textarea = document.createElement('textarea');
+          textarea.value = link;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+          alert('Đã copy link vào clipboard!');
+        });
+    }
+
+    // Delete history item
+    function deleteHistoryItem(mst) {
+      if (confirm(`Bạn có chắc chắn muốn xóa chứng từ "${mst}"?\n\nThao tác này không thể hoàn tác.`)) {
+        db.ref('pdf_documents/' + mst).remove()
+          .then(() => {
+            alert('Đã xóa chứng từ thành công!');
+            loadHistory(); // Reload history
+          })
+          .catch(error => {
+            console.error('Error deleting document:', error);
+            alert('Có lỗi khi xóa chứng từ: ' + error.message);
+          });
+      }
+    }
+
+    // Utility functions
+    function formatDateTime(date) {
+      return date.toLocaleString('vi-VN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function formatAmount(amount) {
+      if (!amount) return '0';
+      return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    // Show progress
+    function showProgress() {
+      document.getElementById('progressContainer').style.display = 'block';
+      document.getElementById('submitBtn').disabled = true;
+      
+      // Simulate progress
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 20;
+        updateProgress(progress);
+        if (progress >= 100) {
+          clearInterval(interval);
+        }
+      }, 200);
+    }
+
+    // Update progress
+    function updateProgress(progress) {
+      document.getElementById('progressFill').style.width = progress + '%';
+      document.getElementById('progressText').textContent = `Đang lưu thông tin... ${Math.round(progress)}%`;
+    }
+
+    // Hide progress
+    function hideProgress() {
+      document.getElementById('progressContainer').style.display = 'none';
+      document.getElementById('submitBtn').disabled = false;
+    }
+
+    // Reset form
+    function resetForm() {
+      document.getElementById('uploadForm').reset();
+      
+      // Restore default values
+      const now = new Date();
+      document.getElementById('paymentDate').value = now.toISOString().split('T')[0];
+      document.getElementById('paymentTime').value = now.toTimeString().split(' ')[0].slice(0, 5);
+      document.getElementById('bankName').value = "Ngân Hàng TMCP Quân Đội";
+      
+      // Re-fill taxpayer MST if we have current user
+      if (currentUserMst) {
+        document.getElementById('taxpayerMST').value = currentUserMst;
+      }
+      
+      // Generate new MST
+      generateNewMST();
+      
+      validateForm();
+    }
+
+    // Go back function
+    function goBack() {
+      if (document.referrer && document.referrer.includes('admin-panel.html')) {
+        window.history.back();
+      } else {
+        window.location.href = 'admin-panel.html';
+      }
+    }
+  </script>
+</body>
+</html>

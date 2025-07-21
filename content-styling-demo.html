@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎨 DEMO CHỈNH SỬA STYLING - ETAX ADMIN</title>
+  
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  
+  <!-- Rich Text Editor -->
+  <script src="js/etax-rich-editor.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Tahoma', 'Microsoft Sans Serif', 'Arial', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .demo-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    .demo-header {
+      background: linear-gradient(135deg, #b71c1c 0%, #8e0000 100%);
+      color: white;
+      padding: 20px 30px;
+      text-align: center;
+    }
+
+    .demo-header h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .demo-header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .demo-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 700px;
+    }
+
+    .control-panel {
+      background: #f8f9fa;
+      padding: 30px;
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .preview-panel {
+      padding: 30px;
+      background: white;
+    }
+
+    .control-section {
+      margin-bottom: 25px;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .control-section h3 {
+      color: #b71c1c;
+      margin-bottom: 15px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .control-group {
+      margin-bottom: 15px;
+    }
+
+    .control-label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #333;
+      font-size: 13px;
+    }
+
+    .control-input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .control-input:focus {
+      outline: none;
+      border-color: #b71c1c;
+      box-shadow: 0 0 0 3px rgba(183, 28, 28, 0.1);
+    }
+
+    .color-palette {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .color-option {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: 2px solid #e0e0e0;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .color-option:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .color-option.active {
+      border-color: #333;
+      transform: scale(1.1);
+    }
+
+    .size-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .size-btn {
+      padding: 8px;
+      background: #e0e0e0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+
+    .size-btn:hover {
+      background: #b71c1c;
+      color: white;
+    }
+
+    .size-btn.active {
+      background: #b71c1c;
+      color: white;
+    }
+
+    .apply-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #b71c1c 0%, #dc3545 100%);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 15px;
+    }
+
+    .apply-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(183, 28, 28, 0.3);
+    }
+
+    .preview-section {
+      margin-bottom: 30px;
+    }
+
+    .preview-section h3 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .preview-frame {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      border: 2px dashed #e0e0e0;
+      min-height: 200px;
+      position: relative;
+    }
+
+    .user-content {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .user-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .user-info {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .etax-card-preview {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      margin: 15px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border: 1px solid #f0f0f0;
+    }
+
+    .mobile-preview {
+      max-width: 375px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .mobile-header {
+      background: linear-gradient(135deg, #b71c1c 0%, #8e0000 100%);
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .reset-btn {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+
+    .spacing-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .demo-layout {
+        grid-template-columns: 1fr;
+      }
+      
+      .control-panel {
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <div class="demo-header">
+      <h1>🎨 DEMO CHỈNH SỬA STYLING NỘI DUNG</h1>
+      <p>Quản lý giao diện người dùng eTax Mobile từ Admin Panel</p>
+    </div>
+
+    <div class="demo-layout">
+      <!-- Control Panel -->
+      <div class="control-panel">
+        <div class="control-section">
+          <h3>🎨 Màu sắc chữ</h3>
+          <label class="control-label">Chọn màu cho tên người dùng:</label>
+          <div class="color-palette">
+            <div class="color-option" style="background: #333;" onclick="changeColor('#333')" data-color="#333">A</div>
+            <div class="color-option" style="background: #b71c1c;" onclick="changeColor('#b71c1c')" data-color="#b71c1c">A</div>
+            <div class="color-option" style="background: #ffc107;" onclick="changeColor('#ffc107')" data-color="#ffc107">A</div>
+            <div class="color-option" style="background: #28a745;" onclick="changeColor('#28a745')" data-color="#28a745">A</div>
+            <div class="color-option" style="background: #17a2b8;" onclick="changeColor('#17a2b8')" data-color="#17a2b8">A</div>
+            <div class="color-option" style="background: #6f42c1;" onclick="changeColor('#6f42c1')" data-color="#6f42c1">A</div>
+            <div class="color-option" style="background: #fd7e14;" onclick="changeColor('#fd7e14')" data-color="#fd7e14">A</div>
+            <div class="color-option" style="background: #e83e8c;" onclick="changeColor('#e83e8c')" data-color="#e83e8c">A</div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Hoặc nhập mã màu tùy chỉnh:</label>
+            <input type="color" class="control-input" id="customColor" onchange="changeColor(this.value)">
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h3>📏 Kích thước chữ</h3>
+          <div class="size-buttons">
+            <button class="size-btn" onclick="changeSize('14px')" data-size="14px">Nhỏ</button>
+            <button class="size-btn active" onclick="changeSize('18px')" data-size="18px">Vừa</button>
+            <button class="size-btn" onclick="changeSize('24px')" data-size="24px">Lớn</button>
+            <button class="size-btn" onclick="changeSize('32px')" data-size="32px">Rất lớn</button>
+            <button class="size-btn" onclick="changeSize('40px')" data-size="40px">Khổng lồ</button>
+            <button class="size-btn" onclick="changeSize('48px')" data-size="48px">Siêu to</button>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Kích thước tùy chỉnh (px):</label>
+            <input type="range" class="control-input" min="12" max="60" value="18" oninput="changeSize(this.value + 'px')">
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h3>📐 Khoảng cách</h3>
+          <div class="spacing-controls">
+            <div class="control-group">
+              <label class="control-label">Margin trên/dưới:</label>
+              <input type="range" class="control-input" min="0" max="50" value="10" id="marginY" oninput="updateSpacing()">
+            </div>
+            <div class="control-group">
+              <label class="control-label">Margin trái/phải:</label>
+              <input type="range" class="control-input" min="0" max="50" value="20" id="marginX" oninput="updateSpacing()">
+            </div>
+            <div class="control-group">
+              <label class="control-label">Padding nội dung:</label>
+              <input type="range" class="control-input" min="0" max="40" value="10" id="padding" oninput="updateSpacing()">
+            </div>
+            <div class="control-group">
+              <label class="control-label">Khoảng cách dòng:</label>
+              <input type="range" class="control-input" min="1" max="3" step="0.1" value="1.2" id="lineHeight" oninput="updateSpacing()">
+            </div>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h3>✨ Hiệu ứng</h3>
+          <div class="control-group">
+            <label class="control-label">Font weight:</label>
+            <select class="control-input" onchange="changeFontWeight(this.value)">
+              <option value="400">Bình thường</option>
+              <option value="600">Semi-bold</option>
+              <option value="700" selected>Đậm</option>
+              <option value="800">Rất đậm</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Text decoration:</label>
+            <select class="control-input" onchange="changeTextDecoration(this.value)">
+              <option value="none" selected>Không</option>
+              <option value="underline">Gạch dưới</option>
+              <option value="overline">Gạch trên</option>
+              <option value="line-through">Gạch ngang</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Text shadow:</label>
+            <select class="control-input" onchange="changeTextShadow(this.value)">
+              <option value="none" selected>Không có bóng</option>
+              <option value="2px 2px 4px rgba(0,0,0,0.3)">Bóng nhẹ</option>
+              <option value="3px 3px 6px rgba(0,0,0,0.5)">Bóng vừa</option>
+              <option value="5px 5px 10px rgba(0,0,0,0.7)">Bóng đậm</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="apply-btn" onclick="saveToFirebase()">
+          💾 Lưu thay đổi vào hệ thống
+        </button>
+        <button class="reset-btn" onclick="resetStyles()">
+          🔄 Reset về mặc định
+        </button>
+      </div>
+
+      <!-- Preview Panel -->
+      <div class="preview-panel">
+        <div class="preview-section">
+          <h3>👁️ Xem trước trên Mobile</h3>
+          <div class="mobile-preview">
+            <div class="mobile-header">
+              🏛️ Thông tin nghĩa vụ thuế
+            </div>
+            <div class="user-content">
+              <div class="user-name" id="previewUserName">
+                NGUYỄN TRUNG NGHĨA
+              </div>
+              <div class="user-info">
+                MST: 001095026798
+              </div>
+              <div class="etax-card-preview">
+                <h4 style="color: #b71c1c; margin-bottom: 10px;">📋 Thông tin chi tiết</h4>
+                <p style="margin: 5px 0; font-size: 13px;"><strong>Loại nghĩa vụ:</strong> Thu từ đất tại đô thị</p>
+                <p style="margin: 5px 0; font-size: 13px;"><strong>Số tiền:</strong> 519,042 VND</p>
+                <p style="margin: 5px 0; font-size: 13px;"><strong>Ghi chú xử lý:</strong> Nộp thuế tra soát</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-section">
+          <h3>💻 Xem trước trên Desktop/Tablet</h3>
+          <div class="preview-frame">
+            <div class="etax-card-preview">
+              <div style="text-align: center; padding: 20px;">
+                <div class="user-name" id="previewUserNameDesktop">
+                  NGUYỄN TRUNG NGHĨA
+                </div>
+                <div class="user-info">
+                  Mã số thuế: 001095026798 | Phường Vĩnh Tuy - Thủ đô số 3 Thành phố Hà Nội
+                </div>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                  <h4 style="color: #b71c1c; margin-bottom: 10px;">📊 Tình hình thuế</h4>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left;">
+                    <div>
+                      <strong>Các khoản còn phải nộp:</strong><br>
+                      1. Các khoản thuế, tiền phạt<br>
+                      2. Các khoản tiền chậm nộp<br>
+                      3. Các khoản thu khác thuộc NSNN
+                    </div>
+                    <div>
+                      <strong>Khoản thuế đang chờ xử lý:</strong><br>
+                      Nộp thuế tra soát<br>
+                      <span style="color: #b71c1c; font-weight: bold;">519,042 VND</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-section">
+          <h3>📱 Responsive Preview</h3>
+          <div id="responsivePreview" style="background: #f8f9fa; padding: 20px; border-radius: 12px; text-align: center;">
+            <div class="user-name" id="previewUserNameResponsive">
+              NGUYỄN TRUNG NGHĨA
+            </div>
+            <p style="color: #666; margin-top: 10px;">
+              Content sẽ tự động adapt theo kích thước màn hình
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+      authDomain: "etax-7fbf8.firebaseapp.com",
+      databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "etax-7fbf8",
+      storageBucket: "etax-7fbf8.appspot.com",
+      messagingSenderId: "1030026724634",
+      appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3",
+      measurementId: "G-YS5DLECJE6"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let currentStyles = {
+      color: '#333',
+      fontSize: '18px',
+      marginY: '10px',
+      marginX: '20px', 
+      padding: '10px',
+      lineHeight: '1.2',
+      fontWeight: '700',
+      textDecoration: 'none',
+      textShadow: 'none'
+    };
+
+    // 🎨 Change color
+    function changeColor(color) {
+      currentStyles.color = color;
+      updatePreview();
+      
+      // Update active color
+      document.querySelectorAll('.color-option').forEach(el => el.classList.remove('active'));
+      document.querySelector(`[data-color="${color}"]`)?.classList.add('active');
+    }
+
+    // 📏 Change size
+    function changeSize(size) {
+      currentStyles.fontSize = size;
+      updatePreview();
+      
+      // Update active size
+      document.querySelectorAll('.size-btn').forEach(el => el.classList.remove('active'));
+      document.querySelector(`[data-size="${size}"]`)?.classList.add('active');
+    }
+
+    // 📐 Update spacing
+    function updateSpacing() {
+      currentStyles.marginY = document.getElementById('marginY').value + 'px';
+      currentStyles.marginX = document.getElementById('marginX').value + 'px';
+      currentStyles.padding = document.getElementById('padding').value + 'px';
+      currentStyles.lineHeight = document.getElementById('lineHeight').value;
+      updatePreview();
+    }
+
+    // ✨ Change font weight
+    function changeFontWeight(weight) {
+      currentStyles.fontWeight = weight;
+      updatePreview();
+    }
+
+    // ✨ Change text decoration
+    function changeTextDecoration(decoration) {
+      currentStyles.textDecoration = decoration;
+      updatePreview();
+    }
+
+    // ✨ Change text shadow
+    function changeTextShadow(shadow) {
+      currentStyles.textShadow = shadow;
+      updatePreview();
+    }
+
+    // 👁️ Update preview
+    function updatePreview() {
+      const style = `
+        color: ${currentStyles.color};
+        font-size: ${currentStyles.fontSize};
+        margin: ${currentStyles.marginY} ${currentStyles.marginX};
+        padding: ${currentStyles.padding};
+        line-height: ${currentStyles.lineHeight};
+        font-weight: ${currentStyles.fontWeight};
+        text-decoration: ${currentStyles.textDecoration};
+        text-shadow: ${currentStyles.textShadow};
+      `;
+      
+      document.getElementById('previewUserName').style.cssText = style;
+      document.getElementById('previewUserNameDesktop').style.cssText = style;
+      document.getElementById('previewUserNameResponsive').style.cssText = style;
+    }
+
+    // 💾 Save to Firebase
+    async function saveToFirebase() {
+      try {
+        const styleData = {
+          userNameStyles: currentStyles,
+          updatedAt: Date.now(),
+          updatedBy: 'admin@etax.vn'
+        };
+        
+        await db.ref('contentStyles/userInfo').set(styleData);
+        
+        alert('✅ Đã lưu styling thành công!\n\nThay đổi sẽ được áp dụng cho tất cả người dùng trên hệ thống eTax Mobile.');
+        
+      } catch (error) {
+        console.error('Save error:', error);
+        alert('❌ Có lỗi khi lưu. Vui lòng thử lại!');
+      }
+    }
+
+    // 🔄 Reset styles
+    function resetStyles() {
+      currentStyles = {
+        color: '#333',
+        fontSize: '18px',
+        marginY: '10px',
+        marginX: '20px',
+        padding: '10px',
+        lineHeight: '1.2',
+        fontWeight: '700',
+        textDecoration: 'none',
+        textShadow: 'none'
+      };
+      
+      // Reset controls
+      document.getElementById('marginY').value = 10;
+      document.getElementById('marginX').value = 20;
+      document.getElementById('padding').value = 10;
+      document.getElementById('lineHeight').value = 1.2;
+      
+      // Reset active states
+      document.querySelectorAll('.color-option').forEach(el => el.classList.remove('active'));
+      document.querySelector('[data-color="#333"]').classList.add('active');
+      
+      document.querySelectorAll('.size-btn').forEach(el => el.classList.remove('active'));
+      document.querySelector('[data-size="18px"]').classList.add('active');
+      
+      updatePreview();
+    }
+
+    // 🚀 Initialize
+    window.onload = function() {
+      updatePreview();
+      console.log('🎨 Content Styling Demo loaded');
+    };
+  </script>
+</body>
+</html>

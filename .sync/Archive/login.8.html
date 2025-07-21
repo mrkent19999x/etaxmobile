@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<!-- PWA Meta Tags -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="eTax Mobile">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#d62828">
+
+<!-- PWA Icons -->
+<link rel="apple-touch-icon" href="assets/logo.png">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="manifest" href="manifest.json">
+    <style>
+	
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            color: white;
+            min-height: 100vh;
+            background-position: center center;
+            overflow-y: auto;
+            animation: fadeIn 1.2s ease-in;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        * {
+            touch-action: manipulation;
+            -webkit-overflow-scrolling: touch;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            min-height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+            animation: fadeIn 1s ease-in-out;
+        }
+        .logo-wrapper { text-align: center; margin-top: 32px; margin-bottom: 12px; }
+        .logo { width: 90px; margin-bottom: 8px; }
+        .title { font-size: 20px; font-weight: 500; }
+        .login-form { display: flex; flex-direction: column; gap: 14px; align-items: stretch; animation: fadeIn 1.5s ease-in-out; }
+        .form-group { display: flex; flex-direction: column; align-items: flex-start; position: relative; }
+        .form-group label { font-size: 13px; margin-bottom: 4px; color: #fff; }
+        .form-group input {
+            width: 100%; padding: 12px 12px 12px 44px; border: none; border-radius: 8px;
+            font-size: 15px; background-color: transparent; border-bottom: 1px solid white;
+            color: white; outline: none;
+        }
+        .form-group#tax-id-group::before {
+            content: url('assets/21dc87d0-adfd-4596-84d1-7012dd2c3e79.png');
+            position: absolute; left: 10px; top: 36px;
+        }
+        .form-group.password-group::before {
+            content: url('assets/8ff693cf-2a7e-4c27-8a56-501e094951ed.png');
+            position: absolute; left: 10px; top: 36px;
+        }
+        .links { display: flex; justify-content: space-between; font-size: 13px; color: yellow; margin: -5px 0 10px; }
+        .links a { color: yellow; text-decoration: none; }
+        .btn-login {
+            background-color: #e60000; color: #fff; padding: 14px; font-size: 16px;
+            border: none; border-radius: 25px; font-weight: bold; position: relative;
+        }
+        .btn-login::after {
+            content: url('assets/face-id-icon.png');
+            position: absolute; right: -42px; top: 50%; transform: translateY(-50%); height: 24px;
+        }
+        .btn-id { display: flex; align-items: center; justify-content: space-between; background: #fff;
+            border-radius: 12px; padding: 12px 16px; color: #000; gap: 8px; margin-top: 10px;
+        }
+        .text-box { display: flex; flex-direction: column; flex-grow: 1; }
+        .phone-frame {
+            width: 400px; height: 840px; background-image: url('assets/bglogin.png');
+            border-radius: 30px; background-size: contain; background-repeat: no-repeat;
+            background-position: center center; overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            display: flex; flex-direction: column; background-color: #ffffff;
+        }
+        .line1, .line2 { font-size: 14px; text-align: center; }
+        .line2 { font-weight: bold; margin-top: 2px; }
+        .icon-wrap img { height: 36px; object-fit: contain; }
+        .register { text-align: center; font-size: 13px; }
+        .register a { color: yellow; text-decoration: none; }
+        .bottom-nav { display: flex; justify-content: space-around; font-size: 12px; padding: 10px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .bottom-nav div { text-align: center; }
+        .bottom-nav img { height: 32px; margin-bottom: 4px; }
+        .input-icon-wrap { position: relative; width: 100%; display: flex; align-items: center; }
+        .input-icon-wrap i.fa-user-large, .input-icon-wrap i.fa-lock {
+            position: absolute; left: 14px; color: #bdbdbd; font-size: 20px; top: 50%; transform: translateY(-50%); z-index: 2;
+        }
+        .input-icon-wrap i.fa-eye, .input-icon-wrap i.fa-eye-slash {
+            position: absolute; right: 14px; color: #bdbdbd; font-size: 20px; top: 50%; transform: translateY(-50%); z-index: 2; cursor: pointer;
+        }
+        .input-icon-wrap input { padding-left: 44px; padding-right: 44px; }
+		html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh;
+  min-width: 100vw;
+  width: 100vw;
+  background: #000 !important; /* Giữ nền đen phủ kín toàn màn hình */
+  box-sizing: border-box;
+  overflow-x: hidden !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/* Đảm bảo không lặp lại viền trắng ở mọi kích thước */
+body {
+  padding: 0 !important;
+  min-height: 100vh;
+  min-width: 100vw;
+  width: 100vw;
+  box-sizing: border-box;
+  background: #000 !important;
+}
+
+/* Căn giữa khung app, bo góc chỉ khi PC, mobile thì full */
+.phone-frame {
+  width: 100vw !important;
+  background-image: url('assets/bglogin.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  border-radius: 0 !important; /* Không bo góc trên mobile */
+  margin: 0 auto !important;
+  box-shadow: none !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+@media (min-width: 601px) {
+  /* Bo góc, bóng khi desktop cho giống app preview */
+  .phone-frame {
+    border-radius: 30px !important;
+    margin: 32px auto !important;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3) !important;
+    width: 400px !important;
+  }
+}
+
+/* Sửa lại nút Đăng nhập không bị kéo dài 100vw */
+.btn-login {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+  display: block;
+}
+
+/* Các input, block khác chỉ theo chiều rộng của app */
+.login-form, .container {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+    </style>
+    <!-- Firebase CDN -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script>
+        // Đảm bảo đã xác thực token thiết bị
+        if (localStorage.getItem('etax_token_verified') !== 'true') {
+            window.location.href = 'token-login.html';
+        }
+    </script>
+</head>
+<body>
+    <div class="phone-frame p-3">
+        <div class="blur-overlay"></div>
+        <div class="logo-wrapper">
+            <img src="assets/logo.png" alt="Logo Thuế" class="logo" />
+            <h1 class="title">eTax Mobile</h1>
+        </div>
+        <div style="margin: 42px;"></div>
+        <form class="login-form" onsubmit="return false;">
+            <div class="form-group" id="tax-id-group">
+                <label for="tax-id" style="padding-left: 44px;">Mã số thuế</label>
+                <div class="input-icon-wrap">
+                    <i class="fa-solid fa-user-large"></i>
+                    <input type="text" id="tax-id" placeholder="Mã số thuế" />
+                </div>
+            </div>
+            <div class="form-group password-group">
+                <label for="password" style="padding-left: 44px;">Mật khẩu</label>
+                <div class="input-icon-wrap">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" placeholder="Mật khẩu" />
+                    <i class="fa-solid fa-eye" id="togglePassword" onclick="togglePassword()"></i>
+                </div>
+            </div>
+            <div class="links">
+                <a href="#">Quên tài khoản (mã số thuế)?</a>
+                <a href="#">Quên mật khẩu?</a>
+            </div>
+            <button type="button" class="btn-login" id="loginBtn" onclick="login()">Đăng nhập</button>
+            <div style="margin: 10px;"></div>
+            <div class="btn-id">
+                <div class="text-box">
+                    <div class="line1">Đăng nhập bằng tài khoản</div>
+                    <div class="line2">Định danh điện tử</div>
+                </div>
+                <div class="icon-wrap">
+                    <img src="assets/vnid.png" alt="VNeID" />
+                </div>
+            </div>
+        </form>
+        <p class="register">Bạn chưa có tài khoản? <a href="#">Đăng ký ngay</a></p>
+        <div style="margin: 40px;"></div>
+        <div class="bottom-nav">
+            <div class="flex flex-column items-center"><img src="assets/icon-qr.png" /><span>QR tem</span></div>
+            <div class="flex flex-column items-center"><img src="assets/tienich.png" /><span>Tiện ích</span></div>
+            <div class="flex flex-column items-center"><img src="assets/hotro.png" /><span>Hỗ trợ</span></div>
+            <div class="flex flex-column items-center"><img src="assets/chiase.png" /><span>Chia sẻ</span></div>
+        </div>
+    </div>
+    
+    <script>
+        // Khởi tạo Firebase chuẩn
+        const firebaseConfig = {
+            apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+            authDomain: "etax-7fbf8.firebaseapp.com",
+            databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "etax-7fbf8"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        function login() {
+    const userId = document.getElementById("tax-id").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!userId || !password) {
+        alert("Vui lòng nhập đầy đủ Mã số thuế và Mật khẩu");
+        return;
+    }
+
+    firebase.database().ref("users/" + userId).once("value")
+      .then(snapshot => {
+        if (snapshot.exists()) {
+            const userData = snapshot.val();
+            if (userData.password === password) {
+                // Lưu toàn bộ thông tin user về localStorage
+                localStorage.setItem("etax_logged_in_user", userId);
+                // Sau khi lấy userData từ Firebase
+localStorage.setItem("etax_user_info", JSON.stringify({
+  mst: userId,
+  name: userData.name,
+  address: userData.address || "",
+  taxoffice: userData.taxoffice || "",
+  date: userData.date,
+  password: userData.password,
+  role: userData.role,
+  token: userData.token,
+  duration: userData.duration
+}));
+
+                setTimeout(() => {
+    window.location.href = "index.html";
+}, 1500);
+            } else {
+                alert("Sai mật khẩu. Vui lòng thử lại.");
+            }
+        } else {
+            alert("Không tìm thấy người dùng.");
+        }
+      }).catch(error => {
+        console.error("Lỗi Firebase:", error);
+        alert("Đăng nhập thất bại. Vui lòng thử lại sau.");
+      });
+}
+
+
+        function togglePassword() {
+            const passwordInput = document.getElementById("password");
+            const eyeIcon = document.getElementById("togglePassword");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.classList.remove("fa-eye");
+                eyeIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.classList.remove("fa-eye-slash");
+                eyeIcon.classList.add("fa-eye");
+            }
+        }
+    </script>
+
+</body>
+</html>

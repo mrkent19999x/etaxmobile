@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <!-- PWA Meta Tags -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <!-- 🔒 KHÓA ORIENTATION CHỈ CHO PHÉP DỌC -->
+  <meta name="screen-orientation" content="portrait">
+  <meta name="mobile-web-app-orientations" content="portrait">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="eTax Mobile">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#d62828">
+
+  <!-- PWA Icons -->
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <!-- 🔧 FIX: Conditional manifest để tránh CORS lỗi với file:// -->
+  <script>
+    if (window.location.protocol !== 'file:') {
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = 'manifest.json';
+      document.head.appendChild(link);
+    }
+  </script>
+  
+  <title>eTax Mobile - Home</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/home.css" />
+  
+  <!-- Thư viện Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <style>
+    /* PWA Mobile Lock Body */
+    /* Reset và chuẩn hóa toàn bộ giao diện */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
+  touch-action: manipulation;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh;
+  min-width: 100vw;
+  width: 100vw;
+  height: 100vh;
+  background: #000 !important;
+  box-sizing: border-box;
+  overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  /* 🔒 KHÓA XOAY NGANG */
+  transform-origin: center center;
+  /* 🔒 PWA Safe Area Support */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+body {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+  max-width: 414px;
+  margin: 0 auto;
+  color: #000;
+  /* 🔒 KHÓA SCROLL HOÀN TOÀN */
+  overflow: hidden;
+  touch-action: manipulation;
+  /* ✅ Bỏ chức năng vuốt back */
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.phone-frame {
+  width: 100vw;
+  max-width: 420px;
+  min-height: 100vh;
+  background-image: url('assets/nen.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  border-radius: 0;
+  margin: 0 auto;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+@media (min-width: 601px) {
+  .phone-frame {
+    border-radius: 30px;
+    margin: 32px auto;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    width: 400px;
+  }
+}
+
+/* ✅ TOPBAR - CLONE 100% APP GỐC */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #d62828; /* 🔴 Màu đỏ giống app gốc */
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px; /* 🔧 Tăng chiều cao để giống app gốc */
+  /* 🔒 PWA Safe Area */
+  padding-top: max(12px, env(safe-area-inset-top));
+}
+
+/* VỊ TRÍ A: Menu burger bên trái - đã đúng */
+.left-menu {
+  font-size: 24px;
+  color: white;
+  padding-left: 10px;
+  cursor: pointer;
+}
+
+/* VỊ TRÍ GIỮA: Logo + text - chỉnh thẳng hàng với A & B */
+.center-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.center-logo img {
+  height: 45px;
+  margin-bottom: 6px;
+}
+
+.center-logo span {
+  font-weight: bold;
+  font-size: 17px;
+  letter-spacing: 0.5px;
+}
+
+/* VỊ TRÍ B: QR + Bell icons bên phải - chỉnh thẳng hàng */
+.right-icon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-right: 10px;
+}
+
+.right-icon img {
+  height: 24px;
+}
+
+.user-info {
+  background-image: url('assets/backgrounftd.png');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  padding: 18px;
+  margin: 6px 16px; /* 🔧 Giảm margin top/bottom từ 12px → 6px */
+  border-radius: 15px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.avatar {
+  height: 52px;
+  width: 52px;
+  border-radius: 50%;
+  margin-right: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+
+.userinfo-text .mst {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.userinfo-text .username {
+  font-size: 18px;
+  font-weight: bold;
+  color: #a40000;
+  margin-top: 2px;
+}
+
+.quick-actions,
+.group-services {
+  margin: 4px 16px; /* 🔧 Giảm từ 8px → 4px để dồn gần nhau */
+}
+
+h3 {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px; /* 🔧 Giảm từ 12px → 8px */
+  color: white;
+}
+
+.scroll-row {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+}
+
+.circle-item {
+  background-color: #a40000;
+  color: white;
+  padding: 12px;
+  border-radius: 50%;
+  min-width: 80px;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  text-align: center;
+  word-break: break-word;
+  white-space: normal;
+}
+
+.grid-box {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.grid-item {
+  background-color: white;
+  border-radius: 12px;
+  padding: 14px 8px;
+  text-align: center;
+  font-size: 12px;
+  color: #000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: transform 0.2s ease;
+  cursor: pointer;
+  min-height: 85px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid-item:hover {
+  transform: scale(1.02);
+}
+
+.grid-item img {
+  height: 35px;
+  margin-bottom: 6px;
+  object-fit: contain;
+}
+
+/* Slide menu - Clone app gốc 870x1883 */
+.slide-menu {
+  position: fixed;
+  top: 0;
+  left: -320px;
+  width: 320px; /* 🔧 Tăng width giống app gốc */
+  height: 100vh;
+  background: white;
+  z-index: 9999;
+  transition: none; /* 🔧 Bỏ transition để mượt hơn */
+  overflow-y: hidden; /* 🔧 Ẩn scroll bar chính */
+  box-shadow: 2px 0 12px rgba(0,0,0,0.3); /* 🔧 Shadow đậm hơn */
+}
+
+.slide-menu.open {
+  left: 0;
+}
+
+.slide-header {
+  background-color: #b71c1c; /* 🔴 Nền đỏ sẫm full width thay vì ảnh */
+  color: white;
+  text-align: center;
+  padding: 20px 0; /* 🔧 Full width padding */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%; /* 🔧 Full width */
+  /* 🔒 PWA Safe Area */
+  padding-top: max(20px, env(safe-area-inset-top));
+}
+
+.slide-header .logo {
+  width: 160px; /* 🔧 Giảm kích thước để gọn hơn */
+  height: 160px;
+  margin-bottom: 12px;
+  object-fit: contain;
+}
+
+/* 🔧 Thêm greeting box full width */
+.slide-greeting {
+  background-color: #b71c1c;
+  color: white;
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 18px;
+  font-weight: bold;
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+  width: 100%;
+}
+
+.slide-links {
+  display: flex;
+  flex-direction: column;
+  padding: 0; /* 🔧 Bỏ padding để scroll items tự handle */
+  height: calc(100vh - 280px); /* 🔧 Chiều cao chính xác */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.slide-links a {
+  text-decoration: none;
+  color: #333;
+  padding: 16px 20px; /* 🔧 Padding rộng hơn như app gốc */
+  font-size: 16px; /* 🔧 Font size lớn hơn */
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0; /* 🔧 Thêm border giữa items */
+  transition: none; /* 🔧 Bỏ transition */
+}
+
+.slide-links a:hover {
+  background-color: #f5f5f5; /* 🔧 Hover effect nhẹ */
+}
+
+.slide-links a img {
+  width: 32px; /* 🔧 Icon size chuẩn */
+  height: 32px;
+  margin-right: 16px; /* 🔧 Spacing giữa icon và text */
+  object-fit: contain;
+}
+
+.slide-links a:last-child {
+  color: #d62828 !important; /* 🔧 Màu đỏ cho đăng xuất */
+  font-weight: bold;
+  border-top: 2px solid #f0f0f0;
+  margin-top: 8px;
+}
+
+/* 🔧 Scroll optimization cho slide-links */
+.slide-links::-webkit-scrollbar {
+  display: none;
+}
+
+.slide-links {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 🔧 Menu overlay backdrop */
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  display: none;
+}
+
+.menu-overlay.show {
+  display: block;
+}
+
+/* Nút đăng nhập */
+.btn-login {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+  display: block;
+}
+.content-scrollable {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* dàn đều 3 section */
+  padding: 10px;
+  gap: 10px; /* khoảng cách giữa các section */
+  overflow-y: auto;
+  /* 🔒 PWA Scroll Performance */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.content-scrollable::-webkit-scrollbar {
+  display: none;
+}
+
+/* ✅ PERFORMANCE OPTIMIZATION - Bỏ tất cả animation */
+*, *::before, *::after {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  transform: none !important;
+}
+
+/* ✅ PWA Native App Appearance */
+@supports (-webkit-touch-callout: none) {
+  .phone-frame {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+.login-form, .container {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+  </style>
+  
+  <script>
+    // 🔧 FIX: Disable service worker để tránh conflict với app.js cached
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          registration.unregister().then(() => {
+            console.log('🔄 Service worker unregistered successfully');
+          });
+        }
+      });
+    }
+  </script>
+</head>
+
+<body>
+  <div class="phone-frame">
+    <div id="slideMenu" class="slide-menu">
+      <div class="slide-header" style="height: 240px; position: relative;">
+        <img src="assets/logo.png" class="logo" style="width: 160px; height: 160px; margin-bottom: 12px;" />
+      </div>
+      <!-- 🔧 Full width greeting box with red background -->
+      <div class="slide-greeting">
+        Xin chào <span id="slide-username">Nguyễn Trung Nghĩa</span>
+      </div>
+      <div class="slide-links" style="padding: 0; overflow-y: auto; max-height: calc(100vh - 320px); /* 🔧 Điều chỉnh cho greeting box mới */">
+        <a href="#" onclick="location.reload()" style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0;">
+          <img src="assets/trangchu.png" width="32" height="32" style="object-fit: cover; margin-right: 16px;"> Trang chủ
+        </a>
+        <a href="dangky.html" style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0;">
+          <img src="assets/icon5.png" width="32" height="32" style="object-fit: cover; margin-right: 16px;"> Khai thuế
+        </a>
+        <a href="dangky.html" style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0;">
+          <img src="assets/icon5.png" width="32" height="32" style="object-fit: cover; margin-right: 16px;"> Đăng ký thuế
+        </a>
+        <a href="ho-tro-qtt.html" style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0;">
+          <img src="assets/icon6.png" width="32" height="32" style="object-fit: cover; margin-right: 16px;"> Hỗ trợ quyết toán thuế TNCN
+        </a>
+        <a href="hoso.html" style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0;">
+          <img src="assets/icon7.png" width="32" height="32" style="object-fit: cover; margin-right: 16px;"> Tra cứu hồ sơ khai thuế
+        </a>
+        <a href="nopthue.html" style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0;">
+          <img src="assets/icon8.png" width="32" height="32" style="object-fit: cover; margin-right: 16px;"> Nhóm chức năng nộp thuế
+        </a>
+        <a href="nghiavu.html" style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0;">
+          <img src="assets/icon9.png" width="32" height="32" style="object-fit: cover; margin-right: 16px;"> Tra cứu nghĩa vụ thuế
+        </a>
+        <a href="thongbao.html" style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0;">
+          <img src="assets/icon10.png" width="32" height="32" style="object-fit: cover; margin-right: 16px;"> Tra cứu thông báo
+        </a>
+        <a href="tienich.html" style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0;">
+          <img src="assets/icon11.png" width="32" height="32" style="object-fit: cover; margin-right: 16px;"> Tiện ích
+        </a>
+        <a href="hotro.html" style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0;">
+          <img src="assets/icon12.png" width="32" height="32" style="object-fit: cover; margin-right: 16px;"> Hỗ trợ
+        </a>
+        <a href="thietlap.html" style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0;">
+          <img src="assets/icon13.png" width="32" height="32" style="object-fit: cover; margin-right: 16px;"> Thiết lập cá nhân
+        </a>
+        <a href="#" style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0;">
+          <img src="assets/icon-doimk.png" width="32" height="32" style="object-fit: cover; margin-right: 16px;"> Đổi mật khẩu đăng nhập
+        </a>
+        <a href="#" style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0;">
+          <img src="assets/faceid.png" width="32" height="32" style="object-fit: cover; margin-right: 16px;"> Đăng nhập bằng vân tay / FaceID
+        </a>
+        <a href="#" onclick="logout()" style="padding: 16px 20px; color: #d62828; font-weight: bold; border-top: 2px solid #f0f0f0; margin-top: 8px;">
+          <img src="assets/icon-doimk.png" width="32" height="32" style="object-fit: cover; margin-right: 16px; filter: hue-rotate(300deg);"> Đăng xuất
+        </a>
+      </div>
+    </div>
+
+    <div id="menuOverlay" class="menu-overlay" onclick="closeMenu()"></div>
+
+    <!-- ✅ HEADER - Chỉ sửa layout để thẳng hàng A, center, B -->
+    <header class="topbar" style="position: sticky; top: 0; z-index: 1000; height: 100px; margin: 0;">
+      <div class="left-menu" onclick="openMenu()">☰</div>
+      <div class="center-logo">
+        <img src="assets/logo.png" alt="Logo" />
+        <span>eTax Mobile</span>
+      </div>
+      <div class="right-icon">
+        <img src="assets/icon-qr.png" alt="QR" />
+        <a href="thongbao.html"><img src="assets/icon-bell.png" alt="Bell" /></a>
+      </div>
+    </header>
+    <div class="content-scrollable" >
+      <section class="user-info" style="width: 380px; border-radius: 16px; background-color: #ffffff; display: flex; align-items: center; padding: 12px; margin: 10px auto; height: 130px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+
+        <img class="avatar" src="assets/avatar.png" alt="Avatar" style="width: 80px; height: 80px;" />
+        <div class="userinfo-text" style="margin-left: 12px; flex-grow: 1;">
+          <div class="mst" style="color: black; font-size: 14px;" id="user-mst">MST: ...</div>
+          <div class="username" style="display: flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 18px; font-weight: bold; color: #b10000;">
+            <span id="user-name">(Chưa đăng nhập)</span>
+            <a href="thongtin.html"><img src="assets/nutha.png" alt="Thông tin" style="width: 20px; height: 20px;"></a>
+          </div>
+        </div>
+      </section>
+
+      <section style="background-color: #ffffff; height: 210px; border-radius: 16px; max-width: 380px; margin: 10px auto; position: relative; overflow: hidden; padding: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <h3 style="color: black; margin: 0;">&nbsp;&nbsp;Chức năng hay dùng</h3>
+          <img src="assets/2gach.png" alt="cài đặt" style="width: 30px; height: 20px; margin-right: 10px;" />
+        </div>
+
+        <button onclick="scrollLeft()" style="position: absolute; left: 0; top: 50%; transform: translateY(-50%); background: none; border: none; z-index: 10;">
+          <img src="assets/arrow-left.png" style="width: 30px;" />
+        </button>
+
+        <button onclick="scrollRight()" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: none; border: none; z-index: 10;">
+          <img src="assets/arrow-right.png" style="width: 30px;" />
+        </button>
+
+        <div id="scrollable" style="display: flex; overflow-x: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; gap: 10px; padding: 10px 20px; cursor: grab;">
+          <div style="text-align: center; min-width: 80px; flex-shrink: 0; cursor: pointer;" onclick="javascript:location.href='tracuttnpt.html';">
+            <img src="assets/icon1.png" style="width: 50px; height: 50px;" /><br>
+            <span style="display: inline-block; line-height: 1.4; font-size: 13px;">Tra cứu<br>thông tin<br>người phụ<br>thuộc</span>
+          </div>
+          <div style="text-align: center; min-width: 80px; flex-shrink: 0; cursor: pointer;" onclick="javascript:location.href='hsdkythue.html';">
+            <img src="assets/icon2.png" style="width: 50px; height: 50px;" /><br>
+            <span style="display: inline-block; line-height: 1.4; font-size: 13px;">Hồ sơ<br>đăng ký<br>thuế</span>
+          </div>
+          <div style="text-align: center; min-width: 80px; flex-shrink: 0;">
+            <img src="assets/icon3.png" style="width: 50px; height: 50px;" /><br>
+            <span style="display: inline-block; line-height: 1.4; font-size: 13px;">Hồ sơ<br>quyết<br>toán thuế</span>
+          </div>
+          <div style="text-align: center; min-width: 80px; flex-shrink: 0;">
+            <img src="assets/icon4.png" style="width: 50px; height: 50px;" /><br>
+            <span style="display: inline-block; line-height: 1.4; font-size: 13px;">Tra cứu<br>thông tin<br>quyết<br>toán</span>
+          </div>
+          <div style="text-align: center; min-width: 80px; flex-shrink: 0; cursor: pointer;" onclick="javascript:location.href='tra-cuu-chung-tu.html';">
+            <img src="assets/icon4.png" style="width: 50px; height: 50px;" /><br>
+            <span style="display: inline-block; line-height: 1.4; font-size: 13px;">Tra cứu<br>chứng từ<br>thuế</span>
+          </div>
+        </div>
+      </section>
+
+      <section style="background: #ffffff; padding: 10px; max-width: 380px; margin: 10px auto 0 auto; font-family: sans-serif; border-radius: 14px; height: 400px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h3 style="margin-bottom: 16px; font-size: 18px; color: black;">Danh sách nhóm dịch vụ</h3>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+          <div onclick="window.location.href='dangky.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon5.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Đăng ký thuế</span>
+          </div>
+          <div onclick="window.location.href='ho-tro-qtt.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon6.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Hỗ trợ quyết toán thuế<br>TNCN</span>
+          </div>
+          <div onclick="window.location.href='hoso.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon7.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Tra cứu hồ sơ<br>khai thuế</span>
+          </div>
+          <div onclick="window.location.href='nopthue.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon8.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Nhóm chức<br>năng nộp<br>thuế</span>
+          </div>
+          <div onclick="window.location.href='nghiavu.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon9.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Tra cứu nghĩa<br>vụ thuế</span>
+          </div>
+          <div onclick="window.location.href='thongbao.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon10.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Tra cứu thông<br>báo</span>
+          </div>
+          <div onclick="window.location.href='tienich.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon11.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Tiện ích</span>
+          </div>
+          <div onclick="window.location.href='hotro.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon12.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Hỗ trợ</span>
+          </div>
+          <div onclick="window.location.href='thietlap.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon13.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Thiết lập cá nhân</span>
+          </div>
+        </div>
+      </section>
+
+      <div style="height: 20px;"></div>
+    </div>
+  </div>
+
+  <script>
+    // QUAN TRỌNG: Disable device_auth_manager cho index.html
+    window.DISABLE_DEVICE_AUTH_MANAGER = true;
+    
+    // 🔧 FIX: Force clear cache và disable conflicting scripts
+    if ('caches' in window) {
+      caches.keys().then(names => {
+        names.forEach(name => {
+          caches.delete(name);
+        });
+      });
+    }
+    
+    console.log('=== INDEX.HTML LOADED ===');
+    console.log('localStorage debug:', {
+      device_verified: localStorage.getItem('etax_device_verified'),
+      token_verified: localStorage.getItem('etax_token_verified'),
+      logged_in_user: localStorage.getItem('etax_logged_in_user'),
+      login_success: localStorage.getItem('etax_login_success')
+    });
+    
+    // 🔧 FIX: Kiểm tra xác thực ƯU TIÊN user login trước
+    const tokenVerified = localStorage.getItem('etax_token_verified');
+    const deviceVerified = localStorage.getItem('etax_device_verified');
+    const loggedInUser = localStorage.getItem('etax_logged_in_user');
+    const loginSuccess = localStorage.getItem('etax_login_success');
+    
+    console.log('🔍 Index verification check:', {
+      tokenVerified: tokenVerified,
+      deviceVerified: deviceVerified,
+      loggedInUser: loggedInUser,
+      loginSuccess: loginSuccess
+    });
+    
+    // 🔧 FIX: Nếu user đã login thành công, SKIP device check
+    if (loggedInUser && loginSuccess === 'true') {
+      console.log('✅ User already logged in - STAYING on index.html');
+      
+      // Đảm bảo device flags tồn tại để tránh lần sau bị redirect
+      if (!deviceVerified || !tokenVerified) {
+        console.log('🔧 Backfilling missing device flags...');
+        localStorage.setItem('etax_device_verified', 'true');
+        localStorage.setItem('etax_token_verified', 'true');
+        if (!localStorage.getItem('etax_device_id')) {
+          localStorage.setItem('etax_device_id', 'dev_from_login_' + Date.now());
+        }
+        // Backup MST nếu có
+        if (!localStorage.getItem('etax_verified_mst') && loggedInUser) {
+          localStorage.setItem('etax_verified_mst', loggedInUser);
+        }
+      }
+    } else if (tokenVerified !== 'true' || deviceVerified !== 'true') {
+      console.log('❌ Index verification FAILED - redirecting to token-login');
+      console.log('  → token=' + tokenVerified + ', device=' + deviceVerified);
+      
+      // Delay redirect để có thể thấy page load
+      setTimeout(() => {
+        window.location.href = 'token-login.html';
+      }, 100);
+    } else {
+      console.log('✅ Index.html verification PASSED - staying on page');
+    }
+
+    // Thêm timestamp để tránh cache khi reload trang
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) {
+        // Trang được restore từ cache, thêm timestamp để force reload
+        const currentUrl = window.location.href;
+        const separator = currentUrl.includes('?') ? '&' : '?';
+        window.location.href = currentUrl + separator + '_t=' + Date.now();
+      }
+    });
+
+    // Cấu hình Firebase (chỉ khai báo một lần)
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+      authDomain: "etax-7fbf8.firebaseapp.com",
+      databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "etax-7fbf8",
+      storageBucket: "etax-7fbf8.appspot.com",
+      messagingSenderId: "1030026724634",
+      appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3",
+      measurementId: "G-YS5DLECJE6"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    // Biến user toàn cục (chỉ khai báo một lần)
+    let user = JSON.parse(localStorage.getItem("etax_user_info") || "{}");
+
+    // Functions điều hướng
+    function openMenu() {
+      document.getElementById("slideMenu").classList.add("open");
+      document.getElementById("menuOverlay").classList.add("show");
+      document.getElementById("slide-username").innerText = user.name || "...";
+    }
+
+    function closeMenu() {
+      document.getElementById("slideMenu").classList.remove("open");
+      document.getElementById("menuOverlay").classList.remove("show");
+    }
+
+    function logout() {
+      localStorage.clear();
+      location.href = 'login.html';
+    }
+
+    // Function chuyển trang tra cứu chứng từ
+    function navigateToChungTu() {
+      console.log('Navigating to tra-cuu-chung-tu.html');
+      window.location.href = 'tra-cuu-chung-tu.html';
+    }
+
+    // Functions cuộn ngang
+    const scrollable = document.getElementById("scrollable");
+
+    function scrollLeft() {
+      scrollable.scrollBy({ left: -120, behavior: 'smooth' });
+    }
+
+    function scrollRight() {
+      scrollable.scrollBy({ left: 120, behavior: 'smooth' });
+    }
+
+    // Khởi tạo khi trang load
+    window.onload = function() {
+      initializePage();
+    }
+
+    // Khởi tạo lại khi trang được hiển thị (bao gồm cả khi back từ trang khác)
+    window.addEventListener('pageshow', function(event) {
+      initializePage();
+    });
+
+    // Function khởi tạo trang
+    function initializePage() {
+      user = JSON.parse(localStorage.getItem("etax_user_info") || "{}");
+      
+      // Default user info as per requirement
+      const defaultUserName = "Nguyễn Trung Nghĩa";
+      const defaultMST = "001095026798";
+      
+      // Update with default values if not present
+      if (!user.name || user.name === "(Chưa đăng nhập)") {
+        user.name = defaultUserName;
+        user.mst = user.mst || defaultMST;
+        localStorage.setItem("etax_user_info", JSON.stringify(user));
+      }
+      
+      document.getElementById("user-mst").innerText = "MST: " + (user.mst || defaultMST);
+      document.getElementById("user-name").innerText = user.name || defaultUserName;
+      
+      if(document.getElementById("slide-username")) {
+        document.getElementById("slide-username").innerText = user.name || defaultUserName;
+      }
+
+      // Đảm bảo event listeners được khởi tạo lại
+      setupEventListeners();
+    }
+
+    // Function thiết lập event listeners
+    function setupEventListeners() {
+      const scrollable = document.getElementById("scrollable");
+      
+      // Xóa event listeners cũ trước khi thêm mới (tránh trùng lặp)
+      scrollable.removeEventListener('touchstart', handleTouchStart);
+      scrollable.removeEventListener('touchmove', handleTouchMove);
+      scrollable.removeEventListener('mousedown', handleMouseDown);
+      scrollable.removeEventListener('mouseleave', handleMouseLeave);
+      scrollable.removeEventListener('mouseup', handleMouseUp);
+      scrollable.removeEventListener('mousemove', handleMouseMove);
+
+      // Thêm event listeners mới
+      scrollable.addEventListener('touchstart', handleTouchStart);
+      scrollable.addEventListener('touchmove', handleTouchMove);
+      scrollable.addEventListener('mousedown', handleMouseDown);
+      scrollable.addEventListener('mouseleave', handleMouseLeave);
+      scrollable.addEventListener('mouseup', handleMouseUp);
+      scrollable.addEventListener('mousemove', handleMouseMove);
+    }
+
+    // Touch swipe event handlers
+    let startXTouch;
+    function handleTouchStart(e) {
+      startXTouch = e.touches[0].clientX;
+    }
+    
+    function handleTouchMove(e) {
+      let deltaX = e.touches[0].clientX - startXTouch;
+      scrollable.scrollLeft -= deltaX;
+      startXTouch = e.touches[0].clientX;
+    }
+
+    // Mouse drag event handlers
+    let isDown = false;
+    let startX, scrollLeftStart;
+
+    function handleMouseDown(e) {
+      isDown = true;
+      scrollable.classList.add('active');
+      startX = e.pageX - scrollable.offsetLeft;
+      scrollLeftStart = scrollable.scrollLeft;
+    }
+
+    function handleMouseLeave() {
+      isDown = false;
+    }
+
+    function handleMouseUp() {
+      isDown = false;
+    }
+
+    function handleMouseMove(e) {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - scrollable.offsetLeft;
+      const walk = (x - startX) * 1.2;
+      scrollable.scrollLeft = scrollLeftStart - walk;
+    }
+  </script>
+</body>
+</html>

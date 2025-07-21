@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!-- PWA Meta Tags -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- 🔒 KHÓA ORIENTATION CHỈ CHO PHÉP DỌC -->
+<meta name="screen-orientation" content="portrait">
+<meta name="mobile-web-app-orientations" content="portrait">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="eTax Mobile">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#b71c1c">
+<meta name="format-detection" content="telephone=no">
+
+<!-- PWA Icons -->
+<link rel="apple-touch-icon" href="./assets/logo.png">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<!-- 🔧 FIX: Conditional manifest để tránh CORS lỗi với file:// -->
+<script>
+  if (window.location.protocol !== 'file:') {
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = './manifest.json';
+    document.head.appendChild(link);
+  }
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<title>eTax Mobile - Thông tin tài khoản</title>
+
+<style>
+* {
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100vh;
+    min-width: 100vw;
+    width: 100vw;
+    height: 100vh;
+    background: #000 !important;
+    box-sizing: border-box;
+    overflow: hidden !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+/* 📐 eTAX MOBILE LAYOUT CHUẨN - PWA Mobile */
+.phone-frame {
+    width: 100vw !important;
+    background: #fff;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    border-radius: 0 !important;
+    margin: 0 auto !important;
+    box-shadow: none !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    min-height: 100vh;
+    max-height: 100vh;
+    height: 100vh;
+    position: relative;
+    /* ✅ Safe area support */
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* ✅ THÊM: iOS fallback cho safe areas */
+@supports (-webkit-touch-callout: none) {
+    .phone-frame {
+        padding-top: constant(safe-area-inset-top, 0px);
+        padding-bottom: constant(safe-area-inset-bottom, 0px);
+        padding-left: constant(safe-area-inset-left, 0px);
+        padding-right: constant(safe-area-inset-right, 0px);
+    }
+}
+
+@media (min-width: 601px) {
+    .phone-frame {
+        margin: 32px auto !important;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3) !important;
+        width: 400px !important;
+        height: 900px !important;
+        max-height: 900px !important;
+        border-radius: 30px !important;
+    }
+}
+
+/* ✅ FULL WIDTH HEADER - NO CONSTRAINTS */
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: #b71c1c; /* 🔴 Màu đỏ chuẩn từ hoadondt.html */
+    color: white;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100px;
+    width: 100vw;
+    /* 🔒 PWA Safe Area */
+    padding-top: max(12px, env(safe-area-inset-top));
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-family: 'Segoe UI', 'Tahoma', 'Microsoft Sans Serif', 'Arial', sans-serif; /* ✅ Font VN chuẩn */
+}
+
+.header i {
+    font-size: 20px;
+    cursor: pointer;
+    color: white;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.header i:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.header-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: white;
+    flex: 1;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+/* ✅ CONTENT AREA - ZERO MARGIN WITH HEADER */
+.content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    gap: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    height: calc(100vh - 100px);
+    max-height: calc(100vh - 100px);
+}
+
+.content-area::-webkit-scrollbar {
+    display: none;
+}
+
+/* ✅ USER SECTION WITH PWA STYLING */
+.user-section {
+    background: #1a2734;
+    text-align: center;
+    padding: 24px 16px;
+    color: white;
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+.user-section h2 {
+    margin: 0 0 16px 0;
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.user-section img.avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    padding: 4px;
+    background-color: white;
+    border: 2px solid #d62828;
+    object-fit: contain;
+    margin: 16px auto;
+}
+
+/* ✅ BUTTON GRID WITH PWA STYLING */
+.button-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 16px;
+    background-color: #1a2734;
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+.button-grid button {
+    background-color: #d62828;
+    border: none;
+    border-radius: 24px;
+    padding: 12px 8px;
+    color: white;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 60px;
+    cursor: pointer;
+    font-family: 'Roboto', Arial, sans-serif;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.button-grid button:hover {
+    background-color: #b71c1c;
+}
+
+.button-grid button img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
+/* ✅ INFO SECTION WITH PWA STYLING */
+.info-section {
+    background-color: #f5f5f5;
+    padding: 20px;
+    flex: 1;
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+.info-section > div:first-child {
+    font-weight: 600;
+    margin-bottom: 16px;
+    font-size: 17px;
+    color: #333;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 15px;
+}
+
+.info-label {
+    color: #666;
+    width: 40%;
+    font-weight: 500;
+}
+
+.info-value {
+    width: 55%;
+    font-weight: 400;
+    color: #333;
+    text-align: right;
+}
+
+/* ✅ PERFORMANCE OPTIMIZATIONS */
+*, *::before, *::after {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+}
+
+/* ✅ RESPONSIVE ENHANCEMENTS */
+@media screen and (max-width: 375px) {
+    .header-title {
+        font-size: 16px;
+    }
+    
+    .button-grid {
+        gap: 10px;
+        padding: 12px;
+    }
+    
+    .button-grid button {
+        font-size: 13px;
+        min-height: 55px;
+    }
+    
+    .info-section {
+        padding: 16px;
+    }
+}
+
+/* ✅ ENHANCED TOUCH INTERACTIONS */
+button:active {
+    transform: scale(0.98);
+}
+
+.header i:active {
+    transform: scale(0.95);
+}
+
+/* ✅ ACCESSIBILITY IMPROVEMENTS */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+</style>
+</head>
+<body>
+    
+    <div class="phone-frame">
+        <!-- ✅ CONSISTENT HEADER WITH PWA TEMPLATE -->
+        <header class="header" style="background-color: #b71c1c; color: white; height: 100px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding-top: max(12px, env(safe-area-inset-top));">
+            <i class="fas fa-arrow-left" onclick="window.location.href='index.html'" style="font-size: 20px; cursor: pointer;"></i>
+            <div class="header-title" style="font-size: 20px; font-weight: 500; text-align: center; flex: 1;">Thông tin tài khoản</div>
+            <i class="fas fa-house" onclick="window.location.href='index.html'" style="font-size: 20px; cursor: pointer; visibility: hidden;"></i>
+        </header>
+
+        <div class="content-area" style="padding-top: 100px;">
+            <!-- User Info Section -->
+            <div class="user-section">
+                <h2 id="info-header-name">Tên đầy đủ</h2>
+                <img class="avatar" src="assets/avatar1.png" alt="Avatar" id="info-avatar" />
+            </div>
+
+            <!-- Button Actions -->
+            <div class="button-grid">
+                <button onclick="alert('Tính năng đang phát triển')">
+                    <img src="assets/icon-change.png" alt="changeinfo" />
+                    Thay đổi thông tin
+                </button>
+                <button onclick="alert('Tính năng đang phát triển')">
+                    <img src="assets/icon-qr.png" alt="qr" />
+                    Mã QR-Code thông tin
+                </button>
+                <button onclick="window.location.href='doimatkhau.html'">
+                    <img src="assets/doimk.png" alt="changepass" />
+                    Đổi mật khẩu
+                </button>
+                <button onclick="alert('Tính năng đang phát triển')">
+                    <img src="assets/icon-xoatk.png" alt="deleteacc" />
+                    Xóa tài khoản
+                </button>
+            </div>
+
+            <!-- Account Info -->
+            <div class="info-section">
+                <div>Thông tin tài khoản</div>
+                
+                <div class="info-row">
+                    <div class="info-label">Mã số thuế</div>
+                    <div class="info-value" id="info-mst">-</div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="info-label">Tên đầy đủ</div>
+                    <div class="info-value" id="info-name">-</div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="info-label">Địa chỉ</div>
+                    <div class="info-value" id="info-address">-</div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="info-label">Tên CQT quản lý</div>
+                    <div class="info-value" id="info-taxoffice">-</div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="info-label">Số điện thoại</div>
+                    <div class="info-value" id="info-phonenumber">-</div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="info-label">Thư điện tử</div>
+                    <div class="info-value" id="info-email">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Đọc user từ localStorage và set default name
+        const user = JSON.parse(localStorage.getItem("etax_user_info") || "{}");
+        
+        // Default user name as per requirement
+        const defaultUserName = "Nguyễn Trung Nghĩa";
+        
+        document.getElementById("info-mst").innerText = user.mst || "001095026798";
+        document.getElementById("info-name").innerText = user.name || defaultUserName;
+        document.getElementById("info-address").innerText = user.address || "-";
+        document.getElementById("info-taxoffice").innerText = user.taxoffice || "-";
+        document.getElementById("info-header-name").innerText = user.name || defaultUserName;
+        document.getElementById("info-phonenumber").innerText = user.phonenumber || user.phone || "-";
+        document.getElementById("info-email").innerText = user.email || "-";
+        
+        // Also update localStorage with default values if not present
+        if (!user.name || user.name === "(Chưa đăng nhập)") {
+            const updatedUser = {
+                ...user,
+                name: defaultUserName,
+                mst: user.mst || "001095026798"
+            };
+            localStorage.setItem("etax_user_info", JSON.stringify(updatedUser));
+        }
+
+        // ✅ THÊM: PWA device auth check
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const loggedInUser = localStorage.getItem('etax_logged_in_user');
+            if (!loggedInUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            console.log('✅ Account info page loaded for user:', loggedInUser);
+        });
+    </script>
+</body>
+</html>

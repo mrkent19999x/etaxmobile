@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🛡️ BẢNG ĐIỀU KHIỂN eTAX ADMIN</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  
+  <!-- 📝 eTax Rich Text Editor -->
+  <script src="js/etax-rich-editor.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Tahoma', 'Microsoft Sans Serif', 'Arial', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* 🎯 HEADER ADMIN */
+    .admin-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .admin-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 24px;
+      font-weight: 700;
+      color: #dc3545;
+    }
+
+    .admin-user {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .logout-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: #c82333;
+    }
+
+    /* 📊 MAIN CONTAINER */
+    .admin-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px 20px;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 30px;
+    }
+
+    /* 🎛️ SIDEBAR MENU */
+    .admin-sidebar {
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      height: fit-content;
+      position: sticky;
+      top: 100px;
+    }
+
+    .sidebar-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 15px;
+      margin-bottom: 8px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .menu-item:hover, .menu-item.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      transform: translateX(5px);
+    }
+
+    .menu-icon {
+      font-size: 18px;
+      width: 24px;
+    }
+
+    /* 📱 MAIN CONTENT */
+    .admin-content {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      min-height: 600px;
+    }
+
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .content-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .add-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+    }
+
+    .add-btn:hover {
+      background: #218838;
+      transform: translateY(-2px);
+    }
+
+    /* 📊 DASHBOARD STATS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    /* 📋 TABLE STYLES */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .data-table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .data-table tr:hover {
+      background: #f8f9fa;
+    }
+
+    /* 🎨 ACTION BUTTONS */
+    .action-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-right: 5px;
+      transition: all 0.3s;
+    }
+
+    .btn-edit {
+      background: #ffc107;
+      color: #333;
+    }
+
+    .btn-delete {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-view {
+      background: #17a2b8;
+      color: white;
+    }
+
+    .action-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* 📱 RESPONSIVE */
+    @media (max-width: 768px) {
+      .admin-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 20px 15px;
+      }
+      
+      .admin-header {
+        padding: 15px 20px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 🔄 LOADING STATE */
+    .loading {
+      text-align: center;
+      padding: 50px;
+      color: #666;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- 🎯 HEADER -->
+  <div class="admin-header">
+    <div class="admin-logo">
+      <i class="fas fa-shield-alt"></i>
+      BẢNG ĐIỀU KHIỂN eTAX
+    </div>
+    <div class="admin-user">
+      <span>👨‍💼 Xin chào, Admin</span>
+      <span id="currentTime"></span>
+      <button class="logout-btn" onclick="adminLogout()">
+        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+      </button>
+    </div>
+  </div>
+
+  <!-- 📊 MAIN CONTAINER -->
+  <div class="admin-container">
+    <!-- 🎛️ SIDEBAR -->
+    <div class="admin-sidebar">
+      <div class="sidebar-title">📋 MENU QUẢN LÝ</div>
+      
+      <div class="menu-item active" onclick="showDashboard()">
+        <i class="menu-icon fas fa-tachometer-alt"></i>
+        Tổng quan hệ thống
+      </div>
+      
+      <div class="menu-item" onclick="showSystemNotifications()">
+        <i class="menu-icon fas fa-bullhorn"></i>
+        Thông báo toàn hệ thống
+      </div>
+      
+      <div class="menu-item" onclick="showUserManagement()">
+        <i class="menu-icon fas fa-users"></i>
+        Quản lý người dùng
+      </div>
+      
+      <div class="menu-item" onclick="showContentManagement()">
+        <i class="menu-icon fas fa-file-alt"></i>
+        Quản lý nội dung
+      </div>
+      
+      <div class="menu-item" onclick="openVisualEditor()">
+        <i class="menu-icon fas fa-paint-brush"></i>
+        Visual Editor
+      </div>
+      
+      <div class="menu-item" onclick="showPageManagement()">
+        <i class="menu-icon fas fa-sitemap"></i>
+        Quản lý trang con
+      </div>
+      
+      <div class="menu-item" onclick="showSystemLogs()">
+        <i class="menu-icon fas fa-clipboard-list"></i>
+        Nhật ký hệ thống
+      </div>
+      
+      <div class="menu-item" onclick="showSettings()">
+        <i class="menu-icon fas fa-cog"></i>
+        Cài đặt hệ thống
+      </div>
+    </div>
+
+    <!-- 📱 MAIN CONTENT -->
+    <div class="admin-content">
+      <div id="contentArea">
+        <!-- Dashboard sẽ load ở đây -->
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Đang tải bảng điều khiển...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+      authDomain: "etax-7fbf8.firebaseapp.com",
+      databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "etax-7fbf8",
+      storageBucket: "etax-7fbf8.appspot.com",
+      messagingSenderId: "1030026724634",
+      appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3",
+      measurementId: "G-YS5DLECJE6"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // 🔐 Kiểm tra session admin
+    function checkAdminSession() {
+      const session = localStorage.getItem('etax_admin_session');
+      if (!session) {
+        alert('❌ Bạn chưa đăng nhập! Chuyển về trang đăng nhập...');
+        window.location.href = 'admin-login.html';
+        return false;
+      }
+
+      const sessionData = JSON.parse(session);
+      if (Date.now() > sessionData.expiresAt) {
+        alert('⏰ Phiên làm việc đã hết hạn! Vui lòng đăng nhập lại...');
+        localStorage.removeItem('etax_admin_session');
+        window.location.href = 'admin-login.html';
+        return false;
+      }
+
+      return true;
+    }
+
+    // 🚪 Đăng xuất admin
+    function adminLogout() {
+      if (confirm('🤔 Bạn có chắc muốn đăng xuất không?')) {
+        localStorage.removeItem('etax_admin_session');
+        alert('✅ Đã đăng xuất thành công!');
+        window.location.href = 'admin-login.html';
+      }
+    }
+
+    // ⏰ Cập nhật thời gian
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('currentTime').textContent = 
+        now.toLocaleString('vi-VN');
+    }
+
+    // 🎛️ MENU FUNCTIONS
+    function setActiveMenu(clickedItem) {
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      clickedItem.classList.add('active');
+    }
+
+    // 📊 DASHBOARD
+    function showDashboard() {
+      // Fix active menu
+      document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+      const dashboardMenu = document.querySelector('[onclick="showDashboard()"]');
+      if (dashboardMenu) {
+        dashboardMenu.classList.add('active');
+      }
+      document.getElementById('contentArea').innerHTML = `
+        <div class="content-header">
+          <h2 class="content-title">📊 TỔNG QUAN HỆ THỐNG</h2>
+          <span style="color: #666;">Cập nhật: ${new Date().toLocaleString('vi-VN')}</span>
+        </div>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="totalUsers">0</div>
+            <div class="stat-label">👥 Tổng người dùng</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="pendingUsers">0</div>
+            <div class="stat-label">⏳ Chờ duyệt</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="systemNotifications">0</div>
+            <div class="stat-label">📢 Thông báo hệ thống</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="totalPages">13</div>
+            <div class="stat-label">📱 Trang con</div>
+          </div>
+        </div>
+
+        <h3 style="margin-bottom: 20px;">📈 Hoạt động gần đây</h3>
+        <div id="recentActivity"></div>
+      `;
+      loadDashboardData();
+    }
+
+    // 📢 THÔNG BÁO HỆ THỐNG
+    function showSystemNotifications() {
+      // Fix active menu
+      document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+      const notifMenu = document.querySelector('[onclick="showSystemNotifications()"]');
+      if (notifMenu) {
+        notifMenu.classList.add('active');
+      }
+      document.getElementById('contentArea').innerHTML = `
+        <div class="content-header">
+          <h2 class="content-title">📢 THÔNG BÁO TOÀN HỆ THỐNG</h2>
+          <button class="add-btn" onclick="createSystemNotification()">
+            <i class="fas fa-plus"></i> Tạo thông báo mới
+          </button>
+        </div>
+        
+        <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+          <h4 style="color: #1976d2; margin-bottom: 10px;">💡 Hướng dẫn:</h4>
+          <p style="color: #333; margin-bottom: 10px;">• Thông báo hệ thống sẽ hiển thị trên <strong>TẤT CẢ</strong> trang con của eTax</p>
+          <p style="color: #333; margin-bottom: 10px;">• Có thể thiết lập ngày giờ tùy chỉnh (backdate)</p>
+          <p style="color: #333;">• Ví dụ: Thông báo bảo trì, ngừng giao dịch, cập nhật hệ thống...</p>
+        </div>
+
+        <div id="systemNotificationsList"></div>
+      `;
+      loadSystemNotifications();
+    }
+
+    // 👥 QUẢN LÝ NGƯỜI DÙNG với OTP  
+    function showUserManagement() {
+      // Fix active menu
+      document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+      const userMenu = document.querySelector('[onclick="showUserManagement()"]');
+      if (userMenu) {
+        userMenu.classList.add('active');
+      }
+      document.getElementById('contentArea').innerHTML = `
+        <div class="content-header">
+          <h2 class="content-title">👥 QUẢN LÝ NGƯỜI DÙNG & OTP</h2>
+          <div style="display: flex; gap: 10px;">
+            <button class="add-btn" onclick="createUser()">
+              <i class="fas fa-user-plus"></i> Tạo user mới
+            </button>
+            <button class="add-btn" onclick="viewPendingRequests()" style="background: #ffc107;">
+              <i class="fas fa-clock"></i> Yêu cầu chờ duyệt (<span id="pendingCount">0</span>)
+            </button>
+          </div>
+        </div>
+        
+        <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+          <h4 style="color: #1976d2; margin-bottom: 10px;">🔐 SYSTEM OTP MỚI:</h4>
+          <p style="color: #333; margin-bottom: 10px;">• <strong>Lần đầu:</strong> User nhập MST + Password → Admin duyệt + gửi OTP</p>
+          <p style="color: #333; margin-bottom: 10px;">• <strong>Lần sau:</strong> User vào luôn không cần OTP</p>
+          <p style="color: #333; margin-bottom: 10px;">• <strong>Admin control:</strong> Có thể yêu cầu OTP lại bất kỳ lúc nào</p>
+          <p style="color: #333;">• <strong>Real-time:</strong> Notifications từ user request đến admin instant</p>
+        </div>
+
+        <div class="tabs-container" style="margin-bottom: 20px;">
+          <div class="tabs" style="display: flex; background: #f8f9fa; border-radius: 10px; padding: 5px;">
+            <button class="tab-btn active" onclick="showUserTab('approved')" style="flex: 1; padding: 10px; border: none; background: white; border-radius: 6px; font-weight: 600; cursor: pointer;">
+              ✅ User đã duyệt
+            </button>
+            <button class="tab-btn" onclick="showUserTab('pending')" style="flex: 1; padding: 10px; border: none; background: transparent; border-radius: 6px; font-weight: 600; cursor: pointer;">
+              ⏳ Chờ duyệt (<span id="pendingTabCount">0</span>)
+            </button>
+            <button class="tab-btn" onclick="showUserTab('blocked')" style="flex: 1; padding: 10px; border: none; background: transparent; border-radius: 6px; font-weight: 600; cursor: pointer;">
+              🚫 Đã khóa
+            </button>
+          </div>
+        </div>
+
+        <div id="userTabContent"></div>
+      `;
+      loadUserManagement();
+      loadPendingRequests();
+    }
+
+    // 📄 Load dashboard data
+    async function loadDashboardData() {
+      try {
+        // Load real data from Firebase
+        const usersSnapshot = await db.ref('users').once('value');
+        const users = usersSnapshot.val() || {};
+        const totalUsers = Object.keys(users).length;
+        
+        const requestsSnapshot = await db.ref('userRequests').once('value');
+        const requests = requestsSnapshot.val() || {};
+        const pendingUsers = Object.values(requests).filter(req => req.status === 'pending').length;
+        
+        const notificationsSnapshot = await db.ref('systemNotifications').once('value');
+        const notifications = notificationsSnapshot.val() || {};
+        const totalNotifications = Object.keys(notifications).length;
+        
+        // Update UI with real data
+        document.getElementById('totalUsers').textContent = totalUsers;
+        document.getElementById('pendingUsers').textContent = pendingUsers;
+        document.getElementById('systemNotifications').textContent = totalNotifications;
+        
+        document.getElementById('recentActivity').innerHTML = `
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Thời gian</th>
+                <th>Hoạt động</th>
+                <th>Người thực hiện</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>${new Date().toLocaleString('vi-VN')}</td>
+                <td>Đăng nhập hệ thống</td>
+                <td>admin@etax.vn</td>
+              </tr>
+            </tbody>
+          </table>
+        `;
+      } catch (error) {
+        console.error('Lỗi load dashboard:', error);
+      }
+    }
+
+    // 📢 Load system notifications
+    async function loadSystemNotifications() {
+      try {
+        const snapshot = await db.ref('systemNotifications').orderByChild('createdAt').once('value');
+        const notifications = [];
+        
+        snapshot.forEach(child => {
+          const data = child.val();
+          notifications.push({
+            id: child.key,
+            ...data
+          });
+        });
+        
+        // Reverse để hiển thị mới nhất trước
+        notifications.reverse();
+        
+        let tableHTML = `
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Loại</th>
+                <th>Tiêu đề thông báo</th>
+                <th>Thời gian hiển thị</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+        
+        if (notifications.length === 0) {
+          tableHTML += `
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 50px; color: #666;">
+                📢 Chưa có thông báo hệ thống nào
+              </td>
+            </tr>
+          `;
+        } else {
+          notifications.forEach(notif => {
+            const typeIcons = {
+              maintenance: '🔧',
+              announcement: '📢', 
+              urgent: '🚨',
+              update: '📱',
+              holiday: '🎉'
+            };
+            
+            const startDateTime = new Date(notif.startDate + 'T' + notif.startTime);
+            const endDateTime = notif.endDate ? new Date(notif.endDate + 'T' + notif.endTime) : null;
+            const now = new Date();
+            
+            let status = '';
+            if (now < startDateTime) {
+              status = '⏳ Chưa hiển thị';
+            } else if (endDateTime && now > endDateTime) {
+              status = '✅ Đã kết thúc';
+            } else {
+              status = '🟢 Đang hiển thị';
+            }
+            
+            const timeRange = notif.endDate ? 
+              `${notif.startDate} ${notif.startTime} - ${notif.endDate} ${notif.endTime}` :
+              `Từ ${notif.startDate} ${notif.startTime}`;
+            
+            tableHTML += `
+              <tr>
+                <td>${typeIcons[notif.type] || '📢'}</td>
+                <td>
+                  <strong>${notif.title}</strong><br>
+                  <small style="color: #666;">${notif.content.substring(0, 50)}...</small>
+                </td>
+                <td><small>${timeRange}</small></td>
+                <td>${status}</td>
+                <td>
+                  <button class="action-btn btn-view" onclick="viewNotification('${notif.id}')">👁️ Xem</button>
+                  <button class="action-btn btn-edit" onclick="editNotification('${notif.id}')">✏️ Sửa</button>
+                  <button class="action-btn btn-delete" onclick="deleteNotification('${notif.id}')">🗑️ Xóa</button>
+                </td>
+              </tr>
+            `;
+          });
+        }
+        
+        tableHTML += `
+            </tbody>
+          </table>
+        `;
+        
+        document.getElementById('systemNotificationsList').innerHTML = tableHTML;
+        
+      } catch (error) {
+        console.error('Lỗi load thông báo:', error);
+        document.getElementById('systemNotificationsList').innerHTML = `
+          <div style="text-align: center; padding: 50px; color: #dc3545;">
+            ❌ Có lỗi xảy ra khi tải danh sách thông báo
+          </div>
+        `;
+      }
+    }
+
+    // 👁️ Xem chi tiết thông báo
+    async function viewNotification(id) {
+      try {
+        const snapshot = await db.ref('systemNotifications/' + id).once('value');
+        const notif = snapshot.val();
+        
+        if (!notif) {
+          alert('❌ Không tìm thấy thông báo!');
+          return;
+        }
+        
+        const timeRange = notif.endDate ? 
+          `${notif.startDate} ${notif.startTime} - ${notif.endDate} ${notif.endTime}` :
+          `Từ ${notif.startDate} ${notif.startTime} (vô thời hạn)`;
+          
+        alert(`📢 CHI TIẾT THÔNG BÁO\\n\\n` +
+              `Tiêu đề: ${notif.title}\\n\\n` +
+              `Nội dung: ${notif.content}\\n\\n` +
+              `Thời gian: ${timeRange}\\n\\n` +
+              `Độ ưu tiên: ${notif.priority}\\n\\n` +
+              `Tạo bởi: ${notif.createdBy}\\n` +
+              `Tạo lúc: ${new Date(notif.createdAt).toLocaleString('vi-VN')}`);
+              
+      } catch (error) {
+        console.error('Lỗi xem thông báo:', error);
+        alert('❌ Có lỗi xảy ra!');
+      }
+    }
+
+    // ✏️ Sửa thông báo
+    function editNotification(id) {
+      alert('🚧 Chức năng sửa thông báo đang phát triển!');
+    }
+
+    // 🗑️ Xóa thông báo
+    async function deleteNotification(id) {
+      if (!confirm('🤔 Bạn có chắc muốn xóa thông báo này không?\\n\\nHành động này không thể hoàn tác!')) {
+        return;
+      }
+      
+      try {
+        await db.ref('systemNotifications/' + id).remove();
+        
+        // Ghi log
+        await db.ref('adminLogs').push({
+          action: 'Xóa thông báo hệ thống',
+          details: 'ID: ' + id,
+          admin: 'admin@etax.vn',
+          timestamp: Date.now(),
+          date: new Date().toLocaleString('vi-VN')
+        });
+        
+        alert('✅ Đã xóa thông báo thành công!');
+        loadSystemNotifications();
+        
+      } catch (error) {
+        console.error('Lỗi xóa thông báo:', error);
+        alert('❌ Có lỗi xảy ra khi xóa thông báo!');
+      }
+    }
+
+    // 👥 Load user management với OTP system
+    async function loadUserManagement() {
+      showUserTab('approved');
+    }
+
+    // 📋 Show user tab
+    async function showUserTab(tabType) {
+      // Update tab buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.background = 'transparent';
+      });
+      event.target.classList.add('active');
+      event.target.style.background = 'white';
+
+      const contentDiv = document.getElementById('userTabContent');
+      
+      if (tabType === 'approved') {
+        await loadApprovedUsers(contentDiv);
+      } else if (tabType === 'pending') {
+        await loadPendingRequests(contentDiv);
+      } else if (tabType === 'blocked') {
+        await loadBlockedUsers(contentDiv);
+      }
+    }
+
+    // ✅ Load approved users
+    async function loadApprovedUsers(container) {
+      try {
+        const snapshot = await db.ref('users').orderByChild('status').equalTo('active').once('value');
+        const users = [];
+        
+        snapshot.forEach(child => {
+          users.push({
+            mst: child.key,
+            ...child.val()
+          });
+        });
+
+        let tableHTML = `
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>MST</th>
+                <th>Ngày tạo</th>
+                <th>Lần đăng nhập cuối</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        if (users.length === 0) {
+          tableHTML += `
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 50px; color: #666;">
+                ✅ Chưa có user nào được duyệt
+              </td>
+            </tr>
+          `;
+        } else {
+          users.forEach(user => {
+            const createdDate = new Date(user.createdAt).toLocaleString('vi-VN');
+            const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleString('vi-VN') : 'Chưa đăng nhập';
+            
+            tableHTML += `
+              <tr>
+                <td><strong>${user.mst}</strong></td>
+                <td>${createdDate}</td>
+                <td>${lastLogin}</td>
+                <td><span style="color: #28a745;">🟢 Hoạt động</span></td>
+                <td>
+                  <button class="action-btn btn-edit" onclick="requireOTPUser('${user.mst}')">🔐 Yêu cầu OTP</button>
+                  <button class="action-btn btn-delete" onclick="blockUser('${user.mst}')">🚫 Khóa</button>
+                  <button class="action-btn btn-view" onclick="viewUserDetails('${user.mst}')">👁️ Chi tiết</button>
+                </td>
+              </tr>
+            `;
+          });
+        }
+
+        tableHTML += `</tbody></table>`;
+        container.innerHTML = tableHTML;
+
+      } catch (error) {
+        console.error('Load approved users error:', error);
+        container.innerHTML = `<div style="color: #dc3545; text-align: center; padding: 50px;">❌ Lỗi tải danh sách user</div>`;
+      }
+    }
+
+    // ⏳ Load pending requests
+    async function loadPendingRequests(container = null) {
+      try {
+        const snapshot = await db.ref('userRequests').orderByChild('status').equalTo('pending').once('value');
+        const requests = [];
+        
+        snapshot.forEach(child => {
+          requests.push({
+            id: child.key,
+            ...child.val()
+          });
+        });
+
+        // Update counts
+        const count = requests.length;
+        const pendingCountEl = document.getElementById('pendingCount');
+        const pendingTabCountEl = document.getElementById('pendingTabCount');
+        if (pendingCountEl) pendingCountEl.textContent = count;
+        if (pendingTabCountEl) pendingTabCountEl.textContent = count;
+
+        if (!container) return; // Chỉ update count
+
+        let tableHTML = `
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>MST</th>
+                <th>Thời gian yêu cầu</th>
+                <th>User Agent</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        if (requests.length === 0) {
+          tableHTML += `
+            <tr>
+              <td colspan="4" style="text-align: center; padding: 50px; color: #666;">
+                ⏳ Không có yêu cầu nào đang chờ duyệt
+              </td>
+            </tr>
+          `;
+        } else {
+          requests.forEach(request => {
+            const requestTime = new Date(request.requestTime).toLocaleString('vi-VN');
+            const userAgent = request.userAgent ? request.userAgent.substring(0, 50) + '...' : 'Unknown';
+            
+            tableHTML += `
+              <tr>
+                <td><strong>${request.mst}</strong></td>
+                <td>${requestTime}</td>
+                <td><small>${userAgent}</small></td>
+                <td>
+                  <button class="action-btn btn-edit" onclick="approveUser('${request.id}', '${request.mst}')">✅ Duyệt</button>
+                  <button class="action-btn btn-delete" onclick="rejectUser('${request.id}')">❌ Từ chối</button>
+                  <button class="action-btn btn-view" onclick="viewRequestDetails('${request.id}')">👁️ Chi tiết</button>
+                </td>
+              </tr>
+            `;
+          });
+        }
+
+        tableHTML += `</tbody></table>`;
+        container.innerHTML = tableHTML;
+
+      } catch (error) {
+        console.error('Load pending requests error:', error);
+        if (container) {
+          container.innerHTML = `<div style="color: #dc3545; text-align: center; padding: 50px;">❌ Lỗi tải yêu cầu chờ duyệt</div>`;
+        }
+      }
+    }
+
+    // ✅ Approve user
+    async function approveUser(requestId, mst) {
+      const otp = prompt('🔐 Nhập mã OTP 6 số để gửi cho user:');
+      
+      if (!otp || otp.length !== 6 || !/^[0-9]+$/.test(otp)) {
+        alert('❌ Vui lòng nhập mã OTP 6 số!');
+        return;
+      }
+
+      try {
+        // Update request với OTP và approve
+        await db.ref('userRequests/' + requestId).update({
+          status: 'approved',
+          otp: otp,
+          approvedTime: Date.now(),
+          approvedBy: 'admin@etax.vn'
+        });
+
+        // Ghi log
+        await db.ref('adminLogs').push({
+          action: 'Duyệt user và gửi OTP',
+          details: \`MST: \${mst}, OTP: \${otp}\`,
+          admin: 'admin@etax.vn',
+          timestamp: Date.now(),
+          date: new Date().toLocaleString('vi-VN')
+        });
+
+        alert(\`✅ Đã duyệt user MST: \${mst}\\n\\n🔐 OTP đã gửi: \${otp}\\n\\nVui lòng thông báo mã này cho user!\`);
+        
+        // Reload pending requests
+        loadPendingRequests();
+        
+      } catch (error) {
+        console.error('Approve user error:', error);
+        alert('❌ Có lỗi xảy ra khi duyệt user!');
+      }
+    }
+
+    // ❌ Reject user
+    async function rejectUser(requestId) {
+      if (!confirm('🤔 Bạn có chắc muốn từ chối yêu cầu này?')) return;
+
+      try {
+        await db.ref('userRequests/' + requestId).update({
+          status: 'rejected',
+          rejectedTime: Date.now(),
+          rejectedBy: 'admin@etax.vn'
+        });
+
+        alert('✅ Đã từ chối yêu cầu!');
+        loadPendingRequests();
+        
+      } catch (error) {
+        console.error('Reject user error:', error);
+        alert('❌ Có lỗi xảy ra khi từ chối!');
+      }
+    }
+
+    // 🔐 Require OTP for existing user
+    async function requireOTPUser(mst) {
+      if (!confirm(\`🔐 Yêu cầu user MST: \${mst} phải nhập OTP lại lần đăng nhập tiếp theo?\\n\\nUser sẽ phải chờ admin duyệt và gửi OTP mới.\`)) return;
+
+      try {
+        await db.ref('users/' + mst).update({
+          requireOTP: true,
+          otpRequiredTime: Date.now(),
+          otpRequiredBy: 'admin@etax.vn'
+        });
+
+        alert(\`✅ Đã yêu cầu OTP cho user MST: \${mst}\\n\\nLần đăng nhập tiếp theo user sẽ phải chờ admin duyệt.\`);
+        
+      } catch (error) {
+        console.error('Require OTP error:', error);
+        alert('❌ Có lỗi xảy ra!');
+      }
+    }
+
+    // 🚫 Block user
+    async function blockUser(mst) {
+      if (!confirm(\`🚫 Khóa user MST: \${mst}?\\n\\nUser sẽ không thể đăng nhập cho đến khi được mở khóa.\`)) return;
+
+      try {
+        await db.ref('users/' + mst).update({
+          status: 'blocked',
+          blockedTime: Date.now(),
+          blockedBy: 'admin@etax.vn'
+        });
+
+        alert(\`✅ Đã khóa user MST: \${mst}\`);
+        loadUserManagement();
+        
+      } catch (error) {
+        console.error('Block user error:', error);
+        alert('❌ Có lỗi xảy ra khi khóa user!');
+      }
+    }
+
+    // Start real-time listening for pending requests
+    function startRealtimeUserMonitoring() {
+      db.ref('userRequests').on('child_added', (snapshot) => {
+        const request = snapshot.val();
+        if (request.status === 'pending') {
+          // Update count and show notification
+          loadPendingRequests();
+          
+          // Desktop notification
+          if (Notification.permission === 'granted') {
+            new Notification('🔐 Yêu cầu đăng nhập mới', {
+              body: \`User MST: \${request.mst} muốn đăng nhập\`,
+              icon: 'assets/logo.png'
+            });
+          }
+        }
+      });
+    }
+
+    // 📢 Tạo thông báo hệ thống mới
+    function createSystemNotification() {
+      document.getElementById('contentArea').innerHTML = `
+        <div class="content-header">
+          <h2 class="content-title">📢 TẠO THÔNG BÁO HỆ THỐNG</h2>
+          <button class="add-btn" onclick="showSystemNotifications()" style="background: #6c757d;">
+            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+          </button>
+        </div>
+        
+        <div style="max-width: 800px;">
+          <form id="systemNotificationForm" onsubmit="saveSystemNotification(event)">
+            
+            <!-- Loại thông báo -->
+            <div style="margin-bottom: 25px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">
+                🏷️ Loại thông báo:
+              </label>
+              <select id="notificationType" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                <option value="maintenance">🔧 Bảo trì hệ thống</option>
+                <option value="announcement">📢 Thông báo chung</option>
+                <option value="urgent">🚨 Khẩn cấp</option>
+                <option value="update">📱 Cập nhật hệ thống</option>
+                <option value="holiday">🎉 Ngày lễ / Nghỉ</option>
+              </select>
+            </div>
+
+            <!-- Tiêu đề -->
+            <div style="margin-bottom: 25px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">
+                📝 Tiêu đề thông báo:
+              </label>
+              <input type="text" id="notificationTitle" required
+                placeholder="VD: Tạm ngừng giao dịch thuế để bảo trì hệ thống"
+                style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+            </div>
+
+            <!-- Nội dung -->
+            <div style="margin-bottom: 25px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">
+                📄 Nội dung thông báo:
+              </label>
+              <textarea id="notificationContent" rows="4" required
+                placeholder="Mô tả chi tiết nội dung thông báo..."
+                style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; resize: vertical;"></textarea>
+            </div>
+
+            <!-- Thời gian hiển thị -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+              <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">
+                  📅 Ngày bắt đầu hiển thị:
+                </label>
+                <input type="date" id="startDate" required
+                  style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+              </div>
+              <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">
+                  ⏰ Giờ bắt đầu:
+                </label>
+                <input type="time" id="startTime" required
+                  style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+              <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">
+                  📅 Ngày kết thúc hiển thị:
+                </label>
+                <input type="date" id="endDate"
+                  style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                <small style="color: #666;">Để trống nếu hiển thị vô thời hạn</small>
+              </div>
+              <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">
+                  ⏰ Giờ kết thúc:
+                </label>
+                <input type="time" id="endTime"
+                  style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+              </div>
+            </div>
+
+            <!-- Hiển thị trên trang nào -->
+            <div style="margin-bottom: 25px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">
+                📱 Hiển thị trên các trang:
+              </label>
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                <label style="display: block; margin-bottom: 10px;">
+                  <input type="checkbox" id="showOnAll" checked onchange="toggleAllPages()" style="margin-right: 8px;">
+                  <strong>✅ Tất cả trang (khuyến nghị)</strong>
+                </label>
+                <div id="specificPages" style="display: none; margin-left: 20px;">
+                  <label style="display: block; margin-bottom: 5px;"><input type="checkbox" style="margin-right: 8px;"> 🏠 Trang chủ (index.html)</label>
+                  <label style="display: block; margin-bottom: 5px;"><input type="checkbox" style="margin-right: 8px;"> 📢 Thông báo (thongbao.html)</label>
+                  <label style="display: block; margin-bottom: 5px;"><input type="checkbox" style="margin-right: 8px;"> 📄 Hóa đơn điện tử (hoadondt.html)</label>
+                  <label style="display: block; margin-bottom: 5px;"><input type="checkbox" style="margin-right: 8px;"> 📋 Khai thuế (khaithue.html)</label>
+                  <label style="display: block; margin-bottom: 5px;"><input type="checkbox" style="margin-right: 8px;"> 💰 Nộp thuế (nopthue.html)</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Độ ưu tiên -->
+            <div style="margin-bottom: 30px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">
+                ⭐ Độ ưu tiên hiển thị:
+              </label>
+              <select id="priority" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                <option value="normal">📌 Bình thường</option>
+                <option value="high">🔥 Cao (nổi bật)</option>
+                <option value="critical">🚨 Cực cao (popup)</option>
+              </select>
+            </div>
+
+            <!-- Buttons -->
+            <div style="display: flex; gap: 15px; justify-content: flex-end;">
+              <button type="button" onclick="showSystemNotifications()" 
+                style="padding: 12px 24px; border: 2px solid #6c757d; background: white; color: #6c757d; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                ❌ Hủy bỏ
+              </button>
+              <button type="submit"
+                style="padding: 12px 24px; border: none; background: #28a745; color: white; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                💾 Lưu thông báo
+              </button>
+            </div>
+          </form>
+        </div>
+      `;
+      
+      // Set default date to today
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      document.getElementById('startDate').value = today.toISOString().split('T')[0];
+      document.getElementById('startTime').value = '08:00';
+      document.getElementById('endDate').value = tomorrow.toISOString().split('T')[0];
+      document.getElementById('endTime').value = '17:00';
+    }
+
+    // 🔄 Toggle hiển thị tất cả trang
+    function toggleAllPages() {
+      const showOnAll = document.getElementById('showOnAll').checked;
+      const specificPages = document.getElementById('specificPages');
+      specificPages.style.display = showOnAll ? 'none' : 'block';
+    }
+
+    // 💾 Lưu thông báo hệ thống
+    async function saveSystemNotification(event) {
+      event.preventDefault();
+      
+      const formData = {
+        type: document.getElementById('notificationType').value,
+        title: document.getElementById('notificationTitle').value,
+        content: document.getElementById('notificationContent').value,
+        startDate: document.getElementById('startDate').value,
+        startTime: document.getElementById('startTime').value,
+        endDate: document.getElementById('endDate').value,
+        endTime: document.getElementById('endTime').value,
+        showOnAll: document.getElementById('showOnAll').checked,
+        priority: document.getElementById('priority').value,
+        createdAt: Date.now(),
+        createdBy: 'admin@etax.vn',
+        status: 'active'
+      };
+
+      try {
+        // Lưu vào Firebase
+        const notificationRef = await db.ref('systemNotifications').push(formData);
+        
+        // Ghi log
+        await db.ref('adminLogs').push({
+          action: 'Tạo thông báo hệ thống',
+          details: formData.title,
+          admin: 'admin@etax.vn',
+          timestamp: Date.now(),
+          date: new Date().toLocaleString('vi-VN')
+        });
+
+        alert('✅ Đã tạo thông báo hệ thống thành công!\\n\\nThông báo sẽ hiển thị trên tất cả trang con theo thời gian đã thiết lập.');
+        showSystemNotifications();
+        
+      } catch (error) {
+        console.error('Lỗi lưu thông báo:', error);
+        alert('❌ Có lỗi xảy ra khi lưu thông báo!');
+      }
+    }
+
+    // 👤 Tạo user mới
+    function createUser() {
+      alert('🚧 Chức năng đang phát triển - Sẽ có trong bước tiếp theo!');
+    }
+
+    // 📄 QUẢN LÝ NỘI DUNG
+    // 🎨 Open Visual Editor in new tab
+    function openVisualEditor() {
+      // Find and set active menu item
+      const menuItems = document.querySelectorAll('.menu-item');
+      menuItems.forEach(item => item.classList.remove('active'));
+      const visualEditorMenu = document.querySelector('[onclick="openVisualEditor()"]');
+      if (visualEditorMenu) {
+        visualEditorMenu.classList.add('active');
+      }
+      
+      // Open in new tab
+      window.open('multi-page-visual-editor.html', '_blank', 'width=1400,height=900');
+      
+      // Also show info in current panel
+      document.getElementById('contentArea').innerHTML = `
+        <div class="content-header">
+          <h2 class="content-title">🎨 VISUAL EDITOR</h2>
+          <button class="add-btn" onclick="openVisualEditor()">
+            <i class="fas fa-external-link-alt"></i> Mở lại Visual Editor
+          </button>
+        </div>
+        
+        <div style="background: #e8f4fd; padding: 30px; border-radius: 15px; text-align: center;">
+          <div style="font-size: 48px; margin-bottom: 20px;">🎨</div>
+          <h3 style="color: #333; margin-bottom: 15px;">Visual Editor đã mở trong tab mới!</h3>
+          <p style="color: #666; margin-bottom: 25px;">
+            Công cụ chỉnh sửa visual cho phép anh:
+          </p>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 25px 0;">
+            <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <div style="font-size: 24px; margin-bottom: 10px;">📱</div>
+              <h4>Chỉnh sửa trực tiếp</h4>
+              <p style="font-size: 13px; color: #666;">Click vào element để chỉnh sửa styling</p>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <div style="font-size: 24px; margin-bottom: 10px;">🎯</div>
+              <h4>Multi-page editing</h4>
+              <p style="font-size: 13px; color: #666;">Quản lý tất cả 13 trang eTax</p>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <div style="font-size: 24px; margin-bottom: 10px;">💾</div>
+              <h4>Live saving</h4>
+              <p style="font-size: 13px; color: #666;">Thay đổi được lưu ngay vào Firebase</p>
+            </div>
+          </div>
+          
+          <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
+            <strong>💡 Hướng dẫn sử dụng:</strong><br>
+            1. Chọn trang từ sidebar trái<br>
+            2. Click vào element muốn chỉnh sửa<br>
+            3. Thay đổi style ở panel phải<br>
+            4. Ấn "Áp dụng thay đổi" để lưu
+          </div>
+        </div>
+      `;
+    }
+
+    function showContentManagement() {
+      // Fix active menu
+      document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+      const contentMenu = document.querySelector('[onclick="showContentManagement()"]');
+      if (contentMenu) {
+        contentMenu.classList.add('active');
+      }
+      document.getElementById('contentArea').innerHTML = `
+        <div class="content-header">
+          <h2 class="content-title">📄 QUẢN LÝ NỘI DUNG</h2>
+          <button class="add-btn" onclick="createNewContent()">
+            <i class="fas fa-plus"></i> Tạo nội dung mới
+          </button>
+        </div>
+        
+        <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+          <h4 style="color: #2e7d32; margin-bottom: 10px;">📝 RICH TEXT EDITOR:</h4>
+          <p style="color: #333; margin-bottom: 10px;">• Editor với PWA design system match eTax Mobile</p>
+          <p style="color: #333; margin-bottom: 10px;">• Live preview responsive (Mobile/Tablet/Desktop)</p>
+          <p style="color: #333; margin-bottom: 10px;">• PWA Components: Header đỏ, Cards, Buttons, Tables</p>
+          <p style="color: #333;">• Auto-save và sync real-time với Firebase</p>
+        </div>
+
+        <div class="content-types-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px;">
+          
+          <div class="content-type-card" style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-left: 4px solid #b71c1c;">
+            <h4 style="margin-top: 0; color: #b71c1c;">📢 Thông báo trang</h4>
+            <p style="color: #666; margin-bottom: 15px;">Tạo thông báo cho từng trang riêng biệt</p>
+            <button onclick="createPageNotification()" style="background: #b71c1c; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+              ➕ Tạo thông báo
+            </button>
+          </div>
+
+          <div class="content-type-card" style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-left: 4px solid #28a745;">
+            <h4 style="margin-top: 0; color: #28a745;">📋 Nội dung trang</h4>
+            <p style="color: #666; margin-bottom: 15px;">Chỉnh sửa nội dung chính của các trang</p>
+            <button onclick="editPageContent()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+              ✏️ Chỉnh sửa
+            </button>
+          </div>
+
+          <div class="content-type-card" style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-left: 4px solid #17a2b8;">
+            <h4 style="margin-top: 0; color: #17a2b8;">📊 Dữ liệu động</h4>
+            <p style="color: #666; margin-bottom: 15px;">Quản lý dữ liệu thay đổi theo user</p>
+            <button onclick="manageDynamicData()" style="background: #17a2b8; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+              🔄 Quản lý
+            </button>
+          </div>
+
+        </div>
+
+        <div id="contentManagementEditor" style="min-height: 400px;">
+          <!-- Rich Text Editor sẽ load ở đây -->
+        </div>
+      `;
+    }
+
+    // 📝 Tạo nội dung mới với Rich Editor
+    function createNewContent() {
+      document.getElementById('contentManagementEditor').innerHTML = `
+        <div style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+          <h3 style="margin-bottom: 20px; color: #333;">📝 TẠO NỘI DUNG MỚI</h3>
+          
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">
+              📱 Chọn trang áp dụng:
+            </label>
+            <select id="targetPage" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+              <option value="">-- Chọn trang --</option>
+              <option value="index.html">🏠 Trang chủ (index.html)</option>
+              <option value="thongbao.html">📢 Thông báo (thongbao.html)</option>
+              <option value="hoadondt.html">📄 Hóa đơn điện tử (hoadondt.html)</option>
+              <option value="khaithue.html">📋 Khai thuế (khaithue.html)</option>
+              <option value="nopthue.html">💰 Nộp thuế (nopthue.html)</option>
+              <option value="nghiavu.html">🏢 Nghĩa vụ (nghiavu.html)</option>
+              <option value="tienich.html">🔧 Tiện ích (tienich.html)</option>
+              <option value="hotro.html">❓ Hỗ trợ (hotro.html)</option>
+            </select>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">
+              🎯 Loại nội dung:
+            </label>
+            <select id="contentType" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+              <option value="announcement">📢 Thông báo</option>
+              <option value="information">ℹ️ Thông tin</option>
+              <option value="instruction">📋 Hướng dẫn</option>
+              <option value="form">📝 Biểu mẫu</option>
+              <option value="table">📊 Bảng dữ liệu</option>
+            </select>
+          </div>
+
+          <div id="richTextEditorContainer"></div>
+          
+          <div style="margin-top: 20px; text-align: right;">
+            <button onclick="showContentManagement()" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-right: 10px; cursor: pointer;">
+              ❌ Hủy
+            </button>
+            <button onclick="saveNewContent()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+              💾 Lưu nội dung
+            </button>
+          </div>
+        </div>
+      `;
+      
+      // Initialize Rich Text Editor
+      initETaxRichEditor('richTextEditorContainer', {
+        showPreview: true,
+        autoSave: true,
+        mobileFirst: true
+      });
+    }
+
+    // 💾 Lưu nội dung mới
+    async function saveNewContent() {
+      const targetPage = document.getElementById('targetPage').value;
+      const contentType = document.getElementById('contentType').value;
+      
+      if (!targetPage) {
+        alert('❌ Vui lòng chọn trang áp dụng!');
+        return;
+      }
+      
+      const content = etaxEditor.getContent();
+      
+      if (!content || content.trim() === '') {
+        alert('❌ Vui lòng nhập nội dung!');
+        return;
+      }
+      
+      try {
+        const contentData = {
+          targetPage: targetPage,
+          contentType: contentType,
+          content: content,
+          createdAt: Date.now(),
+          createdBy: 'admin@etax.vn',
+          status: 'active',
+          lastModified: Date.now()
+        };
+        
+        // Lưu vào Firebase
+        await db.ref('pageContent').push(contentData);
+        
+        // Ghi log
+        await db.ref('adminLogs').push({
+          action: 'Tạo nội dung mới',
+          details: \`\${contentType} cho \${targetPage}\`,
+          admin: 'admin@etax.vn',
+          timestamp: Date.now(),
+          date: new Date().toLocaleString('vi-VN')
+        });
+        
+        alert('✅ Đã tạo nội dung thành công!\\n\\nNội dung sẽ hiển thị trên trang được chọn.');
+        showContentManagement();
+        
+      } catch (error) {
+        console.error('Lỗi lưu nội dung:', error);
+        alert('❌ Có lỗi xảy ra khi lưu nội dung!');
+      }
+    }
+
+    // 📢 Tạo thông báo cho trang
+    function createPageNotification() {
+      alert('🚧 Chức năng tạo thông báo riêng cho từng trang đang phát triển!');
+    }
+
+    // ✏️ Chỉnh sửa nội dung trang
+    function editPageContent() {
+      alert('🚧 Chức năng chỉnh sửa nội dung trang đang phát triển!');
+    }
+
+    // 🔄 Quản lý dữ liệu động
+    function manageDynamicData() {
+      alert('🚧 Chức năng quản lý dữ liệu động đang phát triển!');
+    }
+
+    function showPageManagement() {
+      // Fix active menu
+      document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+      const pageMenu = document.querySelector('[onclick="showPageManagement()"]');
+      if (pageMenu) {
+        pageMenu.classList.add('active');
+      }
+      
+      document.getElementById('contentArea').innerHTML = `
+        <div class="content-header">
+          <h2 class="content-title">📱 QUẢN LÝ TRANG CON</h2>
+          <button class="add-btn" onclick="alert('Tính năng sẽ được phát triển!')">
+            <i class="fas fa-plus"></i> Thêm trang mới
+          </button>
+        </div>
+        
+        <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; text-align: center;">
+          <h3>🚧 Chức năng đang phát triển</h3>
+          <p>Quản lý các trang con sẽ được bổ sung trong phiên bản tiếp theo</p>
+        </div>
+      `;
+    }
+
+    function showSystemLogs() {
+      // Fix active menu
+      document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+      const logMenu = document.querySelector('[onclick="showSystemLogs()"]');
+      if (logMenu) {
+        logMenu.classList.add('active');
+      }
+      
+      document.getElementById('contentArea').innerHTML = `
+        <div class="content-header">
+          <h2 class="content-title">📋 NHẬT KÝ HỆ THỐNG</h2>
+          <button class="add-btn" onclick="alert('Tính năng export logs sẽ được bổ sung!')">
+            <i class="fas fa-download"></i> Export logs
+          </button>
+        </div>
+        
+        <div style="background: #fff3cd; padding: 20px; border-radius: 10px; text-align: center;">
+          <h3>📋 System Logs</h3>
+          <p>Chức năng theo dõi nhật ký hệ thống sẽ được phát triển</p>
+        </div>
+      `;
+    }
+
+    function showSettings() {
+      // Fix active menu
+      document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+      const settingsMenu = document.querySelector('[onclick="showSettings()"]');
+      if (settingsMenu) {
+        settingsMenu.classList.add('active');
+      }
+      
+      document.getElementById('contentArea').innerHTML = `
+        <div class="content-header">
+          <h2 class="content-title">⚙️ CÀI ĐẶT HỆ THỐNG</h2>
+          <button class="add-btn" onclick="alert('Tính năng backup sẽ được bổ sung!')">
+            <i class="fas fa-save"></i> Backup System
+          </button>
+        </div>
+        
+        <div style="background: #f8d7da; padding: 20px; border-radius: 10px; text-align: center;">
+          <h3>⚙️ System Settings</h3>
+          <p>Cài đặt hệ thống sẽ được phát triển trong phiên bản tiếp theo</p>
+        </div>
+      `;
+    }
+
+    // 🚀 INIT
+    window.onload = function() {
+      console.log('🛡️ Admin Panel loading...');
+      
+      try {
+        // Check session with detailed logging
+        const session = localStorage.getItem('etax_admin_session');
+        if (!session) {
+          console.error('❌ No session found, redirecting to login');
+          alert('❌ Bạn chưa đăng nhập! Chuyển về trang đăng nhập...');
+          window.location.href = 'admin-login.html';
+          return;
+        }
+
+        const sessionData = JSON.parse(session);
+        if (Date.now() > sessionData.expiresAt) {
+          console.error('⏰ Session expired, redirecting to login');
+          alert('⏰ Phiên làm việc đã hết hạn! Vui lòng đăng nhập lại...');
+          localStorage.removeItem('etax_admin_session');
+          window.location.href = 'admin-login.html';
+          return;
+        }
+        
+        console.log('✅ Session valid, initializing admin panel');
+        
+        // Start components
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // Load dashboard with error handling
+        console.log('📊 Loading dashboard...');
+        showDashboard();
+        
+        // Start real-time monitoring
+        startRealtimeUserMonitoring();
+        
+        // Request notification permission
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission();
+        }
+        
+        console.log('✅ Admin Panel loaded successfully');
+        
+      } catch (error) {
+        console.error('❌ Admin Panel initialization failed:', error);
+        alert('❌ Có lỗi khi khởi tạo admin panel: ' + error.message);
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔍 DEBUG ADMIN PANEL</title>
+  
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f5f5f5;
+    }
+    .debug-section {
+      background: white;
+      padding: 20px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border-left: 4px solid #007cba;
+    }
+    .error { border-left-color: #dc3545; }
+    .success { border-left-color: #28a745; }
+    .warning { border-left-color: #ffc107; }
+    
+    button {
+      background: #007cba;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    
+    .test-menu {
+      background: #333;
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    
+    .menu-item {
+      display: block;
+      color: #ccc;
+      text-decoration: none;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .menu-item:hover,
+    .menu-item.active {
+      background: #007cba;
+      color: white;
+    }
+    
+    .content-area {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      min-height: 300px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 DEBUG ADMIN PANEL ISSUES</h1>
+  
+  <div class="debug-section">
+    <h3>🧪 System Check</h3>
+    <button onclick="checkBasics()">Check Basics</button>
+    <button onclick="checkFirebase()">Check Firebase</button>
+    <button onclick="checkDOM()">Check DOM</button>
+    <button onclick="testMenus()">Test Menu Functions</button>
+    <div id="systemStatus"></div>
+  </div>
+  
+  <div class="debug-section">
+    <h3>📝 Console Logs</h3>
+    <div id="consoleOutput" style="background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; white-space: pre-wrap;"></div>
+  </div>
+  
+  <div class="test-menu">
+    <h3>🎛️ Test Menu (Simplified)</h3>
+    <div class="menu-item" onclick="testShowDashboard()">📊 Test Dashboard</div>
+    <div class="menu-item" onclick="testShowNotifications()">📢 Test Notifications</div>
+    <div class="menu-item" onclick="testShowUsers()">👥 Test Users</div>
+    <div class="menu-item" onclick="testShowContent()">📄 Test Content</div>
+  </div>
+  
+  <div class="content-area" id="testContentArea">
+    <p>Content sẽ hiển thị ở đây khi anh click menu items...</p>
+  </div>
+  
+  <div class="debug-section">
+    <h3>🔗 Direct Links</h3>
+    <button onclick="window.open('admin-panel-new.html', '_blank')">🔗 Open Admin Panel New</button>
+    <button onclick="window.open('admin-login.html', '_blank')">🔗 Open Admin Login</button>
+    <button onclick="window.open('test-visual-editor.html', '_blank')">🔗 Open Test Page</button>
+  </div>
+
+  <script>
+    // 🔧 Override console to capture logs
+    const originalLog = console.log;
+    const originalError = console.error;
+    const logs = [];
+    
+    console.log = function(...args) {
+      originalLog.apply(console, args);
+      logs.push('LOG: ' + args.join(' '));
+      updateConsoleOutput();
+    };
+    
+    console.error = function(...args) {
+      originalError.apply(console, args);
+      logs.push('ERROR: ' + args.join(' '));
+      updateConsoleOutput();
+    };
+    
+    function updateConsoleOutput() {
+      document.getElementById('consoleOutput').textContent = logs.slice(-10).join('\n');
+    }
+    
+    // 🧪 Test functions
+    function checkBasics() {
+      console.log('🧪 Checking basics...');
+      
+      const results = [];
+      
+      // Check JavaScript
+      try {
+        const testVar = 'test';
+        results.push('✅ JavaScript working');
+      } catch (e) {
+        results.push('❌ JavaScript error: ' + e.message);
+      }
+      
+      // Check DOM
+      try {
+        const testDiv = document.createElement('div');
+        results.push('✅ DOM manipulation working');
+      } catch (e) {
+        results.push('❌ DOM error: ' + e.message);
+      }
+      
+      // Check event listeners
+      try {
+        document.body.addEventListener('click', function() {});
+        results.push('✅ Event listeners working');
+      } catch (e) {
+        results.push('❌ Event listener error: ' + e.message);
+      }
+      
+      document.getElementById('systemStatus').innerHTML = results.join('<br>');
+    }
+    
+    function checkFirebase() {
+      console.log('🔥 Checking Firebase...');
+      
+      try {
+        if (typeof firebase !== 'undefined') {
+          console.log('✅ Firebase library loaded');
+          
+          // Try to initialize
+          const firebaseConfig = {
+            apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+            authDomain: "etax-7fbf8.firebaseapp.com",
+            databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "etax-7fbf8"
+          };
+          
+          firebase.initializeApp(firebaseConfig);
+          const db = firebase.database();
+          console.log('✅ Firebase initialized successfully');
+          
+        } else {
+          console.error('❌ Firebase not found');
+        }
+      } catch (error) {
+        console.error('❌ Firebase error:', error.message);
+      }
+    }
+    
+    function checkDOM() {
+      console.log('📄 Checking DOM elements...');
+      
+      const requiredElements = ['testContentArea'];
+      
+      requiredElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          console.log(`✅ Element #${id} found`);
+        } else {
+          console.error(`❌ Element #${id} not found`);
+        }
+      });
+    }
+    
+    function testMenus() {
+      console.log('🎛️ Testing menu functions...');
+      
+      // Test if functions exist
+      const functions = ['testShowDashboard', 'testShowNotifications', 'testShowUsers', 'testShowContent'];
+      
+      functions.forEach(funcName => {
+        if (typeof window[funcName] === 'function') {
+          console.log(`✅ Function ${funcName} exists`);
+        } else {
+          console.error(`❌ Function ${funcName} not found`);
+        }
+      });
+    }
+    
+    // 🎛️ Test menu functions (simplified versions)
+    function testShowDashboard() {
+      console.log('📊 Testing Dashboard function...');
+      
+      // Remove active class
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      
+      // Add active to current
+      event.target.classList.add('active');
+      
+      // Update content
+      document.getElementById('testContentArea').innerHTML = `
+        <h2>📊 DASHBOARD TEST</h2>
+        <p>✅ Dashboard function working!</p>
+        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 10px 0;">
+          <strong>Test Stats:</strong><br>
+          Total Users: 25<br>
+          Pending: 3<br>
+          Notifications: 2
+        </div>
+      `;
+      
+      console.log('✅ Dashboard content updated');
+    }
+    
+    function testShowNotifications() {
+      console.log('📢 Testing Notifications function...');
+      
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      document.getElementById('testContentArea').innerHTML = `
+        <h2>📢 NOTIFICATIONS TEST</h2>
+        <p>✅ Notifications function working!</p>
+        <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 10px 0;">
+          <strong>System Notifications:</strong><br>
+          • Test notification 1<br>
+          • Test notification 2
+        </div>
+      `;
+      
+      console.log('✅ Notifications content updated');
+    }
+    
+    function testShowUsers() {
+      console.log('👥 Testing Users function...');
+      
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      document.getElementById('testContentArea').innerHTML = `
+        <h2>👥 USERS TEST</h2>
+        <p>✅ Users function working!</p>
+        <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin: 10px 0;">
+          <strong>User Management:</strong><br>
+          • Approved: 22 users<br>
+          • Pending: 3 users<br>
+          • Blocked: 0 users
+        </div>
+      `;
+      
+      console.log('✅ Users content updated');
+    }
+    
+    function testShowContent() {
+      console.log('📄 Testing Content function...');
+      
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      document.getElementById('testContentArea').innerHTML = `
+        <h2>📄 CONTENT TEST</h2>
+        <p>✅ Content function working!</p>
+        <div style="background: #fce4ec; padding: 15px; border-radius: 8px; margin: 10px 0;">
+          <strong>Content Management:</strong><br>
+          • Rich Text Editor: Ready<br>
+          • Visual Editor: Ready<br>
+          • Page Management: Ready
+        </div>
+      `;
+      
+      console.log('✅ Content content updated');
+    }
+    
+    // 🚀 Initialize
+    window.onload = function() {
+      console.log('🔍 Debug page loaded');
+      console.log('Browser:', navigator.userAgent);
+      console.log('URL:', window.location.href);
+      
+      checkBasics();
+      checkFirebase();
+      checkDOM();
+    };
+  </script>
+</body>
+</html>

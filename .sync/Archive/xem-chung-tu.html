@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Chứng từ">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#ffffff">
+  
+  <title>Giấy nộp tiền vào ngân sách nhà nước</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #ffffff;
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: none;
+    }
+
+    .document-container {
+      width: 100%;
+      min-height: 100vh;
+      background-color: #ffffff;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* PDF Page Container */
+    .pdf-page-wrapper {
+      width: 100%;
+      max-width: 100vw;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .pdf-page-canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #ffffff;
+      border: none;
+      outline: none;
+    }
+
+    /* Loading State */
+    .loading-container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #ffffff;
+    }
+
+    .loading-spinner {
+      width: 30px;
+      height: 30px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #007AFF;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 14px;
+      color: #666;
+      text-align: center;
+    }
+
+    /* Error State */
+    .error-container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #ffffff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .error-icon {
+      font-size: 48px;
+      color: #ff3b30;
+      margin-bottom: 16px;
+    }
+
+    .error-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .error-message {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .retry-btn {
+      background-color: #007AFF;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .retry-btn:hover {
+      background-color: #0056b3;
+    }
+
+    /* Page Break for Print */
+    .page-break {
+      page-break-after: always;
+      break-after: page;
+    }
+
+    /* Print Styles */
+    @media print {
+      html, body {
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      
+      .document-container {
+        background: white !important;
+        padding: 0 !important;
+      }
+      
+      .pdf-page-wrapper {
+        page-break-inside: avoid;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      
+      .pdf-page-canvas {
+        width: 100% !important;
+        height: auto !important;
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .pdf-page-wrapper {
+        padding: 0;
+      }
+    }
+
+    /* Hide scrollbars but keep functionality */
+    .document-container::-webkit-scrollbar {
+      width: 0px;
+      background: transparent;
+    }
+
+    .document-container {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="document-container">
+    <!-- Loading State -->
+    <div class="loading-container" id="loading-container">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Đang tải chứng từ...</div>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-container" id="error-container" style="display: none;">
+      <div class="error-title">Không thể tải chứng từ</div>
+      <div class="error-message" id="error-message">
+        Vui lòng kiểm tra kết nối mạng và thử lại.
+      </div>
+      <button class="retry-btn" onclick="loadPDF()">Thử lại</button>
+    </div>
+
+    <!-- PDF Content Container -->
+    <div id="pdf-container" style="display: none;">
+      <!-- PDF pages will be rendered here -->
+    </div>
+  </div>
+
+  <!-- PDF.js Library - Local Files -->
+  <script src="pdfjs/pdf.js"></script>
+  <script>
+    // PDF.js Configuration - Local Worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdfjs/pdf.worker.js';
+
+    // Global Variables
+    let pdfDoc = null;
+    let currentMST = null;
+    let scale = 1.0;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get MST from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      currentMST = urlParams.get('mst');
+      
+      if (!currentMST) {
+        showError('Không tìm thấy mã số thuế', 'Vui lòng quay lại trang tra cứu và chọn lại chứng từ.');
+        return;
+      }
+      
+      // Load PDF
+      loadPDF();
+    });
+
+    // Load PDF Document
+    async function loadPDF() {
+      try {
+        showLoading();
+        
+        // Construct PDF path based on MST
+        const pdfPath = `pdf/${currentMST}.pdf`;
+        
+        console.log('Loading PDF:', pdfPath);
+        
+        // Load PDF document
+        const loadingTask = pdfjsLib.getDocument(pdfPath);
+        pdfDoc = await loadingTask.promise;
+        
+        const totalPages = pdfDoc.numPages;
+        
+        // Calculate optimal scale for mobile
+        const viewportWidth = window.innerWidth;
+        const baseScale = Math.min(viewportWidth / 595, 2.0); // 595 is typical PDF width
+        scale = baseScale;
+        
+        // Render all pages
+        await renderAllPages(totalPages);
+        
+        // Show PDF container
+        hideLoading();
+        document.getElementById('pdf-container').style.display = 'block';
+        
+        console.log('PDF loaded successfully:', totalPages, 'pages');
+        
+      } catch (error) {
+        console.error('Error loading PDF:', error);
+        
+        let errorMessage = 'Vui lòng kiểm tra kết nối mạng và thử lại.';
+        
+        if (error.name === 'MissingPDFException') {
+          errorMessage = `Không tìm thấy file chứng từ cho MST: ${currentMST}`;
+        } else if (error.name === 'InvalidPDFException') {
+          errorMessage = 'File PDF bị lỗi hoặc không hợp lệ.';
+        } else if (error.name === 'UnexpectedResponseException') {
+          errorMessage = 'Không thể tải file. Vui lòng kiểm tra kết nối mạng.';
+        }
+        
+        showError('Không thể tải chứng từ', errorMessage);
+      }
+    }
+
+    // Render All Pages
+    async function renderAllPages(totalPages) {
+      const container = document.getElementById('pdf-container');
+      container.innerHTML = '';
+      
+      for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+        await renderPage(pageNum, pageNum === totalPages);
+      }
+    }
+
+    // Render Single Page
+    async function renderPage(pageNum, isLastPage = false) {
+      try {
+        const page = await pdfDoc.getPage(pageNum);
+        
+        // Get page viewport
+        const viewport = page.getViewport({ scale: 1.0 });
+        
+        // Calculate scale to fit width
+        const containerWidth = window.innerWidth;
+        const calculatedScale = containerWidth / viewport.width;
+        const finalScale = Math.min(calculatedScale * scale, 3.0);
+        
+        const scaledViewport = page.getViewport({ scale: finalScale });
+        
+        // Create canvas
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = scaledViewport.height;
+        canvas.width = scaledViewport.width;
+        canvas.className = 'pdf-page-canvas';
+        
+        // Create wrapper
+        const wrapper = document.createElement('div');
+        wrapper.className = 'pdf-page-wrapper';
+        if (!isLastPage) {
+          wrapper.classList.add('page-break');
+        }
+        wrapper.appendChild(canvas);
+        
+        // Add to container
+        document.getElementById('pdf-container').appendChild(wrapper);
+        
+        // Render page
+        const renderContext = {
+          canvasContext: context,
+          viewport: scaledViewport
+        };
+        
+        await page.render(renderContext).promise;
+        
+        console.log(`Page ${pageNum} rendered successfully`);
+        
+      } catch (error) {
+        console.error(`Error rendering page ${pageNum}:`, error);
+      }
+    }
+
+    // UI State Functions
+    function showLoading() {
+      document.getElementById('loading-container').style.display = 'flex';
+      document.getElementById('error-container').style.display = 'none';
+      document.getElementById('pdf-container').style.display = 'none';
+    }
+
+    function hideLoading() {
+      document.getElementById('loading-container').style.display = 'none';
+    }
+
+    function showError(title, message) {
+      document.getElementById('loading-container').style.display = 'none';
+      document.getElementById('pdf-container').style.display = 'none';
+      document.getElementById('error-container').style.display = 'flex';
+      
+      const errorContainer = document.getElementById('error-container');
+      errorContainer.querySelector('.error-title').textContent = title;
+      errorContainer.querySelector('.error-message').textContent = message;
+    }
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+      if (pdfDoc) {
+        // Debounce resize to avoid too many re-renders
+        clearTimeout(window.resizeTimeout);
+        window.resizeTimeout = setTimeout(async function() {
+          const totalPages = pdfDoc.numPages;
+          
+          // Recalculate scale
+          const viewportWidth = window.innerWidth;
+          const baseScale = Math.min(viewportWidth / 595, 2.0);
+          scale = baseScale;
+          
+          // Re-render all pages
+          await renderAllPages(totalPages);
+        }, 300);
+      }
+    });
+
+    // Handle orientation change
+    window.addEventListener('orientationchange', function() {
+      setTimeout(function() {
+        if (pdfDoc) {
+          const totalPages = pdfDoc.numPages;
+          
+          // Recalculate scale for new orientation
+          const viewportWidth = window.innerWidth;
+          const baseScale = Math.min(viewportWidth / 595, 2.0);
+          scale = baseScale;
+          
+          // Re-render all pages
+          renderAllPages(totalPages);
+        }
+      }, 100);
+    });
+
+    // Prevent zoom on double tap
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function (event) {
+      const now = (new Date()).getTime();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+
+    // Handle back navigation
+    window.addEventListener('popstate', function() {
+      window.location.href = 'tra-cuu-chung-tu.html';
+    });
+
+    // Add meta tag for iOS to prevent zoom
+    const meta = document.createElement('meta');
+    meta.name = 'viewport';
+    meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+    
+    // Only apply no-zoom on very small screens
+    if (window.innerWidth < 768) {
+      document.head.appendChild(meta);
+    }
+  </script>
+</body>
+</html>

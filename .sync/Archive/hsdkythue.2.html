@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Thông báo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      display: flex;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .phone-frame {
+      width: 400px;
+      height: 844px;
+      background-color: #f3f2f2;
+      
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background-color: #a80000;
+      color: white;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header i {
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .header-title {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .container {
+      padding: 15px;
+    }
+
+    .dropdown-label {
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: #a80000;
+    }
+
+    .dropdown {
+      position: relative;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .dropdown .selected {
+      font-size: 14px;
+    }
+
+    .dropdown .options {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      max-height: 300px;
+      overflow-y: scroll;
+      z-index: 1000;
+      scrollbar-width: none; /* Firefox */
+    }
+
+    .dropdown .options::-webkit-scrollbar {
+      width: 0px;
+      background: transparent; /* Chrome/Safari */
+    }
+
+    .dropdown.open .options {
+      display: block;
+    }
+
+    .dropdown .option {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .dropdown .option:last-child {
+      border-bottom: none;
+    }
+
+    input[type="date"], button {
+      width: 100%;
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #a80000;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="header">
+      <i class="fas fa-arrow-left" onclick="window.location.href='dangky.html'"></i>
+      <div class="header-title">Hồ sơ đăng ký thuế</div>
+      <i class="fas fa-house" onclick="window.location.href='home.html'"></i>
+    </div>
+
+    <div class="container">
+      <label class="dropdown-label">Danh mục tờ khai</label>
+      <div class="dropdown" id="dropdown">
+        <div class="selected">Tất cả -</div>
+        <div class="options">
+          <div class="option">02TH - Bảng tổng hợp đăng ký người phụ<br> thuộc giảm trừ gia cảnh</div>
+          <div class="option">03-ĐK-TCT - Tờ khai đăng ký (Dùng cho hộ<br> gia đình, nhóm cá nhân, cá nhân kinh<br> doanh) (TT95/2016)</div>
+          <div class="option">03-ĐK-TCT - Tờ khai đăng ký (Dùng cho hộ<br> gia đình, nhóm cá nhân, cá nhân kinh<br></r> doanh) (TT105/2020)</div>
+          <div class="option">03-ĐK-TCT - Tờ khai đăng ký (Dùng cho hộ<br> gia đình, nhóm cá nhân, cá nhân kinh<br> doanh) (TT86/2024)</div>
+          <div class="option">05-ĐK-TH-TCT - Tờ khai đăng ký thuế tổng<br> hợp của cá nhân có thu nhập từ tiền<br> lương, tiền công (Dùng cho cơ quan chi trả<br> thu nhập đăng ký cho cá nhân có uỷ<br> quyền) (TT105/2020)</div>
+          <div class="option">05-ĐK-TCT - Tờ khai đăng ký (Dùng cho cá<br> nhân khác) (TT86/2024)</div>
+          <div class="option">05-ĐK-TCT - Tờ khai đăng ký (Dùng cho cá<br> nhân khác) TT105</div>
+          <div class="option">05-ĐK-TCT-Tờ khai đăng ký (Dùng cho cá<br>nhân khác)(TT95/2016)</div>
+          <div class="option">05-ĐK-TH-TCT-Tờ khai đăng ký thuê tổng<br>hợp cho cá nhân có thu nhập từ tiền<br>lương, tiền công thông qua cơ quan chi<br>trả thu nhập (TT95/2016)</div>
+          <div class="option">05-ĐK-TH-TCT-Tờ khai đăng ký thuê tổng<br>hợp cho cá nhân có thu nhập từ tiền<br>lương, tiền công thông qua cơ quan chi<br>trả thu nhập (TT86/2024)</div>
+          <div class="option">08-MST-Tờ khai điều chỉnh, bổ sung thông<br>tin đăng ký thuế</div>
+          <div class="option">13-MST-Văn bản đề nghị cấp lại giấy<br>chứng nhận đăng ký thuế/thông báo mã<br>số thuế (TT86)</div>
+          <div class="option">13-MST-Văn bản đề nghị cấp lại giấy<br>chứng nhận đăng ký thuế/thông báo mã<br>số thuế (TT95/2016)</div>
+          <div class="option">20/ĐK-TCT-Tờ khai đăng ký người phụ<br>thuộc của cá nhân có thu nhập từ tiền<br>lương, tiền công (TT86/2024)</div>
+          <div class="option">20/ĐK-TCT-Tờ khai đăng ký người phụ<br>thuộc của cá nhân có thu nhập từ tiền<br>lương, tiền công (TT95/2016)</div>
+          <div class="option">20/ĐK-TCT-Tờ khai đăng ký người phụ<br>thuộc của cá nhân có thu nhập từ tiền<br>lương, tiền công (TT105/2020)</div>
+          <div class="option">23/ĐK-TCT-Thông báo về việc tạm ngừng<br>kinh doanh/tiếp tục kinh doanh trước thơif<br>hạn đã thông báo của người nộp thuế<br>(TT95/2016)</div>
+          <div class="option">23/ĐK-TCT-Thông báo về việc tạm ngừng<br>kinh doanh/tiếp tục kinh doanh trước thơif<br>hạn đã thông báo của người nộp thuế<br>(TT86)</div>
+          <div class="option">24/ĐK_TCT-Văn bản đề nghị chấm dứt<br>hiệu lực mã số thuế (TT86)</div>
+          <div class="option">24/ĐK_TCT-Văn bản đề nghị chấm dứt<br>hiệu lực mã số thuế (TT95/2016)</div>
+          <div class="option">25/ĐK-TCT-Văn bản đề nghị khôi phục mã<br>số thuế (TT86)</div>
+          <div class="option">25/ĐK-TCT-Văn bản đề nghị khôi phục mã<br>số thuế (TT95/2016)</div>
+          <div class="option">32-ĐK-TCT-Văn bản đề nghị cấp giấy<br>chứng nhận đăng ký thuế cho cá<br>nhân (TT86)</div>
+        </div>
+      </div>
+
+      <label for="from">Từ ngày *</label>
+      <input type="date" id="from" />
+
+      <label for="to">Đến ngày *</label>
+      <input type="date" id="to" />
+
+      <button>Tra cứu</button>
+    </div>
+
+    <script>
+      // Dropdown script
+      const dropdown = document.getElementById("dropdown");
+      const selected = dropdown.querySelector(".selected");
+      const options = dropdown.querySelectorAll(".option");
+
+      selected.addEventListener("click", () => {
+        dropdown.classList.toggle("open");
+      });
+
+      options.forEach(option => {
+        option.addEventListener("click", () => {
+          selected.textContent = option.textContent;
+          dropdown.classList.remove("open");
+        });
+      });
+
+      // Set mặc định ngày = hôm nay, max = hôm nay + 1
+      function formatDate(date) {
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+      }
+
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+
+      const fromInput = document.getElementById("from");
+      const toInput = document.getElementById("to");
+
+      const todayStr = formatDate(today);
+      const tomorrowStr = formatDate(tomorrow);
+
+      fromInput.value = todayStr;
+      toInput.value = todayStr;
+      fromInput.max = tomorrowStr;
+      toInput.max = tomorrowStr;
+    </script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+# Firebase ignore file
+# Ignore executable files that cause deploy errors
+
+# Executable files
+*.exe
+*.bat
+*.msi
+*.dll
+*.app
+
+# Development files
+*.backup
+backup/
+temp_*
+node_modules/
+.git/
+.vscode/
+
+# PDF.js files (too large for deployment)
+pdfjs/
+pdf/
+
+# Build artifacts
+dist/
+build/
+
+# Cache files
+.cache/
+*.log
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+*.swp
+*.swo
+*~
+
+# Backup files created during CSS updates
+backup/
+
+# Script files we created for updates
+update-css-template.bat
+
+# Large PDF files
+*.pdf
+
+# Zip files
+*.zip

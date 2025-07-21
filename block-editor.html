@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>eTax Mobile - Block Editor (Admin)</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: 'Roboto', Arial, sans-serif; background: #f9fafc; }
+    .editor { background: #fff; max-width: 540px; margin: 40px auto; border-radius: 16px; box-shadow: 0 2px 14px #0001; padding: 32px 26px; }
+    .block-head { display:flex;gap:14px;align-items:center; }
+    select { padding:7px 14px;border-radius:8px;border:1px solid #ccc;margin-bottom:12px;}
+    .block-list>div { background: #f8f8fb; margin-bottom:14px; border-radius:8px; padding:13px 14px 11px 18px; position:relative; box-shadow:0 2px 12px #0001;}
+    .block-list .actions { position:absolute; right:16px; top:10px;}
+    .block-list .actions button { background:none; border:none; color:#e32526; font-weight:bold; cursor:pointer; margin-left:4px;}
+    .add-btn { background:#e32526;color:#fff;border:none; padding:9px 19px; border-radius:7px; margin-right:9px; cursor:pointer;}
+    .add-btn:active {background:#b31415;}
+    .file-up {margin-top:12px;}
+    .block-label {font-weight:bold;color:#c00;}
+    .preview-img {max-width:220px;border-radius:6px;margin:7px 0;}
+  </style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+</head>
+<body>
+  <div class="editor">
+    <h2>Quản lý block động (từng user & từng trang con)</h2>
+    <div class="block-head">
+      <span>🔑 User: <b id="userLabel"></b></span>
+      <label for="pageSelect">Trang con:</label>
+      <select id="pageSelect">
+        <option value="hoso">Hồ sơ</option>
+        <option value="canhbao">Cảnh báo</option>
+        <option value="ketqua">Kết quả</option>
+      </select>
+    </div>
+    <div style="margin-bottom:14px;">
+      <button class="add-btn" onclick="addTextBlock()">+ Thêm văn bản</button>
+      <button class="add-btn" onclick="chooseFile('pdf')">+ Tải file PDF</button>
+      <button class="add-btn" onclick="chooseFile('image')">+ Thêm ảnh</button>
+      <input type="file" id="fileInput" style="display:none" />
+    </div>
+    <div id="blockList" class="block-list"></div>
+    <div id="notify" style="color:green;margin-top:10px;"></div>
+  </div>
+  <script>
+    // Firebase config chuẩn
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+      authDomain: "etax-7fbf8.firebaseapp.com",
+      databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "etax-7fbf8",
+      storageBucket: "etax-7fbf8.appspot.com",
+      messagingSenderId: "1030026724634",
+      appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3",
+      measurementId: "G-YS5DLECJE6"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const storage = firebase.storage();
+
+    // Lấy MST từ URL (?mst=xxx)
+    function getParam(key) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(key) || '';
+    }
+    const mst = getParam("mst");
+    document.getElementById("userLabel").innerText = mst;
+
+    // Trang con/page động
+    let page = document.getElementById("pageSelect").value;
+    document.getElementById("pageSelect").onchange = function() {
+      page = this.value; loadBlocks();
+    };
+
+    // Load danh sách block
+    function loadBlocks() {
+      db.ref("userdata/" + mst + "/" + page).once("value").then(snap => {
+        const list = snap.val() || [];
+        renderBlocks(list);
+      });
+    }
+    // Hiển thị block động
+    function renderBlocks(list) {
+      const wrap = document.getElementById("blockList");
+      wrap.innerHTML = "";
+      list.forEach((block, i) => {
+        let html = "";
+        if (block.type === "text") {
+          html = `<div class="block-label">Văn bản:</div>
+                  <div contenteditable="true" style="outline:1px solid #ccc;border-radius:4px;background:#fff;min-height:32px;padding:4px 7px;margin-bottom:7px;"
+                       onblur="saveEditBlock(${i},this.innerText)">${block.content}</div>`;
+        }
+        if (block.type === "pdf") {
+          html = `<div class="block-label">PDF:</div>
+                  <a href="${block.url}" target="_blank">${block.name||"Tập tin PDF"}</a>`;
+        }
+        if (block.type === "image") {
+          html = `<div class="block-label">Ảnh:</div>
+                  <img class="preview-img" src="${block.url}" />
+                  <div contenteditable="true" style="outline:1px solid #eee;min-height:22px;border-radius:4px;padding:3px 7px;background:#f9f9f9"
+                       onblur="saveEditCaption(${i},this.innerText)">${block.caption||""}</div>`;
+        }
+        html += `<div class="actions">
+                  <button onclick="deleteBlock(${i})">Xoá</button>
+                </div>`;
+        const d = document.createElement("div"); d.innerHTML = html;
+        wrap.appendChild(d);
+      });
+    }
+
+    // Thêm block văn bản
+    function addTextBlock() {
+      const content = prompt("Nhập nội dung văn bản mới:");
+      if (!content) return;
+      db.ref("userdata/" + mst + "/" + page).once("value").then(snap => {
+        const list = snap.val() || [];
+        list.push({type:"text", content});
+        db.ref("userdata/" + mst + "/" + page).set(list).then(loadBlocks);
+      });
+    }
+    // Thêm block file (PDF hoặc ảnh)
+    function chooseFile(type) {
+      const inp = document.getElementById("fileInput");
+      inp.accept = type==="pdf" ? "application/pdf" : "image/*";
+      inp.onchange = () => uploadFileBlock(inp.files[0], type);
+      inp.value = ""; // reset input
+      inp.click();
+    }
+    function uploadFileBlock(file, type) {
+      if (!file) return;
+      const ref = storage.ref(`userdata/${mst}/${page}/${Date.now()}_${file.name}`);
+      ref.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
+        db.ref("userdata/" + mst + "/" + page).once("value").then(snap => {
+          const list = snap.val() || [];
+          if (type === "pdf") list.push({type:"pdf", url, name:file.name});
+          else list.push({type:"image", url, caption:""});
+          db.ref("userdata/" + mst + "/" + page).set(list).then(loadBlocks);
+          notify("Tải lên thành công!");
+        });
+      }).catch(()=>notify("Lỗi tải lên file!"));
+    }
+    // Xoá block
+    function deleteBlock(idx) {
+      db.ref("userdata/" + mst + "/" + page).once("value").then(snap => {
+        const list = snap.val() || [];
+        list.splice(idx,1);
+        db.ref("userdata/" + mst + "/" + page).set(list).then(loadBlocks);
+      });
+    }
+    // Sửa trực tiếp nội dung văn bản
+    function saveEditBlock(idx, content) {
+      db.ref("userdata/" + mst + "/" + page).once("value").then(snap => {
+        const list = snap.val() || [];
+        if (list[idx] && list[idx].type==="text") {
+          list[idx].content = content;
+          db.ref("userdata/" + mst + "/" + page).set(list).then(loadBlocks);
+        }
+      });
+    }
+    // Sửa caption ảnh
+    function saveEditCaption(idx, caption) {
+      db.ref("userdata/" + mst + "/" + page).once("value").then(snap => {
+        const list = snap.val() || [];
+        if (list[idx] && list[idx].type==="image") {
+          list[idx].caption = caption;
+          db.ref("userdata/" + mst + "/" + page).set(list).then(loadBlocks);
+        }
+      });
+    }
+    function notify(msg) {
+      document.getElementById("notify").innerText = msg;
+      setTimeout(()=>{document.getElementById("notify").innerText="";}, 2000);
+    }
+    loadBlocks();
+  </script>
+</body>
+</html>

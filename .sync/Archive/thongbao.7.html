@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#B40000">
+  <title>Thông báo - eTax Mobile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      touch-action: manipulation;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      width: 100%;
+      height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: #B40000;
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .header .back-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: background 0.3s;
+    }
+
+    .header .back-btn:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .header .title {
+      font-size: 18px;
+      font-weight: 600;
+      flex: 1;
+      text-align: center;
+    }
+
+    .header .home-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: background 0.3s;
+    }
+
+    /* ===== TAB BAR ===== */
+    .tab-bar {
+      background: white;
+      display: flex;
+      border-bottom: 1px solid #e0e0e0;
+      overflow-x: auto;
+      position: sticky;
+      top: 52px;
+      z-index: 99;
+    }
+
+    .tab-item {
+      flex: 1;
+      min-width: 120px;
+      padding: 12px 8px;
+      text-align: center;
+      background: #f5f5f5;
+      border: none;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+
+    .tab-item.active {
+      background: #ef5007;
+      color: white;
+    }
+
+    .tab-item .badge {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      background: #f83e19;
+      color: white;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      min-width: 16px;
+      height: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ===== SEARCH BAR ===== */
+    .search-container {
+      background: white;
+      padding: 16px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 10px 12px 10px 40px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 12px center;
+      background-size: 16px 16px;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #B40000;
+    }
+
+    .advanced-btn {
+      background: none;
+      border: 1px solid #B40000;
+      color: #B40000;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ===== NOTIFICATION LIST ===== */
+    .notification-list {
+      padding: 16px;
+      max-height: calc(100vh - 200px);
+      overflow-y: auto;
+    }
+
+    .notification-item {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border-left: 4px solid #B40000;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .notification-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .notification-time {
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .notification-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .notification-content {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .header {
+        padding: 10px 12px;
+      }
+      
+      .header .title {
+        font-size: 16px;
+      }
+      
+      .tab-item {
+        font-size: 11px;
+        padding: 10px 6px;
+      }
+      
+      .search-container {
+        padding: 12px;
+      }
+      
+      .notification-list {
+        padding: 12px;
+      }
+    }
+
+    /* ===== LOADING STATE ===== */
+    .loading-state {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #B40000;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <button class="back-btn" onclick="goBack()">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="title">Thông báo</div>
+    <button class="home-btn" onclick="goHome()">
+      <i class="fas fa-home"></i>
+    </button>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-item active" data-tab="admin" onclick="switchTab('admin')">
+      Thông báo<br>hành chính của<br>CQT
+      <span class="badge" id="adminBadge">0</span>
+    </button>
+    <button class="tab-item" data-tab="tax" onclick="switchTab('tax')">
+      Biến động<br>nghĩa vụ thuế
+      <span class="badge" id="taxBadge">0</span>
+    </button>
+    <button class="tab-item" data-tab="other" onclick="switchTab('other')">
+      Thông báo<br>khác
+      <span class="badge" id="otherBadge">0</span>
+    </button>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-container">
+    <div class="search-bar">
+      <input type="text" class="search-input" placeholder="Tìm theo nội dung hoặc ngày" id="searchInput">
+      <button class="advanced-btn" onclick="showAdvancedSearch()">
+        <i class="fas fa-plus"></i>
+        Nâng cao
+      </button>
+    </div>
+  </div>
+
+  <!-- Notification List -->
+  <div class="notification-list" id="notificationList">
+    <!-- Loading State -->
+    <div class="loading-state" id="loadingState">
+      <div class="loading-spinner"></div>
+      <div>Đang tải thông báo...</div>
+    </div>
+<!-- Empty State -->
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <i class="fas fa-bell-slash"></i>
+      <div>Chưa có thông báo nào</div>
+    </div>
+
+    <!-- Notifications will be loaded here -->
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+      authDomain: "etax-7fbf8.firebaseapp.com",
+      databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "etax-7fbf8",
+      storageBucket: "etax-7fbf8.appspot.com",
+      messagingSenderId: "1030026724634",
+      appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Global variables
+    let currentTab = 'admin';
+    let currentUser = null;
+    let allNotifications = [];
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get current user
+      const userInfo = localStorage.getItem('etax_user_info');
+      if (userInfo) {
+        currentUser = JSON.parse(userInfo);
+        console.log('Current user:', currentUser.mst);
+      } else {
+        // Redirect to login if no user
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Load notifications
+      loadNotifications();
+
+      // Setup search
+      setupSearch();
+    });
+
+    // ===== LOAD NOTIFICATIONS =====
+    async function loadNotifications() {
+      try {
+        showLoading();
+
+        // Load notifications for current user
+        const snapshot = await db.ref('notifications/' + currentUser.mst).once('value');
+        const notifications = snapshot.val() || {};
+
+        // Convert to array and sort by timestamp
+        allNotifications = Object.entries(notifications).map(([id, notification]) => ({
+          id,
+          ...notification
+        })).sort((a, b) => b.timestamp - a.timestamp);
+
+        console.log('Loaded notifications:', allNotifications.length);
+
+        // Filter by current tab
+        filterNotifications();
+        
+        // Update badges
+        updateBadges();
+
+        hideLoading();
+
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+        hideLoading();
+        showEmptyState();
+      }
+    }
+
+    // ===== FILTER NOTIFICATIONS BY TAB =====
+    function filterNotifications() {
+      let filteredNotifications = [];
+
+      switch (currentTab) {
+        case 'admin':
+          filteredNotifications = allNotifications.filter(n => n.type === 'admin');
+          break;
+        case 'tax':
+          filteredNotifications = allNotifications.filter(n => n.type === 'transaction');
+          break;
+        case 'other':
+          filteredNotifications = allNotifications.filter(n => n.type === 'account' || n.type === 'other');
+          break;
+      }
+
+      displayNotifications(filteredNotifications);
+    }
+
+    // ===== DISPLAY NOTIFICATIONS =====
+    function displayNotifications(notifications) {
+      const container = document.getElementById('notificationList');
+      
+      if (notifications.length === 0) {
+        showEmptyState();
+        return;
+      }
+
+      container.innerHTML = '';
+
+      notifications.forEach(notification => {
+        const notificationElement = createNotificationElement(notification);
+        container.appendChild(notificationElement);
+      });
+    }
+
+    // ===== CREATE NOTIFICATION ELEMENT =====
+    function createNotificationElement(notification) {
+      const div = document.createElement('div');
+      div.className = 'notification-item';
+      div.onclick = () => openNotification(notification);
+
+      const time = new Date(notification.timestamp).toLocaleString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+
+      div.innerHTML = `
+        <div class="notification-time">${time}</div>
+        <div class="notification-title">${notification.title}</div>
+        <div class="notification-content">${notification.content}</div>
+      `;
+
+      return div;
+    }
+
+    // ===== SWITCH TAB =====
+    function switchTab(tabName) {
+      // Update active tab
+      document.querySelectorAll('.tab-item').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+      currentTab = tabName;
+      filterNotifications();
+    }
+
+    // ===== UPDATE BADGES =====
+    function updateBadges() {
+      const adminCount = allNotifications.filter(n => n.type === 'admin').length;
+      const taxCount = allNotifications.filter(n => n.type === 'transaction').length;
+      const otherCount = allNotifications.filter(n => n.type === 'account' || n.type === 'other').length;
+
+      document.getElementById('adminBadge').textContent = adminCount;
+      document.getElementById('taxBadge').textContent = taxCount;
+      document.getElementById('otherBadge').textContent = otherCount;
+
+      // Hide badges with 0 count
+      document.getElementById('adminBadge').style.display = adminCount > 0 ? 'flex' : 'none';
+      document.getElementById('taxBadge').style.display = taxCount > 0 ? 'flex' : 'none';
+      document.getElementById('otherBadge').style.display = otherCount > 0 ? 'flex' : 'none';
+    }
+
+    // ===== SEARCH FUNCTIONALITY =====
+    function setupSearch() {
+      const searchInput = document.getElementById('searchInput');
+      let searchTimeout;
+
+      searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          const query = this.value.toLowerCase().trim();
+          
+          if (query === '') {
+            filterNotifications();
+          } else {
+            const filtered = allNotifications.filter(n => 
+              (n.type === getTabType(currentTab)) &&
+              (n.title.toLowerCase().includes(query) || 
+               n.content.toLowerCase().includes(query))
+            );
+            displayNotifications(filtered);
+          }
+        }, 300);
+      });
+    }
+
+    function getTabType(tab) {
+      switch (tab) {
+        case 'admin': return 'admin';
+        case 'tax': return 'transaction';
+        case 'other': return ['account', 'other'];
+        default: return '';
+      }
+    }
+
+    // ===== UI STATE FUNCTIONS =====
+    function showLoading() {
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('emptyState').style.display = 'none';
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingState').style.display = 'none';
+    }
+
+    function showEmptyState() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'block';
+      document.getElementById('notificationList').innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-bell-slash"></i>
+          <div>Chưa có thông báo nào trong danh mục này</div>
+        </div>
+      `;
+    }
+
+    // ===== NOTIFICATION ACTIONS =====
+    function openNotification(notification) {
+      // Open notification detail or related page
+      if (notification.relatedDocument) {
+        // Open document viewer
+        window.location.href = `xem-chung-tu.html?mst=${notification.relatedDocument}`;
+      } else {
+        // Show notification detail modal
+        showNotificationDetail(notification);
+      }
+    }
+
+    function showNotificationDetail(notification) {
+      const time = new Date(notification.timestamp).toLocaleString('vi-VN');
+      
+      alert(`${notification.title}\n\n${notification.content}\n\nThời gian: ${time}`);
+    }
+
+    function showAdvancedSearch() {
+      // Advanced search functionality (to be implemented)
+      alert('Tính năng tìm kiếm nâng cao sẽ được phát triển trong phiên bản tiếp theo');
+    }
+
+    // ===== NAVIGATION =====
+    function goBack() {
+      if (document.referrer) {
+        window.history.back();
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    function goHome() {
+      window.location.href = 'index.html';
+    }
+
+    console.log('✅ thongbao.html initialized successfully');
+  </script>
+</body>
+</html>

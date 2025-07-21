@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="eTax Mobile">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#b71c1c">
+  
+  <title>Tra cứu chứng từ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/mobile-responsive.css">
+   <script src="js/device-auth-manager.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f5f5f5;
+      min-height: 100vh;
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: none;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .phone-frame {
+      width: 100vw;
+      height: 100vh;
+      max-width: 430px;
+      max-height: 932px;
+      margin: 0 auto;
+      background-color: #f5f5f5;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Status Bar - Real Device Style */
+    .status-bar {
+      background-color: #b71c1c;
+      color: white;
+      height: 44px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 17px;
+      font-weight: 600;
+      position: relative;
+      z-index: 100;
+    }
+
+    .status-left {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .status-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 17px;
+      font-weight: 500;
+    }
+
+    .signal-bars {
+      display: flex;
+      gap: 2px;
+      align-items: end;
+      margin-right: 4px;
+    }
+
+    .bar {
+      width: 3px;
+      background-color: white;
+      border-radius: 1px;
+    }
+
+    .bar:nth-child(1) { height: 4px; }
+    .bar:nth-child(2) { height: 6px; }
+    .bar:nth-child(3) { height: 8px; }
+    .bar:nth-child(4) { height: 10px; }
+
+    .network-type {
+      font-size: 15px;
+      font-weight: 600;
+      margin-right: 4px;
+    }
+
+    .battery {
+      width: 24px;
+      height: 12px;
+      border: 1px solid white;
+      border-radius: 2px;
+      position: relative;
+      margin-left: 4px;
+    }
+
+    .battery::after {
+      content: '';
+      position: absolute;
+      right: -3px;
+      top: 3px;
+      width: 2px;
+      height: 6px;
+      background-color: white;
+      border-radius: 0 1px 1px 0;
+    }
+
+    .battery-fill {
+      height: 100%;
+      width: 75%;
+      background-color: white;
+      border-radius: 1px;
+    }
+
+    /* Header Navigation */
+    .header {
+      background-color: #b71c1c;
+      color: white;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      position: relative;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 8px;
+      min-width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .header-title {
+      font-size: 20px;
+      font-weight: 500;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .home-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 8px;
+      min-width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Content Area */
+    .content {
+      padding: 24px 16px;
+      background-color: #f5f5f5;
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 8px;
+      font-weight: 400;
+    }
+
+    .required {
+      color: #d32f2f;
+      margin-left: 2px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 16px;
+      border: 1.5px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      background-color: white;
+      color: #333;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #b71c1c;
+    }
+
+    .form-input::placeholder {
+      color: #ccc;
+      font-size: 16px;
+    }
+
+    .date-input-wrapper {
+      position: relative;
+    }
+
+    .date-input {
+      width: 100%;
+      padding: 16px;
+      border: 1.5px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      background-color: white;
+      color: #333;
+      cursor: pointer;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+
+    .date-input::-webkit-calendar-picker-indicator {
+      display: none;
+    }
+
+    .calendar-icon {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #d32f2f;
+      font-size: 20px;
+      pointer-events: none;
+    }
+
+    .search-btn {
+      width: 100%;
+      background-color: #d32f2f;
+      color: white;
+      border: none;
+      padding: 18px;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 32px;
+      transition: background-color 0.2s;
+      box-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
+    }
+
+    .search-btn:hover {
+      background-color: #b71c1c;
+    }
+
+    .search-btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Loading State */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ddd;
+      border-top: 2px solid #d32f2f;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Results Section */
+    .search-results {
+      margin-top: 20px;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    /* Table Layout */
+    .results-table {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      max-height: 400px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 2px solid #000;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th {
+      background-color: #f8f8f8;
+      padding: 12px 8px;
+      text-align: center;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #000;
+      border-right: 1px solid #000;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    th:last-child {
+      border-right: none;
+    }
+
+    td {
+      padding: 12px 8px;
+      border-bottom: 1px solid #000;
+      border-right: 1px solid #000;
+      color: #333;
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    td:last-child {
+      border-right: none;
+    }
+
+    /* Column Specifications - 5 columns */
+    .mst-column {
+      width: 15%;
+      text-align: center;
+      padding: 8px 6px !important;
+      font-weight: 500;
+      line-height: 1.2;
+      font-size: 12px;
+      word-wrap: break-word;
+      white-space: normal;
+    }
+
+    .amount-column {
+      width: 25%;
+      text-align: center;
+      padding: 8px 6px !important;
+      font-weight: 600;
+      color: #d32f2f;
+      font-size: 13px;
+    }
+
+    .date-column {
+      width: 30%;
+      text-align: center;
+      line-height: 1.2;
+      font-size: 12px;
+      padding: 8px 6px !important;
+    }
+
+    .status-column {
+      width: 25%;
+      text-align: center;
+      padding: 8px 6px !important;
+      line-height: 1.3;
+      word-wrap: break-word;
+      white-space: normal;
+      font-size: 10px;
+      vertical-align: top;
+    }
+
+    .select-column {
+      width: 15%;
+      text-align: center;
+      padding: 8px 4px;
+    }
+
+    /* Custom Radio Button */
+    .radio-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #d32f2f;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin: 0 auto;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .radio-btn input[type="radio"] {
+      display: none;
+    }
+
+    .radio-btn::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #d32f2f;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .radio-btn.selected::after {
+      opacity: 1;
+    }
+
+    .radio-btn:hover {
+      border-color: #b71c1c;
+      box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.1);
+    }
+
+    /* Bottom Action Button */
+    .bottom-action-btn {
+      width: 100%;
+      background-color: #d32f2f;
+      color: white;
+      border: none;
+      padding: 18px;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      position: sticky;
+      bottom: 0;
+      margin-top: 16px;
+      box-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
+    }
+
+    .bottom-action-btn:hover {
+      background-color: #b71c1c;
+    }
+
+    .bottom-action-btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+      opacity: 0.5;
+      box-shadow: none;
+    }
+
+    /* Modal Confirmation */
+    .confirm-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      animation: modalFadeIn 0.3s ease-out;
+    }
+
+    .confirm-modal.show {
+      display: flex;
+    }
+
+    .modal-dialog {
+      background: white;
+      border-radius: 12px;
+      width: 320px;
+      max-width: 90%;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      animation: modalSlideUp 0.3s ease-out;
+    }
+
+    .modal-header {
+      padding: 24px 24px 16px 24px;
+      text-align: center;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 12px;
+    }
+
+    .modal-subtitle {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 0;
+    }
+
+    .modal-actions {
+      display: flex;
+      border-top: 1px solid #e0e0e0;
+      overflow: hidden;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      background: white;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      position: relative;
+    }
+
+    .modal-btn:first-child {
+      border-right: 1px solid #e0e0e0;
+      color: #666;
+    }
+
+    .modal-btn:last-child {
+      color: #d32f2f;
+      font-weight: 600;
+    }
+
+    .modal-btn:hover {
+      background-color: #f5f5f5;
+    }
+
+    .modal-btn:active {
+      background-color: #e0e0e0;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes modalSlideUp {
+      from { 
+        transform: translateY(50px) scale(0.95); 
+        opacity: 0; 
+      }
+      to { 
+        transform: translateY(0) scale(1); 
+        opacity: 1; 
+      }
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+      color: #ccc;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 375px) {
+      .phone-frame {
+        max-width: 375px;
+      }
+      
+      .content {
+        padding: 20px 12px;
+      }
+      
+      .modal-dialog {
+        width: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <!-- Status Bar -->
+  
+    
+    <!-- Header Navigation -->
+    <div class="header">
+      <button class="back-btn" onclick="goBack()">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <div class="header-title">Tra cứu chứng từ</div>
+      <button class="home-btn" onclick="goHome()">
+        <i class="fas fa-home"></i>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <form onsubmit="searchDocuments(event)">
+        <!-- Mã tham chiếu -->
+        <div class="form-group">
+          <label class="form-label" for="reference-code">Mã tham chiếu</label>
+          <input 
+            type="text" 
+            id="reference-code" 
+            class="form-input" 
+            placeholder="Nhập mã tham chiếu"
+          />
+        </div>
+
+        <!-- Từ ngày -->
+        <div class="form-group">
+          <label class="form-label" for="from-date">
+            Từ ngày <span class="required">*</span>
+          </label>
+          <div class="date-input-wrapper">
+            <input 
+              type="date" 
+              id="from-date" 
+              class="date-input"
+              required
+            />
+            <i class="fas fa-calendar-alt calendar-icon"></i>
+          </div>
+        </div>
+
+        <!-- Đến ngày -->
+        <div class="form-group">
+          <label class="form-label" for="to-date">
+            Đến ngày <span class="required">*</span>
+          </label>
+          <div class="date-input-wrapper">
+            <input 
+              type="date" 
+              id="to-date" 
+              class="date-input"
+              required
+            />
+            <i class="fas fa-calendar-alt calendar-icon"></i>
+          </div>
+        </div>
+
+        <!-- Search Button -->
+        <button type="submit" class="search-btn" id="searchBtn">Tra cứu</button>
+      </form>
+
+      <!-- Loading indicator -->
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        Đang tìm kiếm chứng từ...
+      </div>
+
+      <!-- Search Results -->
+      <div id="search-results" class="search-results" style="display: none;">
+        <div class="results-table">
+          <table>
+            <thead>
+              <tr>
+                <th class="mst-column" style="width: 7.5px;">Mã<br>tham<br>chiếu</th>
+                <th class="amount-column" style="width: 10px;">Số tiền</th>
+                <th class="date-column" style="width: 15px;">Ngày nộp</th>
+                <th class="status-column" style="width: 10px;">Trạng thái</th>
+                <th class="select-column" style="width: 7.5px;">In<br>chứng<br>từ</th>
+              </tr>
+            </thead>
+            <tbody id="results-tbody">
+              <!-- Results will be populated here -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Bottom Action Button -->
+        <button class="bottom-action-btn" onclick="showConfirmModal()" id="print-btn" disabled>
+          In chứng từ
+        </button>
+      </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="confirm-modal">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <div class="modal-title">Bạn có muốn tải tập tin?</div>
+          <div class="modal-subtitle">Tải ngay!</div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn" onclick="closeConfirmModal()">Bỏ qua</button>
+          <button class="modal-btn" onclick="proceedToDownload()">Đồng ý</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+      authDomain: "etax-7fbf8.firebaseapp.com",
+      databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "etax-7fbf8",
+      storageBucket: "etax-7fbf8.appspot.com",
+      messagingSenderId: "1030026724634",
+      appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3",
+      measurementId: "G-YS5DLECJE6"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Global variables
+    let selectedDocument = null;
+    let currentUserMst = null;
+
+    // Real-time clock update
+    function updateTime() {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('vi-VN', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      });
+      document.getElementById('current-time').textContent = timeString;
+    }
+
+    // Initialize dates with smart defaults
+    function initializeDates() {
+      const today = new Date();
+      const todayString = today.toISOString().split('T')[0];
+      
+      // Set "From date" to 30 days ago
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(today.getDate() - 30);
+      const thirtyDaysAgoString = thirtyDaysAgo.toISOString().split('T')[0];
+      
+      document.getElementById('from-date').value = thirtyDaysAgoString;
+      document.getElementById('to-date').value = todayString;
+    }
+
+    // Date range validation
+    function validateDateRange() {
+      const fromDateValue = document.getElementById('from-date').value;
+      const toDateValue = document.getElementById('to-date').value;
+      
+      if (!fromDateValue || !toDateValue) {
+        return true;
+      }
+      
+      const fromDate = new Date(fromDateValue);
+      const toDate = new Date(toDateValue);
+      const today = new Date();
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(today.getFullYear() - 1);
+      
+      if (fromDate > toDate) {
+        alert('Từ ngày không thể lớn hơn đến ngày');
+        return false;
+      }
+      
+      if (toDate > today) {
+        alert('Đến ngày không thể vượt quá ngày hiện tại');
+        document.getElementById('to-date').value = today.toISOString().split('T')[0];
+        return false;
+      }
+      
+      if (fromDate < oneYearAgo) {
+        alert('Chỉ có thể tra cứu chứng từ trong vòng 1 năm gần nhất');
+        document.getElementById('from-date').value = oneYearAgo.toISOString().split('T')[0];
+        return false;
+      }
+      
+      return true;
+    }
+
+    // Handle form submission
+    function searchDocuments(event) {
+      event.preventDefault();
+      
+      const referenceCode = document.getElementById('reference-code').value.trim();
+      const fromDate = document.getElementById('from-date').value;
+      const toDate = document.getElementById('to-date').value;
+      
+      if (!fromDate || !toDate) {
+        alert('Vui lòng chọn đầy đủ thông tin từ ngày và đến ngày');
+        return;
+      }
+      
+      if (!validateDateRange()) {
+        return;
+      }
+      
+      searchPDFDocuments(referenceCode, fromDate, toDate);
+    }
+
+    // Search documents in Firebase
+    function searchPDFDocuments(referenceCode, fromDate, toDate) {
+      console.log('Searching documents...', { referenceCode, fromDate, toDate });
+      
+      // Show loading
+      document.getElementById('loading').classList.add('show');
+      document.getElementById('search-results').style.display = 'none';
+      document.getElementById('searchBtn').disabled = true;
+      
+      // Convert dates to timestamps for comparison
+      const fromTimestamp = new Date(fromDate).getTime();
+      const toTimestamp = new Date(toDate).getTime() + (24 * 60 * 60 * 1000) - 1;
+      
+      db.ref('pdf_documents').once('value')
+        .then(snapshot => {
+          console.log('Database response received');
+          const allDocuments = snapshot.val() || {};
+          const filteredResults = [];
+          
+          console.log('All documents:', allDocuments);
+          
+          Object.keys(allDocuments).forEach(mst => {
+            const doc = allDocuments[mst];
+            const docDate = new Date(doc.date).getTime();
+            
+            // Filter by date range
+            if (docDate >= fromTimestamp && docDate <= toTimestamp) {
+              // Filter by reference code if provided
+              if (!referenceCode || mst.toLowerCase().includes(referenceCode.toLowerCase())) {
+                // Filter by current user MST if logged in
+                if (!currentUserMst || doc.taxpayerMST === currentUserMst) {
+                  filteredResults.push({
+                    mst: mst,
+                    amount: doc.amount || '0',
+                    date: doc.date || '',
+                    time: doc.time || '',
+                    status: doc.status || 'Thành công - NH/ TGTT đã trừ tiền thành công'
+                  });
+                }
+              }
+            }
+          });
+          
+          console.log('Filtered results:', filteredResults);
+          
+          // Sort by date descending
+          filteredResults.sort((a, b) => new Date(b.date) - new Date(a.date));
+          
+          // Hide loading and display results
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('searchBtn').disabled = false;
+          displaySearchResults(filteredResults);
+        })
+        .catch(error => {
+          console.error('Error searching documents:', error);
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('searchBtn').disabled = false;
+          alert('Có lỗi xảy ra khi tìm kiếm. Vui lòng thử lại.');
+        });
+    }
+
+    // Display search results - XÓA HẾT PHẦN SUMMARY
+    function displaySearchResults(results) {
+      const resultsContainer = document.getElementById('search-results');
+      
+      // Reset selection
+      selectedDocument = null;
+      updatePrintButton();
+      
+      // Populate table
+      const tbody = document.getElementById('results-tbody');
+      tbody.innerHTML = '';
+      
+      if (results.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="empty-state">
+              <i class="fas fa-search"></i>
+              <div>Không tìm thấy chứng từ nào trong khoảng thời gian này</div>
+            </td>
+          </tr>
+        `;
+      } else {
+        results.forEach((result, index) => {
+          const formattedAmount = formatAmount(result.amount);
+          const formattedDateTime = formatDateTime(result.date, result.time);
+          
+          const row = `
+            <tr>
+              <td class="mst-column">${result.mst}</td>
+              <td class="amount-column">${formattedAmount}</td>
+              <td class="date-column">${formattedDateTime}</td>
+              <td class="status-column">${result.status}</td>
+              <td class="select-column">
+                <div class="radio-btn" onclick="selectDocument('${result.mst}')" id="select-${result.mst}">
+                  <input type="radio" name="document-select" value="${result.mst}">
+                </div>
+              </td>
+            </tr>
+          `;
+          tbody.innerHTML += row;
+        });
+      }
+      
+      // Show results container
+      resultsContainer.style.display = 'block';
+      
+      // Smooth scroll to results
+      setTimeout(() => {
+        resultsContainer.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 300);
+    }
+
+    // Format amount with comma separators
+    function formatAmount(amount) {
+      if (!amount) return '0';
+      return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    // Format date and time to Vietnamese format with proper line breaks
+    function formatDateTime(dateString, timeString) {
+      if (!dateString) return '';
+      
+      const date = new Date(dateString);
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear().toString().slice(-2);
+      const dateFormatted = `${day}/${month}/${year}`;
+      
+      const time = timeString || '';
+      
+      return `${dateFormatted}<br>${time}`;
+    }
+
+    // Select document
+    function selectDocument(mst) {
+      // Deselect all radio buttons
+      document.querySelectorAll('.radio-btn').forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      
+      // Select current radio button
+      const selectedBtn = document.getElementById(`select-${mst}`);
+      selectedBtn.classList.add('selected');
+      
+      // Store selected document
+      selectedDocument = mst;
+      
+      // Update print button state
+      updatePrintButton();
+    }
+
+    // Update print button state
+    function updatePrintButton() {
+      const printBtn = document.getElementById('print-btn');
+      if (selectedDocument) {
+        printBtn.disabled = false;
+        printBtn.style.opacity = '1';
+        printBtn.style.backgroundColor = '#d32f2f';
+      } else {
+        printBtn.disabled = true;
+        printBtn.style.opacity = '0.5';
+        printBtn.style.backgroundColor = '#ccc';
+      }
+    }
+
+    // Show confirmation modal
+    function showConfirmModal() {
+      if (!selectedDocument) {
+        alert('Vui lòng chọn một chứng từ để in');
+        return;
+      }
+      
+      const modal = document.getElementById('confirmModal');
+      modal.classList.add('show');
+    }
+
+    // Close confirmation modal
+    function closeConfirmModal() {
+      const modal = document.getElementById('confirmModal');
+      modal.classList.remove('show');
+    }
+
+    // Proceed to download/view document
+    function proceedToDownload() {
+  closeConfirmModal();
+  
+  // Chuyển đến trang xem PDF với MST
+  window.location.href = `xem-chung-tu.html?mst=${selectedDocument}`;
+}
+
+    // Navigation functions
+    function goBack() {
+      if (document.referrer) {
+        window.history.back();
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    function goHome() {
+      window.location.href = 'index.html';
+    }
+
+    // Get current user MST from login or URL
+    function getCurrentUserMst() {
+      // Try to get from localStorage (user login session)
+      const userSession = localStorage.getItem('userSession');
+      if (userSession) {
+        try {
+          const session = JSON.parse(userSession);
+          return session.mst || session.taxpayerMST;
+        } catch (e) {
+          console.log('Error parsing user session:', e);
+        }
+      }
+      
+      // Try to get from URL parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('user_mst');
+    }
+
+    // Page initialization
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Page loaded, initializing...');
+      
+      // Get current user MST
+      currentUserMst = getCurrentUserMst();
+      console.log('Current user MST:', currentUserMst);
+      
+      // Initialize real-time clock
+      updateTime();
+      setInterval(updateTime, 1000);
+      
+      // Initialize date fields
+      initializeDates();
+      
+      // Add date validation listeners
+      document.getElementById('from-date').addEventListener('change', validateDateRange);
+      document.getElementById('to-date').addEventListener('change', validateDateRange);
+      
+      // Add modal click outside to close
+      document.getElementById('confirmModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeConfirmModal();
+        }
+      });
+      
+      console.log('Initialization complete');
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // ESC to close modal
+      if (e.key === 'Escape') {
+        closeConfirmModal();
+      }
+      
+      // Enter to search when form is focused
+      if (e.key === 'Enter' && document.activeElement.closest('form')) {
+        e.preventDefault();
+        document.querySelector('.search-btn').click();
+      }
+    });
+
+    // Battery level animation (cosmetic)
+    function animateBattery() {
+      const batteryFill = document.querySelector('.battery-fill');
+      const levels = ['25%', '50%', '75%', '100%'];
+      let currentLevel = 2; // Start at 75%
+      
+      setInterval(() => {
+        if (Math.random() < 0.1) { // 10% chance to change
+          currentLevel = Math.max(1, Math.min(3, currentLevel + (Math.random() < 0.5 ? -1 : 1)));
+          batteryFill.style.width = levels[currentLevel];
+        }
+      }, 30000); // Check every 30 seconds
+    }
+
+    // Signal bars animation (cosmetic)
+    function animateSignalBars() {
+      const bars = document.querySelectorAll('.bar');
+      setInterval(() => {
+        if (Math.random() < 0.05) { // 5% chance to flicker
+          bars.forEach(bar => {
+            bar.style.opacity = Math.random() < 0.9 ? '1' : '0.5';
+          });
+          setTimeout(() => {
+            bars.forEach(bar => bar.style.opacity = '1');
+          }, 200);
+        }
+      }, 5000);
+    }
+
+    // Start cosmetic animations
+    setTimeout(() => {
+      animateBattery();
+      animateSignalBars();
+    }, 2000);
+
+    // Auto-focus search when user starts typing
+    document.addEventListener('keydown', function(e) {
+      if (e.key.length === 1 && !document.activeElement.matches('input, textarea, select')) {
+        document.getElementById('reference-code').focus();
+      }
+    });
+
+    // Prevent zoom on iOS double tap
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function (event) {
+      const now = (new Date()).getTime();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+
+    // Add vibration feedback for mobile interactions
+    function vibrateOnTouch(element) {
+      element.addEventListener('touchstart', function() {
+        if (navigator.vibrate) {
+          navigator.vibrate(10); // Short vibration
+        }
+      });
+    }
+
+    // Apply vibration to interactive elements
+    document.addEventListener('DOMContentLoaded', function() {
+      const interactiveElements = document.querySelectorAll('.search-btn, .bottom-action-btn, .modal-btn, .radio-btn');
+      interactiveElements.forEach(vibrateOnTouch);
+    });
+  </script>
+</body>
+</html>

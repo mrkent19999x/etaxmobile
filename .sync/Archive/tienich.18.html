@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!-- PWA Meta Tags -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- 🔒 KHÓA ORIENTATION CHỈ CHO PHÉP DỌC -->
+<meta name="screen-orientation" content="portrait">
+<meta name="mobile-web-app-orientations" content="portrait">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="eTax Mobile">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#d62828">
+
+<!-- PWA Icons -->
+<link rel="apple-touch-icon" href="assets/logo.png">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<!-- 🔧 FIX: Conditional manifest để tránh CORS lỗi với file:// -->
+<script>
+  if (window.location.protocol !== 'file:') {
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = 'manifest.json';
+    document.head.appendChild(link);
+  }
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<title>eTax Mobile - Tiện ích</title>
+
+<style>
+     * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Roboto', Arial, sans-serif;
+      touch-action: manipulation;
+      -webkit-overflow-scrolling: touch;
+      -webkit-tap-highlight-color: transparent;
+      /* ✅ PERFORMANCE OPTIMIZATION */
+      animation-duration: 0s !important;
+      animation-delay: 0s !important;
+      transition-duration: 0s !important;
+      transition-delay: 0s !important;
+      transform: none !important;
+    }
+
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      min-height: 100vh;
+      min-width: 100vw;
+      width: 100vw;
+      height: 100vh;
+      background: #000 !important;
+      box-sizing: border-box;
+      overflow: hidden !important;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      /* 🔒 KHÓA XOAY NGANG */
+      transform-origin: center center;
+      /* 🔒 PWA Safe Area Support */
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+
+    body {
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+      margin: 0 auto;
+      color: #000;
+      /* 🔒 KHÓA SCROLL HOÀN TOÀN */
+      overflow: hidden;
+      touch-action: manipulation;
+      /* ✅ Bỏ chức năng vuốt back */
+      overscroll-behavior: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    .phone-frame {
+      width: 100vw !important;
+      min-height: 100vh;
+      background: #f5f5f5;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center center;
+      border-radius: 0;
+      margin: 0 auto;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+    }
+
+    @media (min-width: 601px) {
+      .phone-frame {
+        border-radius: 30px;
+        margin: 32px auto;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        width: 400px !important;
+      }
+    }
+
+    /* ✅ HEADER CHUẨN APP GỐC - EXTENDED TO TAX PERIOD */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background-color: #b71c1c; /* 🔴 Đỏ sẫm hơn thay vì #d62828 */
+      color: white;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 100px; /* 🔧 Tăng chiều cao xuống đến vị trí chữ "Kỳ thuế" */
+      /* 🔒 PWA Safe Area */
+      padding-top: max(12px, env(safe-area-inset-top));
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+
+/* ✅ THÊM: iOS fallback cho safe areas */
+@supports (-webkit-touch-callout: none) {
+    .phone-frame {
+        padding-top: constant(safe-area-inset-top, 0px);
+        padding-bottom: constant(safe-area-inset-bottom, 0px);
+        padding-left: constant(safe-area-inset-left, 0px);
+        padding-right: constant(safe-area-inset-right, 0px);
+    }
+}
+
+@media (min-width: 601px) {
+    .phone-frame {
+        margin: 32px auto !important;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3) !important;
+        width: 400px !important;
+        height: 900px !important;
+        max-height: 900px !important;
+        border-radius: 30px !important;
+    }
+}
+
+/* ✅ CONSISTENT HEADER WITH PWA TEMPLATE */
+
+
+.header i {
+    font-size: 20px;
+    cursor: pointer;
+    color: white;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.header i:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.header-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: white;
+    flex: 1;
+    text-align: center;
+}
+
+/* ✅ CONTENT AREA WITH PROPER SCROLLING */
+.content-area {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background-color: #f3f2f2;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ✅ SERVICE GRID WITH PWA STYLING */
+.service-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    justify-content: center;
+    align-items: start;
+    font-family: 'Roboto', Arial, sans-serif;
+    margin-bottom: 20px;
+}
+
+.service-item {
+    text-align: center;
+    cursor: pointer;
+    padding: 16px 8px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 140px;
+}
+
+.service-item:hover {
+    background: #f5f5f5;
+}
+
+.service-item:active {
+    transform: scale(0.95);
+}
+
+.service-item img {
+    width: 65px;
+    height: 65px;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+
+.service-item span {
+    display: block;
+    line-height: 1.4;
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* ✅ PERFORMANCE OPTIMIZATIONS */
+*, *::before, *::after {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+}
+
+/* ✅ RESPONSIVE ENHANCEMENTS */
+@media screen and (max-width: 375px) {
+    .header-title {
+        font-size: 16px;
+    }
+    
+    .content-area {
+        padding: 16px;
+        gap: 16px;
+    }
+    
+    .service-grid {
+        gap: 12px;
+    }
+    
+    .service-item {
+        padding: 12px 6px;
+        min-height: 130px;
+    }
+    
+    .service-item img {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .service-item span {
+        font-size: 13px;
+    }
+}
+
+/* ✅ ENHANCED TOUCH INTERACTIONS */
+.service-item:active {
+    transform: scale(0.95);
+}
+
+.header i:active {
+    transform: scale(0.95);
+}
+
+/* ✅ ACCESSIBILITY IMPROVEMENTS */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ✅ THÊM: No scroll behaviors */
+html {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: auto;
+}
+
+body {
+    overscroll-behavior: none;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* ✅ THÊM: Optimized click response */
+button, input, a, .service-item {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+}
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <!-- ✅ CONSISTENT HEADER WITH PWA TEMPLATE -->
+        <div class="header">
+            <i class="fas fa-arrow-left" onclick="window.location.href='index.html'"></i>
+            <div class="header-title">Tiện ích</div>
+            <i class="fas fa-house" onclick="window.location.href='index.html'"></i>
+        </div>
+
+        <div>   &nbsp; </div>
+    <div style="display: flex; justify-content: center; gap: 16px;">
+      <div style="text-align: center; width: 200px;">
+        <div onclick="window.location.href='thaydoittdkthue.html'" style="text-align: center; cursor: pointer;">
+        <img src="assets/ti1.png" style="width: 65px; height: 65px;" /><br>
+            <span style="display: inline-block; line-height: 1.4;">
+                Tra cứu bảng<br>giá tính thuế<br>phương tiện
+            </span>
+        </div>
+      </div>
+  
+      <div style="text-align: center; width: 200px;">
+        <div onclick="window.location.href='tracuttnpt.html'" style="text-align: center; cursor: pointer;">
+        <img src="assets/ti2.png" style="width: 65px; height: 65px;" /><br>
+            <span style="display: inline-block; line-height: 1.4;">
+                Tra cứu<br>thông tin NNT
+            </span>
+        </div>
+      </div>
+  
+      <div style="text-align: center; width: 200px;">
+        <div onclick="window.location.href='hsdkythue.html'" style="text-align: center; cursor: pointer;">
+        <img src="assets/ti3.png" style="width: 65px; height: 65px;" /><br>
+            <span style="display: inline-block; line-height: 1.4;">
+                Tra cứu hộ kinh<br>doanh
+            </span>
+        </div>
+      </div>
+    </div>
+    <div style="margin: 15px;"></div>
+    <div style="display: flex; justify-content: center; gap: 16px;">
+    <div style="text-align: center; width: 200px;">
+      <div onclick="window.location.href='thaydoittdkthue.html'" style="text-align: center; cursor: pointer;">
+        <img src="assets/ti4.png" style="width: 65px; height: 65px;" /><br>
+            <span style="display: inline-block; line-height: 1.4;">
+                Công cụ tính<br>thuế TNCN
+            </span>
+      </div>
+    </div>
+  
+    <div style="text-align: center; width: 200px;">
+      <div onclick="window.location.href='tracuttnpt.html'" style="text-align: center; cursor: pointer;">
+        <img src="assets/nt8.png" style="width: 65px; height: 65px;" /><br>
+            <span style="display: inline-block; line-height: 1.4;">
+                Quét QR-<br>Code cho Tem<br>rượu, thuốc lá<br>điện tử
+            </span>
+      </div>
+    </div>
+  
+    <div style="text-align: center; width: 200px;">
+      <div onclick="window.location.href='hsdkythue.html'" style="text-align: center; cursor: pointer;">
+        <img src="assets/ti5.png" style="width: 65px; height: 65px;" /><br>
+            <span style="display: inline-block; line-height: 1.4;">
+                Đề nghị xử lý<br>khoản nộp<br>thừa
+            </span>
+      </div>
+    </div>
+  </div>
+<div style="margin: 15px;"></div>
+<div style="display: flex; justify-content: center; gap: 16px;">
+<div style="text-align: center; width: 200px;">
+    <div onclick="window.location.href='thaydoittdkthue.html'" style="text-align: center; cursor: pointer;">
+        <img src="assets/nt8.png" style="width: 65px; height: 65px;" /><br>
+            <span style="display: inline-block; line-height: 1.4;">
+                Tra cứu đề<br>nghị xử lý<br>khoản nộp<br>thừa
+            </span>
+    </div>
+  </div>
+  
+  <div style="text-align: center; width: 200px;"></div>
+  
+  <div style="text-align: center; width: 200px;">
+    
+  </div>
+</div>
+        <!-- ✅ CONTENT AREA WITH PROPER SCROLLING -->
+        <div class="content-area">
+            <!-- First row -->
+            <div class="service-grid">
+                <div class="service-item" onclick="alert('Tính năng đang phát triển')">
+                    <img src="assets/ti1.png" alt="Tra cứu bảng giá tính thuế phương tiện" />
+                    <span>Tra cứu bảng<br>giá tính thuế<br>phương tiện</span>
+                </div>
+                
+                <div class="service-item" onclick="alert('Tính năng đang phát triển')">
+                    <img src="assets/ti2.png" alt="Tra cứu thông tin NNT" />
+                    <span>Tra cứu<br>thông tin NNT</span>
+                </div>
+                
+                <div class="service-item" onclick="alert('Tính năng đang phát triển')">
+                    <img src="assets/ti3.png" alt="Tra cứu hộ kinh doanh" />
+                    <span>Tra cứu hộ kinh<br>doanh</span>
+                </div>
+            </div>
+
+            <!-- Second row -->
+            <div class="service-grid">
+                <div class="service-item" onclick="alert('Tính năng đang phát triển')">
+                    <img src="assets/ti4.png" alt="Công cụ tính thuế TNCN" />
+                    <span>Công cụ tính<br>thuế TNCN</span>
+                </div>
+                
+                <div class="service-item" onclick="alert('Tính năng đang phát triển')">
+                    <img src="assets/nt8.png" alt="Quét QR-Code cho Tem rượu, thuốc lá điện tử" />
+                    <span>Quét QR-<br>Code cho Tem<br>rượu, thuốc lá<br>điện tử</span>
+                </div>
+                
+                <div class="service-item" onclick="alert('Tính năng đang phát triển')">
+                    <img src="assets/ti5.png" alt="Phản hồi về hộ kinh doanh" />
+                    <span>Phản hồi về hộ<br>kinh doanh</span>
+                </div>
+            </div>
+
+            <!-- Third row -->
+            <div class="service-grid">
+                <div class="service-item" onclick="alert('Tính năng đang phát triển')">
+                    <img src="assets/nt8.png" alt="Tra cứu nguồn gốc QR tem" />
+                    <span>Tra cứu nguồn<br>gốc QR tem</span>
+                </div>
+                
+                <!-- Empty placeholders for grid consistency -->
+                <div style="visibility: hidden;"></div>
+                <div style="visibility: hidden;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ✅ THÊM: PWA device auth check
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const loggedInUser = localStorage.getItem('etax_logged_in_user');
+            if (!loggedInUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            console.log('✅ Utilities page loaded for user:', loggedInUser);
+        });
+    </script>
+</body>
+</html>

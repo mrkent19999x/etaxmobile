@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <!-- PWA Meta Tags -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="eTax Mobile">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#d62828">
+
+  <!-- PWA Icons -->
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="manifest" href="manifest.json" />
+  
+  <title>eTax Mobile - Home</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/home.css" />
+  
+  <!-- Thư viện Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <style>
+    /* PWA Mobile Lock Body */
+    html, body {
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: none;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+
+    .slide-links a img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      background-color: transparent;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .phone-frame {
+      width: 100vw;
+      height: 100vh;
+      
+      background-image: url('assets/nen.png');
+      border-radius: 0;
+      overflow: hidden;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+      margin: 0 auto;
+    }
+
+    .content-scrollable {
+      overflow-y: auto;
+      flex: 1;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    #scrollable::-webkit-scrollbar { display: none; }
+    #scrollable { 
+      -ms-overflow-style: none; 
+      scrollbar-width: none; 
+      cursor: grab; 
+      user-select: none; 
+    }
+    #scrollable.active { cursor: grabbing; }
+    
+    .slide-menu { 
+      position: fixed;
+      top: 0;
+      left: -100%;
+      width: 280px;
+      height: 100vh;
+      background: white;
+      z-index: 9999;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.2); 
+    }
+    .slide-menu.open { left: 0; }
+    .slide-header { 
+      background-image: url('assets/back.png'); 
+      color: white; 
+      text-align: center; 
+      background-size: cover;           /* Phóng to ảnh vừa khung */
+  background-position: center;      /* Căn giữa ảnh */
+  background-repeat: no-repeat;
+      padding: 1rem; 
+    }
+    .slide-header .logo { width: 60px; margin-bottom: 0.5rem; }
+    .slide-links { display: flex; flex-direction: column; padding: 1rem; }
+    .slide-links a.logout { color: #d62828; font-weight: bold; }
+    .slide-links a:not(:last-child) { 
+      text-decoration: none; 
+      color: #333; 
+      padding: 0.5rem 0;  
+      font-size: 15px; 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+    }
+    .menu-overlay {  
+      position: fixed;
+      top: 0; 
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.3);
+      display: none;
+      z-index: 9998; 
+    }
+    .menu-overlay.show { display: block; }
+    
+    .logout-btn-wrapper {
+      justify-content: center;
+    }
+
+    .logout-btn {
+      display: block;
+      padding: 8px 24px;
+      border: 2px solid #d62828;
+      border-radius: 999px;
+      background-color: #fff;
+      color: #d62828;
+      font-weight: bold;
+      font-size: 15px;
+      text-decoration: none;
+      text-align: center;
+      transition: all 0.3s ease;
+      line-height: 1.2;
+    }
+
+    .logout-btn:hover {
+      background-color: #d62828;
+      color: #fff;
+    }
+  </style>
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js');
+      });
+    }
+  </script>
+</head>
+
+<body>
+  <div class="phone-frame">
+    <div id="slideMenu" class="slide-menu">
+      <div class="slide-header" style="height: 250px;">
+        <img src="assets/logo.png" class="logo" style="width: 150px; height: 150px;" />
+        <div class="slide-user" style="
+  background-color: red;
+  color: white;
+  height: 60px;
+  line-height: 60px;
+  text-align: center;
+">
+  Xin chào <span id="slide-username">Nguyễn Đăng Linh</span>
+</div>
+      </div>
+      <div class="slide-links">
+        <a href="#" onclick="location.reload()">
+          <img src="assets/trangchu.png" width="35" height="35" style="object-fit: cover;"> Trang chủ
+        </a>
+        <a href="dangky.html">
+          <img src="assets/icon5.png" width="35" height="35" style="object-fit: cover;"> Đăng ký thuế
+        </a>
+        <a href="ho-tro-qtt.html">
+          <img src="assets/icon6.png" width="35" height="35" style="object-fit: cover;"> Hỗ trợ quyết toán thuế TNCN
+        </a>
+        <a href="hoso.html">
+          <img src="assets/icon7.png" width="35" height="35" style="object-fit: cover;"> Tra cứu hồ sơ khai thuế
+        </a>
+        <a href="nopthue.html">
+          <img src="assets/icon8.png" width="35" height="35" style="object-fit: cover;"> Nhóm chức năng nộp thuế
+        </a>
+        <a href="nghiavu.html">
+          <img src="assets/icon9.png" width="35" height="35" style="object-fit: cover;"> Tra cứu nghĩa vụ thuế
+        </a>
+        <a href="thongbao.html">
+          <img src="assets/icon10.png" width="35" height="35" style="object-fit: cover;"> Tra cứu thông báo
+        </a>
+        <a href="tienich.html">
+          <img src="assets/icon11.png" width="30px" height="30px" style="object-fit: cover;"> Tiện ích
+        </a>
+        <a href="hotro.html">
+          <img src="assets/icon12.png" width="35px" height="35px" style="object-fit: cover;"> Hỗ trợ
+        </a>
+        <a href="thietlap.html">
+          <img src="assets/icon13.png" width="35px" height="35px" style="object-fit: cover;"> Thiết lập cá nhân
+        </a>
+        <a href="#">
+          <img src="assets/icon-doimk.png" width="35px" height="35px" style="object-fit: cover;"> Đổi mật khẩu đăng nhập
+        </a>
+        <a href="#">
+          <img src="assets/faceid.png" width="35px" height="35px" style="object-fit: cover;"> Đăng nhập bằng vân tay / FaceID
+        </a>
+        <div class="logout-btn-wrapper">
+          <a href="#" onclick="logout()" class="logout-btn">Đăng xuất</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="menuOverlay" class="menu-overlay" onclick="closeMenu()"></div>
+
+    <header class="topbar" style="position: sticky; top: 0; z-index: 1000; height: 100px;">
+      <div class="left-menu" onclick="openMenu()">☰</div>
+      <div class="center-logo">
+        <img src="assets/logo.png" alt="Logo" />
+        <span>eTax Mobile</span>
+      </div>
+      <div class="right-icon">
+        <img src="assets/icon-qr.png" alt="QR" />
+        <a href="thongbao.html"><img src="assets/icon-bell.png" alt="Bell" /></a>
+      </div>
+    </header>
+    <div class="content-scrollable" >
+      <section class="user-info" style="width: 380px; border-radius: 16px; background-image: url('assets/backgrounftd.png'); display: flex; align-items: center; padding: 12px; margin: 7px; height: 130px;">
+        <img class="avatar" src="assets/avatar.png" alt="Avatar" style="width: 80px; height: 80px;" />
+        <div class="userinfo-text" style="margin-left: 12px; flex-grow: 1;">
+          <div class="mst" style="color: black; font-size: 14px;" id="user-mst">MST: ...</div>
+          <div class="username" style="display: flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 18px; font-weight: bold; color: #b10000;">
+            <span id="user-name">(Chưa đăng nhập)</span>
+            <a href="thongtin.html"><img src="assets/nutha.png" alt="Thông tin" style="width: 20px; height: 20px;"></a>
+          </div>
+        </div>
+      </section>
+
+      <section style="background-color: rgb(255, 255, 255); height: 200px; border-radius: 16px; max-width: 380px; margin: 10px auto; position: relative; overflow: hidden; padding: 10px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <h3 style="color: black; margin: 0;">&nbsp;&nbsp;Chức năng hay dùng</h3>
+          <img src="assets/2gach.png" alt="cài đặt" style="width: 30px; height: 20px; margin-right: 10px;" />
+        </div>
+
+        <button onclick="scrollLeft()" style="position: absolute; left: 0; top: 50%; transform: translateY(-50%); background: none; border: none; z-index: 10;">
+          <img src="assets/arrow-left.png" style="width: 30px;" />
+        </button>
+
+        <button onclick="scrollRight()" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: none; border: none; z-index: 10;">
+          <img src="assets/arrow-right.png" style="width: 30px;" />
+        </button>
+
+        <div id="scrollable" style="display: flex; overflow-x: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; gap: 10px; padding: 10px 20px; cursor: grab;">
+          <div style="text-align: center; min-width: 80px; flex-shrink: 0;">
+            <img src="assets/icon1.png" style="width: 50px; height: 50px;" /><br>
+            <span style="display: inline-block; line-height: 1.4; font-size: 13px;">Tra cứu<br>thông tin<br>người phụ<br>thuộc</span>
+          </div>
+          <div style="text-align: center; min-width: 80px; flex-shrink: 0;">
+            <img src="assets/icon2.png" style="width: 50px; height: 50px;" /><br>
+            <span style="display: inline-block; line-height: 1.4; font-size: 13px;">Hồ sơ<br>đăng ký<br>thuế</span>
+          </div>
+          <div style="text-align: center; min-width: 80px; flex-shrink: 0;">
+            <img src="assets/icon3.png" style="width: 50px; height: 50px;" /><br>
+            <span style="display: inline-block; line-height: 1.4; font-size: 13px;">Hồ sơ<br>quyết<br>toán thuế</span>
+          </div>
+          <div style="text-align: center; min-width: 80px; flex-shrink: 0;">
+            <img src="assets/icon4.png" style="width: 50px; height: 50px;" /><br>
+            <span style="display: inline-block; line-height: 1.4; font-size: 13px;">Tra cứu<br>thông tin<br>quyết<br>toán</span>
+          </div>
+          <div style="text-align: center; min-width: 80px; flex-shrink: 0; cursor: pointer;" onclick="javascript:location.href='tra-cuu-chung-tu.html';">
+            <img src="assets/icon4.png" style="width: 50px; height: 50px;" /><br>
+            <span style="display: inline-block; line-height: 1.4; font-size: 13px;">Tra cứu<br>chứng từ<br>thuế</span>
+          </div>
+        </div>
+      </section>
+
+      <section style="background: #fff; padding: 10px; max-width: 380px; margin: 10px auto 0 auto; font-family: sans-serif; border-radius: 14px; height: 400px;">
+        <h3 style="margin-bottom: 16px; font-size: 18px; color: black;">Danh sách nhóm dịch vụ</h3>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+          <div onclick="window.location.href='dangky.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon5.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Đăng ký thuế</span>
+          </div>
+          <div onclick="window.location.href='ho-tro-qtt.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon6.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Hỗ trợ quyết toán thuế<br>TNCN</span>
+          </div>
+          <div onclick="window.location.href='hoso.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon7.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Tra cứu hồ sơ<br>khai thuế</span>
+          </div>
+          <div onclick="window.location.href='nopthue.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon8.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Nhóm chức<br>năng nộp<br>thuế</span>
+          </div>
+          <div onclick="window.location.href='nghiavu.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon9.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Tra cứu nghĩa<br>vụ thuế</span>
+          </div>
+          <div onclick="window.location.href='thongbao.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon10.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Tra cứu thông<br>báo</span>
+          </div>
+          <div onclick="window.location.href='tienich.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon11.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Tiện ích</span>
+          </div>
+          <div onclick="window.location.href='hotro.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon12.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Hỗ trợ</span>
+          </div>
+          <div onclick="window.location.href='thietlap.html'" style="text-align: center; cursor: pointer;">
+            <img src="assets/icon13.png" style="width: 35px; height: 35px;" />
+            <span style="display: block; margin-top: 8px; font-size: 14px;">Thiết lập cá nhân</span>
+          </div>
+        </div>
+      </section>
+
+      <div style="height: 20px;"></div>
+    </div>
+  </div>
+
+  <script>
+    // Kiểm tra xác thực mã token trước khi vào trang
+    if (localStorage.getItem('etax_token_verified') !== 'true') {
+      window.location.href = 'token-login.html';
+    }
+
+    // Thêm timestamp để tránh cache khi reload trang
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) {
+        // Trang được restore từ cache, thêm timestamp để force reload
+        const currentUrl = window.location.href;
+        const separator = currentUrl.includes('?') ? '&' : '?';
+        window.location.href = currentUrl + separator + '_t=' + Date.now();
+      }
+    });
+
+    // Cấu hình Firebase (chỉ khai báo một lần)
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+      authDomain: "etax-7fbf8.firebaseapp.com",
+      databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "etax-7fbf8",
+      storageBucket: "etax-7fbf8.appspot.com",
+      messagingSenderId: "1030026724634",
+      appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3",
+      measurementId: "G-YS5DLECJE6"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Biến user toàn cục (chỉ khai báo một lần)
+    let user = JSON.parse(localStorage.getItem("etax_user_info") || "{}");
+
+    // Functions điều hướng
+    function openMenu() {
+      document.getElementById("slideMenu").classList.add("open");
+      document.getElementById("menuOverlay").classList.add("show");
+      document.getElementById("slide-username").innerText = user.name || "...";
+    }
+
+    function closeMenu() {
+      document.getElementById("slideMenu").classList.remove("open");
+      document.getElementById("menuOverlay").classList.remove("show");
+    }
+
+    function logout() {
+      localStorage.clear();
+      location.href = 'login.html';
+    }
+
+    // Function chuyển trang tra cứu chứng từ
+    function navigateToChungTu() {
+      console.log('Navigating to tra-cuu-chung-tu.html');
+      window.location.href = 'tra-cuu-chung-tu.html';
+    }
+
+    // Functions cuộn ngang
+    const scrollable = document.getElementById("scrollable");
+
+    function scrollLeft() {
+      scrollable.scrollBy({ left: -120, behavior: 'smooth' });
+    }
+
+    function scrollRight() {
+      scrollable.scrollBy({ left: 120, behavior: 'smooth' });
+    }
+
+    // Khởi tạo khi trang load
+    window.onload = function() {
+      initializePage();
+    }
+
+    // Khởi tạo lại khi trang được hiển thị (bao gồm cả khi back từ trang khác)
+    window.addEventListener('pageshow', function(event) {
+      initializePage();
+    });
+
+    // Function khởi tạo trang
+    function initializePage() {
+      user = JSON.parse(localStorage.getItem("etax_user_info") || "{}");
+      document.getElementById("user-mst").innerText = "MST: " + (user.mst || "...");
+      document.getElementById("user-name").innerText = user.name || "(Chưa đăng nhập)";
+      
+      if(document.getElementById("slide-username")) {
+        document.getElementById("slide-username").innerText = user.name || "...";
+      }
+
+      // Đảm bảo event listeners được khởi tạo lại
+      setupEventListeners();
+    }
+
+    // Function thiết lập event listeners
+    function setupEventListeners() {
+      const scrollable = document.getElementById("scrollable");
+      
+      // Xóa event listeners cũ trước khi thêm mới (tránh trùng lặp)
+      scrollable.removeEventListener('touchstart', handleTouchStart);
+      scrollable.removeEventListener('touchmove', handleTouchMove);
+      scrollable.removeEventListener('mousedown', handleMouseDown);
+      scrollable.removeEventListener('mouseleave', handleMouseLeave);
+      scrollable.removeEventListener('mouseup', handleMouseUp);
+      scrollable.removeEventListener('mousemove', handleMouseMove);
+
+      // Thêm event listeners mới
+      scrollable.addEventListener('touchstart', handleTouchStart);
+      scrollable.addEventListener('touchmove', handleTouchMove);
+      scrollable.addEventListener('mousedown', handleMouseDown);
+      scrollable.addEventListener('mouseleave', handleMouseLeave);
+      scrollable.addEventListener('mouseup', handleMouseUp);
+      scrollable.addEventListener('mousemove', handleMouseMove);
+    }
+
+    // Touch swipe event handlers
+    let startXTouch;
+    function handleTouchStart(e) {
+      startXTouch = e.touches[0].clientX;
+    }
+    
+    function handleTouchMove(e) {
+      let deltaX = e.touches[0].clientX - startXTouch;
+      scrollable.scrollLeft -= deltaX;
+      startXTouch = e.touches[0].clientX;
+    }
+
+    // Mouse drag event handlers
+    let isDown = false;
+    let startX, scrollLeftStart;
+
+    function handleMouseDown(e) {
+      isDown = true;
+      scrollable.classList.add('active');
+      startX = e.pageX - scrollable.offsetLeft;
+      scrollLeftStart = scrollable.scrollLeft;
+    }
+
+    function handleMouseLeave() {
+      isDown = false;
+    }
+
+    function handleMouseUp() {
+      isDown = false;
+    }
+
+    function handleMouseMove(e) {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - scrollable.offsetLeft;
+      const walk = (x - startX) * 1.2;
+      scrollable.scrollLeft = scrollLeftStart - walk;
+    }
+  </script>
+</body>
+</html>

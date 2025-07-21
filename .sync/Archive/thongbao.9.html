@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <!-- PWA Meta Tags -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <!-- 🔒 KHÓA ORIENTATION CHỈ CHO PHÉP DỌC -->
+  <meta name="screen-orientation" content="portrait">
+  <meta name="mobile-web-app-orientations" content="portrait">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="eTax Mobile">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#b71c1c">
+
+  <!-- PWA Icons -->
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <!-- 🔧 FIX: Conditional manifest để tránh CORS lỗi với file:// -->
+  <script>
+    if (window.location.protocol !== 'file:') {
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = 'manifest.json';
+      document.head.appendChild(link);
+    }
+  </script>
+  
+  <title>Thông báo - eTax Mobile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    /* PWA TEMPLATE - Clone từ login.html */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Roboto', Arial, sans-serif;
+      touch-action: manipulation;
+      -webkit-overflow-scrolling: touch;
+      -webkit-tap-highlight-color: transparent;
+      /* ✅ PERFORMANCE OPTIMIZATION */
+      animation-duration: 0s !important;
+      animation-delay: 0s !important;
+      transition-duration: 0s !important;
+      transition-delay: 0s !important;
+      transform: none !important;
+    }
+
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      min-height: 100vh;
+      min-width: 100vw;
+      width: 100vw;
+      height: 100vh;
+      background: #000 !important;
+      box-sizing: border-box;
+      overflow: hidden !important;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      /* 🔒 KHÓA XOAY NGANG */
+      transform-origin: center center;
+      /* 🔒 PWA Safe Area Support */
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+
+    body {
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+      max-width: 414px;
+      margin: 0 auto;
+      color: #000;
+      /* 🔒 KHÓA SCROLL HOÀN TOÀN */
+      overflow: hidden;
+      touch-action: manipulation;
+      /* ✅ Bỏ chức năng vuốt back */
+      overscroll-behavior: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    .phone-frame {
+      width: 100vw;
+      max-width: 420px;
+      min-height: 100vh;
+      background: #f5f5f5;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center center;
+      border-radius: 0;
+      margin: 0 auto;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+    }
+
+    @media (min-width: 601px) {
+      .phone-frame {
+        border-radius: 30px;
+        margin: 32px auto;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        width: 400px;
+      }
+    }
+
+    /* ✅ HEADER CHUẨN APP GỐC - EXTENDED TO TAX PERIOD */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background-color: #b71c1c; /* 🔴 Đỏ sẫm hơn thay vì #d62828 */
+      color: white;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 100px; /* 🔧 Tăng chiều cao xuống đến vị trí chữ "Kỳ thuế" */
+      /* 🔒 PWA Safe Area */
+      padding-top: max(12px, env(safe-area-inset-top));
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .header .back-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 500;
+      flex-grow: 1;
+      text-align: center;
+      margin: 0 16px;
+      letter-spacing: 0.5px;
+    }
+
+    .header .home-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ✅ CONTENT SCROLLABLE */
+    .content {
+      flex: 1;
+      background: #ffffff;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* ===== TABS SECTION ===== */
+    .tabs-container {
+      background: white;
+      padding: 8px 16px 0;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tab-item {
+      flex: 1;
+      padding: 12px 8px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 20px 20px 0 0;
+      background: #f5f5f5;
+      color: #666;
+      cursor: pointer;
+      position: relative;
+      border: none;
+    }
+
+    .tab-item.active {
+      background: #e92626;
+      color: white;
+    }
+
+    .tab-item .badge {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      background: #f4401c;
+      color: white;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      min-width: 16px;
+      height: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ===== SEARCH BAR ===== */
+    .search-container {
+      background: white;
+      padding: 16px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 12px 16px 12px 40px;
+      border: 1px solid #ddd;
+      border-radius: 25px;
+      font-size: 14px;
+      background: #f8f9fa url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 12px center;
+      background-size: 16px 16px;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #d62828;
+    }
+
+    .advanced-btn {
+      background: none;
+      border: 1px solid #d62828;
+      color: #d62828;
+      padding: 10px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ===== NOTIFICATION LIST ===== */
+    .notification-list {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .notification-item {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border-left: 4px solid #d62828;
+      cursor: pointer;
+    }
+
+    .notification-time {
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .notification-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .notification-content {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    /* ✅ PWA Native App Appearance */
+    @supports (-webkit-touch-callout: none) {
+      .phone-frame {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="phone-frame">
+    <!-- ✅ HEADER CHUẨN APP GỐC -->
+    <header class="header">
+      <button class="back-btn" onclick="goBack()">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <h1>Thông báo</h1>
+      <button class="home-btn" onclick="goHome()">
+        <i class="fas fa-home"></i>
+      </button>
+    </header>
+
+    <!-- ✅ CONTENT SCROLLABLE -->
+    <main class="content">
+      <!-- Tabs Section -->
+      <div class="tabs-container">
+        <div class="tabs">
+          <button class="tab-item active">
+            <span class="badge">0</span>
+            Thông báo<br>hành chính của<br>CQT
+          </button>
+          <button class="tab-item">
+            <span class="badge">0</span>
+            Biến động<br>nghĩa vụ thuế
+        
+          </button>
+          <button class="tab-item">
+            <span class="badge">0</span>
+            Thông báo<br>khác
+          </button>
+        </div>
+      </div>
+
+      <!-- Search Section -->
+      <div class="search-container">
+        <div class="search-bar">
+          <input type="text" class="search-input" placeholder="Tìm theo nội dung hoặc ngày">
+          <button class="advanced-btn">
+            <i class="fas fa-plus"></i> Nâng cao
+          </button>
+        </div>
+      </div>
+
+      <!-- Notification List -->
+      <div class="notification-list">
+        <div class="notification-item">
+          <div class="notification-time">27/06/2025 15:05:59</div>
+          <div class="notification-title">Thông báo kế hoạch tạm dừng hệ thống</div>
+          <div class="notification-content">
+            Cục Thuế thông báo về việc tạm dừng các hệ thống thuế điện tử từ 13h00 ngày 27/6/2025 (...)
+          </div>
+        </div>
+
+        <div class="notification-item">
+          <div class="notification-time">13/06/2025 16:34:34</div>
+          <div class="notification-title">Thông báo kế hoạch tạm dừng hệ thống</div>
+          <div class="notification-content">
+            Cục Thuế thông báo về việc tạm dừng Dịch vụ Thuế điện tử trên thiết bị di động (eTax Mobile)...
+          </div>
+        </div>
+
+        <div class="notification-item">
+          <div class="notification-time">13/06/2025 16:24:25</div>
+          <div class="notification-title">Thông báo kế hoạch tạm dừng hệ thống</div>
+          <div class="notification-content">
+            Cục Thuế thông báo về việc tạm dừng Dịch vụ Thuế điện tử trên thiết bị di động (eTax Mobile)...
+          </div>
+        </div>
+
+        <div class="notification-item">
+          <div class="notification-time">04/06/2025 10:09:38</div>
+          <div class="notification-title">Giao dịch nộp thuế</div>
+          <div class="notification-content">
+            Người nộp thuế đã nộp thuế thành công cho mã số thuế 8868112232-002, mã tham chiếu: 1...
+          </div>
+        </div>
+
+        <div class="notification-item">
+          <div class="notification-time">03/06/2025 17:34:22</div>
+          <div class="notification-title">V/v : Tài khoản giao dịch thuế điện tử</div>
+          <div class="notification-content">
+            Kính gửi Quý khách hàng, Cục Thuế thông báo tài khoản giao dịch thuế điện tử...
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ✅ PWA Navigation Functions
+    function goBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    function goHome() {
+      window.location.href = 'index.html';
+    }
+
+    // Tab functionality
+    document.querySelectorAll('.tab-item').forEach((tab, index) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+
+    // ✅ PWA Performance
+    if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
+      navigator.serviceWorker.register('service-worker.js').catch(console.error);
+    }
+  </script>
+</body>
+</html>

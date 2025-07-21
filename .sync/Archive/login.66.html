@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="eTax Mobile">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#d62828">
+
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <title>eTax Mobile - Đăng nhập</title>
+
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  
+  <style>
+    /* ✅ PWA Mobile Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    /* Cho phép select text ở input */
+    input, textarea {
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      user-select: text;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: fixed;
+      touch-action: manipulation;
+      overscroll-behavior: none;
+      background: #000;
+    }
+
+    /* ✅ PWA Container */
+    .app-container {
+      width: 100vw;
+      height: 100vh;
+      max-width: 430px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      background-image: url('assets/bglogin.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Overlay cho background */
+    .bg-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(1px);
+    }
+
+    /* Safe areas cho iPhone */
+    .safe-area-top {
+      padding-top: env(safe-area-inset-top, 20px);
+    }
+
+    .safe-area-bottom {
+      padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+
+    /* Content wrapper có thể scroll */
+    .content-wrapper {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Logo section */
+    .logo-wrapper {
+      text-align: center;
+      margin-bottom: 40px;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      display: block;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .title {
+      color: white;
+      font-size: 28px;
+      font-weight: 700;
+      text-align: center;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      margin: 0;
+    }
+
+    /* Form container */
+    .form-container {
+      width: 100%;
+      max-width: 340px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px 25px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    /* Form groups */
+    .form-group {
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      color: #333;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+
+    /* Input với icon */
+    .input-icon-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon-wrap i {
+      position: absolute;
+      left: 16px;
+      color: #666;
+      font-size: 16px;
+      z-index: 2;
+    }
+
+    .input-icon-wrap input {
+      width: 100%;
+      padding: 16px 16px 16px 48px;
+      border: 2px solid #e1e5e9;
+      border-radius: 12px;
+      font-size: 16px; /* Prevent zoom on iOS */
+      background: white;
+      color: #333;
+      transition: all 0.3s ease;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .input-icon-wrap input:focus {
+      border-color: #d62828;
+      box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .input-icon-wrap input::placeholder {
+      color: #aaa;
+      font-size: 15px;
+    }
+
+    /* Eye icon cho password */
+    .input-icon-wrap .fa-eye {
+      left: auto;
+      right: 16px;
+      cursor: pointer;
+      color: #999;
+      transition: color 0.2s ease;
+    }
+
+    .input-icon-wrap .fa-eye:hover {
+      color: #d62828;
+    }
+
+    /* Links */
+    .links {
+      display: flex;
+      justify-content: space-between;
+      margin: 20px 0;
+      gap: 10px;
+    }
+
+    .links a {
+      color: #d62828;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: opacity 0.2s ease;
+      flex: 1;
+      text-align: center;
+    }
+
+    .links a:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+
+    /* Login button */
+    .btn-login {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #d62828 0%, #c71e1e 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(214, 40, 40, 0.3);
+      margin-bottom: 20px;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(214, 40, 40, 0.4);
+    }
+
+    .btn-login:active {
+      transform: translateY(0);
+    }
+
+    .btn-login:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* VNeID button */
+    .btn-vneid {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid #e1e5e9;
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .btn-vneid:hover {
+      background: white;
+      border-color: #d62828;
+      transform: translateY(-1px);
+    }
+
+    .btn-vneid .text-content {
+      flex: 1;
+      text-align: left;
+    }
+
+    .btn-vneid .line1 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 2px;
+    }
+
+    .btn-vneid .line2 {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .btn-vneid .icon-wrapper {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-vneid img {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+    }
+
+    /* Register link */
+    .register {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
+      margin-top: 30px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    }
+
+    .register a {
+      color: #ffeb3b;
+      text-decoration: none;
+      font-weight: 600;
+      margin-left: 5px;
+    }
+
+    .register a:hover {
+      text-decoration: underline;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+
+    .btn-login.loading .spinner {
+      display: inline-block;
+    }
+
+    /* Messages */
+    .message {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+
+    .error-msg {
+      background: #fee;
+      color: #c33;
+      border: 1px solid #fcc;
+    }
+
+    .success-msg {
+      background: #efe;
+      color: #363;
+      border: 1px solid #cfc;
+    }
+
+    /* Bottom navigation placeholder */
+    .bottom-nav {
+      position: sticky;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 16px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: 12px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      min-width: 60px;
+    }
+
+    .nav-item:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-item i {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ✅ RESPONSIVE BREAKPOINTS */
+
+    /* iPhone SE (375px) */
+    @media screen and (max-width: 375px) {
+      .app-container {
+        max-width: 375px;
+      }
+      
+      .form-container {
+        max-width: 320px;
+        padding: 25px 20px;
+      }
+      
+      .content-wrapper {
+        padding: 20px 12px;
+      }
+      
+      .logo {
+        width: 60px;
+        height: 60px;
+      }
+      
+      .title {
+        font-size: 24px;
+      }
+    }
+
+    /* Màn hình nhỏ chiều cao */
+    @media screen and (max-height: 700px) {
+      .content-wrapper {
+        justify-content: flex-start;
+        padding-top: 20px;
+      }
+      
+      .logo-wrapper {
+        margin-bottom: 30px;
+      }
+      
+      .logo {
+        width: 60px;
+        height: 60px;
+      }
+      
+      .title {
+        font-size: 22px;
+      }
+      
+      .form-container {
+        padding: 20px;
+      }
+    }
+
+    /* Landscape orientation */
+    @media screen and (orientation: landscape) and (max-height: 500px) {
+      .content-wrapper {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+        padding: 20px;
+      }
+      
+      .logo-wrapper {
+        flex: 1;
+        margin-bottom: 0;
+        margin-right: 20px;
+      }
+      
+      .form-container {
+        flex: 1;
+        max-width: 400px;
+      }
+      
+      .bottom-nav {
+        display: none;
+      }
+    }
+
+    /* Desktop và tablet */
+    @media screen and (min-width: 431px) {
+      .app-container {
+        max-width: 430px;
+        border-radius: 25px;
+        margin: 20px auto;
+        height: calc(100vh - 40px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      body {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        overflow: auto;
+        position: static;
+        height: auto;
+        min-height: 100vh;
+      }
+      
+      html {
+        overflow: auto;
+        position: static;
+        height: auto;
+      }
+    }
+
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+      .form-container {
+        background: rgba(30, 30, 30, 0.95);
+      }
+      
+      .form-group label {
+        color: #fff;
+      }
+      
+      .input-icon-wrap input {
+        background: rgba(50, 50, 50, 0.8);
+        border-color: #555;
+        color: #fff;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="bg-overlay"></div>
+    <div class="safe-area-top"></div>
+    
+    <div class="content-wrapper">
+      <div class="logo-wrapper">
+        <img src="assets/logo.png" alt="Logo Thuế" class="logo" />
+        <h1 class="title">eTax Mobile</h1>
+      </div>
+      
+      <div class="form-container">
+        <form class="login-form" onsubmit="return false;">
+          <div class="form-group">
+            <label for="tax-id">Mã số thuế</label>
+            <div class="input-icon-wrap">
+              <i class="fa-solid fa-user"></i>
+              <input 
+                type="text" 
+                id="tax-id" 
+                placeholder="Nhập mã số thuế" 
+                autocomplete="username"
+                maxlength="13"
+              />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="password">Mật khẩu</label>
+            <div class="input-icon-wrap">
+              <i class="fa-solid fa-lock"></i>
+              <input 
+                type="password" 
+                id="password" 
+                placeholder="Nhập mật khẩu" 
+                autocomplete="current-password"
+              />
+              <i class="fa-solid fa-eye" id="togglePassword" onclick="togglePassword()"></i>
+            </div>
+          </div>
+          
+          <div class="links">
+            <a href="#" onclick="showForgotTaxId()">Quên tài khoản?</a>
+            <a href="#" onclick="showForgotPassword()">Quên mật khẩu?</a>
+          </div>
+          
+          <button type="button" class="btn-login" id="loginBtn" onclick="login()">
+            <span class="spinner"></span>
+            <span class="btn-text">Đăng nhập</span>
+          </button>
+          
+          <div class="message error-msg" id="errorMsg"></div>
+          <div class="message success-msg" id="successMsg"></div>
+          
+          <a href="#" class="btn-vneid" onclick="loginWithVNeID()">
+            <div class="text-content">
+              <div class="line1">Đăng nhập bằng tài khoản</div>
+              <div class="line2">Định danh điện tử</div>
+            </div>
+            <div class="icon-wrapper">
+              <img src="assets/vnid.png" alt="VNeID" />
+            </div>
+          </a>
+        </form>
+      </div>
+      
+      <p class="register">
+        Bạn chưa có tài khoản? 
+        <a href="#" onclick="showRegister()">Đăng ký ngay</a>
+      </p>
+    </div>
+    
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <a href="#" class="nav-item" onclick="showQRScanner()">
+        <i class="fa-solid fa-qrcode"></i>
+        <span>QR tem</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showUtilities()">
+        <i class="fa-solid fa-tools"></i>
+        <span>Tiện ích</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showSupport()">
+        <i class="fa-solid fa-headset"></i>
+        <span>Hỗ trợ</span>
+      </a>
+      <a href="#" class="nav-item" onclick="showShare()">
+        <i class="fa-solid fa-share"></i>
+        <span>Chia sẻ</span>
+      </a>
+    </div>
+    
+    <div class="safe-area-bottom"></div>
+  </div>
+
+  <script>
+    // ✅ FIXED: Kiểm tra xác thực thiết bị khi load trang
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('📱 Khởi động Login Page...');
+      
+      // Kiểm tra thiết bị đã được xác thực chưa
+      if (!isDeviceVerified()) {
+        console.log('❌ Thiết bị chưa xác thực, chuyển về token-login');
+        window.location.href = 'token-login.html';
+        return;
+      }
+      
+      console.log('✅ Thiết bị đã xác thực, cho phép đăng nhập');
+      
+      // Auto focus vào input đầu tiên
+      setTimeout(() => {
+        document.getElementById('tax-id').focus();
+      }, 500);
+    });
+
+    // ✅ FIXED: Kiểm tra thiết bị đã được xác thực
+    function isDeviceVerified() {
+      const deviceId = localStorage.getItem('etax_device_id');
+      const verified1 = localStorage.getItem('etax_device_verified') === 'true';
+      const verified2 = localStorage.getItem('etax_token_verified') === 'true';
+      const verified3 = localStorage.getItem(`etax_verified_${deviceId}`) === 'true';
+      const hasToken = localStorage.getItem('etax_verified_token');
+      
+      const isVerified = deviceId && verified1 && verified2 && verified3 && hasToken;
+      
+      console.log('🔍 Kiểm tra xác thực thiết bị:', {
+        deviceId: !!deviceId,
+        verified1,
+        verified2,
+        verified3,
+        hasToken: !!hasToken,
+        result: isVerified
+      });
+      
+      return isVerified;
+    }
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+      authDomain: "etax-7fbf8.firebaseapp.com",
+      databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "etax-7fbf8",
+      storageBucket: "etax-7fbf8.appspot.com",
+      messagingSenderId: "1030026724634",
+      appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3",
+      measurementId: "G-YS5DLECJE6"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // ✅ Toggle password visibility
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const toggleIcon = document.getElementById('togglePassword');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+      }
+    }
+
+    // ✅ FIXED: Hàm đăng nhập với validation tốt hơn
+    async function login() {
+      const taxIdInput = document.getElementById('tax-id');
+      const passwordInput = document.getElementById('password');
+      const loginBtn = document.getElementById('loginBtn');
+      
+      const taxId = taxIdInput.value.trim();
+      const password = passwordInput.value.trim();
+      
+      // Validation
+      if (!taxId) {
+        showError('Vui lòng nhập mã số thuế');
+        taxIdInput.focus();
+        return;
+      }
+      
+      if (taxId.length < 8) {
+        showError('Mã số thuế không hợp lệ (tối thiểu 8 ký tự)');
+        taxIdInput.focus();
+        return;
+      }
+      
+      if (!password) {
+        showError('Vui lòng nhập mật khẩu');
+        passwordInput.focus();
+        return;
+      }
+      
+      if (password.length < 4) {
+        showError('Mật khẩu quá ngắn (tối thiểu 4 ký tự)');
+        passwordInput.focus();
+        return;
+      }
+      
+      // Show loading
+      loginBtn.disabled = true;
+      loginBtn.classList.add('loading');
+      hideMessages();
+      
+      try {
+        console.log('🔐 Đang đăng nhập với MST:', taxId);
+        
+        // Kiểm tra thông tin đăng nhập trong Firebase
+        const snapshot = await db.ref('users').orderByChild('tax_id').equalTo(taxId).once('value');
+        const userData = snapshot.val();
+        
+        if (!userData) {
+          showError('Mã số thuế không tồn tại trong hệ thống');
+          return;
+        }
+        
+        const userKey = Object.keys(userData)[0];
+        const userInfo = userData[userKey];
+        
+        // Kiểm tra mật khẩu
+        if (userInfo.password !== password) {
+          showError('Mật khẩu không chính xác');
+          return;
+        }
+        
+        // Kiểm tra trạng thái tài khoản
+        if (userInfo.status === 'inactive') {
+          showError('Tài khoản đã bị khóa. Vui lòng liên hệ hỗ trợ');
+          return;
+        }
+        
+        // ✅ Đăng nhập thành công
+        showSuccess('Đăng nhập thành công! Đang chuyển trang...');
+        
+        // Lưu thông tin đăng nhập
+        const loginData = {
+          user_id: userKey,
+          tax_id: taxId,
+          full_name: userInfo.full_name || 'Người dùng',
+          email: userInfo.email || '',
+          phone: userInfo.phone || '',
+          login_time: Date.now(),
+          device_id: localStorage.getItem('etax_device_id')
+        };
+        
+        localStorage.setItem('etax_user_session', JSON.stringify(loginData));
+        localStorage.setItem('etax_logged_in', 'true');
+        
+        // Cập nhật lần đăng nhập cuối trong Firebase
+        await db.ref(`users/${userKey}`).update({
+          last_login: Date.now(),
+          last_device: localStorage.getItem('etax_device_id')
+        });
+        
+        // Chuyển trang sau 1.5 giây
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
+        
+      } catch (error) {
+        console.error('❌ Lỗi đăng nhập:', error);
+        showError('Lỗi kết nối. Vui lòng thử lại sau.');
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.classList.remove('loading');
+      }
+    }
+
+    // ✅ Đăng nhập bằng VNeID (placeholder)
+    function loginWithVNeID() {
+      showError('Tính năng đăng nhập bằng VNeID đang được phát triển');
+    }
+
+    // ✅ Forgot functions (placeholder)
+    function showForgotTaxId() {
+      showError('Tính năng khôi phục tài khoản đang được phát triển');
+    }
+
+    function showForgotPassword() {
+      showError('Tính năng khôi phục mật khẩu đang được phát triển');
+    }
+
+    function showRegister() {
+      showError('Tính năng đăng ký đang được phát triển');
+    }
+
+    // ✅ Bottom nav functions (placeholder)
+    function showQRScanner() {
+      showError('Tính năng quét QR đang được phát triển');
+    }
+
+    function showUtilities() {
+      showError('Tính năng tiện ích đang được phát triển');
+    }
+
+    function showSupport() {
+      showError('Tính năng hỗ trợ đang được phát triển');
+    }
+
+    function showShare() {
+      showError('Tính năng chia sẻ đang được phát triển');
+    }
+
+    // ✅ Utility functions
+    function showError(message) {
+      const errorMsg = document.getElementById('errorMsg');
+      errorMsg.textContent = message;
+      errorMsg.style.display = 'block';
+      setTimeout(hideMessages, 5000);
+    }
+
+    function showSuccess(message) {
+      const successMsg = document.getElementById('successMsg');
+      successMsg.textContent = message;
+      successMsg.style.display = 'block';
+    }
+
+    function hideMessages() {
+      document.getElementById('errorMsg').style.display = 'none';
+      document.getElementById('successMsg').style.display = 'none';
+    }
+
+    // ✅ Enter key support
+    document.getElementById('tax-id').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        document.getElementById('password').focus();
+      }
+    });
+
+    document.getElementById('password').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        login();
+      }
+    });
+
+    // ✅ Auto format tax ID
+    document.getElementById('tax-id').addEventListener('input', function(e) {
+      // Chỉ cho phép số
+      e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    });
+
+    // ✅ Service Worker cho PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(registration => {
+            console.log('✅ Service Worker đã đăng ký:', registration);
+          })
+          .catch(error => {
+            console.log('❌ Lỗi đăng ký Service Worker:', error);
+          });
+      });
+    }
+
+    // ✅ PWA Install prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      console.log('💾 PWA có thể được cài đặt');
+    });
+
+    // ✅ Auto logout sau thời gian timeout
+    let logoutTimer;
+    function resetLogoutTimer() {
+      clearTimeout(logoutTimer);
+      logoutTimer = setTimeout(() => {
+        if (localStorage.getItem('etax_logged_in') === 'true') {
+          localStorage.removeItem('etax_user_session');
+          localStorage.removeItem('etax_logged_in');
+          showError('Phiên đăng nhập đã hết hạn');
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        }
+      }, 30 * 60 * 1000); // 30 phút
+    }
+
+    // Reset timer khi có hoạt động
+    ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+      document.addEventListener(event, resetLogoutTimer, true);
+    });
+
+    resetLogoutTimer();
+  </script>
+</body>
+</html>

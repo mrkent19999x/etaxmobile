@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#d62828">
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title>eTax Mobile - Home</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow-x: hidden;
+      background: linear-gradient(to bottom, #000, #111);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      max-width: 414px;
+      margin: 0 auto;
+      color: #000;
+    }
+
+    .phone-frame {
+      padding-top: 100px;
+      max-width: 420px;
+      min-height: 100vh;
+      background-image: url('assets/bglogin.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center center;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      left: 0;
+      width: 100%;
+      max-width: 420px;
+      background-color: #a40000;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 100px;
+      padding: 0px;
+      z-index: 999;
+    }
+
+    .left-menu {
+      font-size: 24px;
+      color: white;
+      padding-left: 10px;
+      cursor: pointer;
+    }
+
+    .center-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      flex-grow: 1;
+    }
+
+    .center-logo img { height: 40px; margin-bottom: 4px; }
+    .center-logo span { font-weight: bold; font-size: 16px; }
+
+    .right-icon {
+      display: flex;
+      gap: 10px;
+      padding-right: 10px;
+    }
+
+    .right-icon img { height: 24px; }
+
+    .slide-menu {
+      position: fixed;
+      top: 0;
+      left: -300px;
+      width: 280px;
+      height: 100vh;
+      background: white;
+      z-index: 9999;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .slide-menu.open { left: 0; }
+
+    .slide-header {
+      background: #d62828;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .slide-user {
+      background-color: red;
+      color: white;
+      height: 60px;
+      text-align: center;
+      line-height: 60px;
+    }
+
+    .slide-links {
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+    }
+
+    .slide-links a {
+      text-decoration: none;
+      color: #333;
+      padding: 0.5rem 0;
+      font-size: 15px;
+    }
+
+    .user-info {
+      margin-top: 0px; /* để tránh bị topbar che */
+      background-color: white;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      background-image: url('assets/backgrounftd.png');
+      height: 130px;
+    }
+    
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin-right: 16px;
+    }
+
+    .userinfo-text .mst {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .userinfo-text .username {
+      font-size: 18px;
+      font-weight: bold;
+      color: #a40000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .scroll-row {
+      display: flex;
+      overflow-x: auto;
+      gap: 12px;
+      padding: 10px 20px;
+    }
+
+    .circle-item {
+      background-color: #a40000;
+      color: white;
+      padding: 12px;
+      border-radius: 50%;
+      min-width: 80px;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      text-align: center;
+    }
+
+    .grid-box {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .grid-item {
+      background-color: white;
+      border-radius: 16px;
+      padding: 12px;
+      text-align: center;
+      font-size: 13px;
+      color: #000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="phone-frame">
+    <div class="topbar">
+      <div class="left-menu" onclick="openMenu()"><i class="fas fa-bars"></i></div>
+      <div class="center-logo">
+        <img src="assets/logo.png" alt="eTax Logo">
+        <span>eTax Mobile</span>
+      </div>
+      <div class="right-icon">
+        <img src="assets/notification.png" alt="Thông báo">
+        <img src="assets/help.png" alt="Trợ giúp">
+      </div>
+    </div>
+
+    <div class="user-info">
+      <img src="assets/user.png" class="avatar">
+      <div class="userinfo-text">
+        <div class="mst" id="user-mst">MST: ...</div>
+        <div class="username" id="user-name">Tên người dùng</div>
+      </div>
+    </div>
+
+    <div class="scroll-row" id="scrollable">
+      <div class="circle-item">Tờ khai<br>thuế GTGT</div>
+      <div class="circle-item">Thuế<br>thu nhập</div>
+      <div class="circle-item">Nộp<br>NSNN</div>
+      <div class="circle-item">Thông báo<br>thuế</div>
+    </div>
+
+    <div class="grid-box">
+      <div class="grid-item">Tra cứu tờ khai</div>
+      <div class="grid-item">Tra cứu NNT</div>
+      <div class="grid-item">Tra cứu thông báo</div>
+    </div>
+  </div>
+
+  <!-- Slide menu -->
+  <div class="slide-menu" id="slideMenu">
+    <div class="slide-header">
+      <img src="assets/logo.png" class="logo">
+      <div>eTax Mobile</div>
+    </div>
+    <div class="slide-user">Xin chào <span id="slide-username">...</span></div>
+    <div class="slide-links">
+      <a href="#">Trang chủ</a>
+      <a href="#">Tài khoản</a>
+      <a href="#">Liên hệ</a>
+      <a href="#" onclick="logout()" style="color: red; font-weight: bold;">Đăng xuất</a>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+      authDomain: "etax-7fbf8.firebaseapp.com",
+      databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "etax-7fbf8",
+      storageBucket: "etax-7fbf8.appspot.com",
+      messagingSenderId: "1030026724634",
+      appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    let user = JSON.parse(localStorage.getItem("etax_user_info") || "{}");
+
+    function openMenu() {
+      document.getElementById("slideMenu").classList.add("open");
+      document.getElementById("slide-username").innerText = user.name || "...";
+    }
+
+    function logout() {
+      localStorage.clear();
+      location.href = 'login.html';
+    }
+
+    window.onload = function () {
+      document.getElementById("user-mst").innerText = "MST: " + (user.mst || "...");
+      document.getElementById("user-name").innerText = user.name || "(Chưa đăng nhập)";
+    }
+  </script>
+</body>
+</html>

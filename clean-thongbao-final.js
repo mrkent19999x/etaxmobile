@@ -1,0 +1,440 @@
+const fs = require('fs');
+const path = require('path');
+
+console.log('🧹 Làm sạch trang thông báo...');
+
+// Nội dung trang thông báo sạch sẽ
+const thongbaoCleanContent = `<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!-- PWA Meta Tags -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- 🔒 KHÓA ORIENTATION CHỈ CHO PHÉP DỌC -->
+<meta name="screen-orientation" content="portrait">
+<meta name="mobile-web-app-orientations" content="portrait">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="eTax Mobile">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#b71c1c">
+
+<!-- PWA Icons -->
+<link rel="apple-touch-icon" href="assets/logo.png">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<!-- 🔧 FIX: Conditional manifest để tránh CORS lỗi với file:// -->
+<script>
+  if (window.location.protocol !== 'file:') {
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = 'manifest.json';
+    document.head.appendChild(link);
+  }
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<title>eTax Mobile - Tra cứu thông báo</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', Arial, sans-serif;
+  touch-action: manipulation;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+  /* ✅ PERFORMANCE OPTIMIZATION */
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  transform: none !important;
+}
+
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh;
+  min-width: 100vw;
+  width: 100vw;
+  height: 100vh;
+  background: #000 !important;
+  box-sizing: border-box;
+  overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  /* 🔒 KHÓA XOAY NGANG */
+  transform-origin: center center;
+  /* 🔒 PWA Safe Area Support */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  /* 🔒 KHÓA BODY MẠNH HƠN */
+  position: fixed;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+body {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+  margin: 0 auto;
+  color: #000;
+  /* 🔒 KHÓA SCROLL HOÀN TOÀN */
+  overflow: hidden !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+.phone-frame {
+  width: 100vw !important;
+  min-height: 100vh;
+  background: #f5f5f5;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  border-radius: 0;
+  margin: 0 auto;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+@media (min-width: 601px) {
+  .phone-frame {
+    border-radius: 30px;
+    margin: 32px auto;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    width: 400px !important;
+  }
+}
+
+/* ✅ HEADER CHUẨN PWA TEMPLATE */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #b71c1c;
+  color: white;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 140px;
+  padding-top: max(12px, env(safe-area-inset-top));
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.header i {
+    font-size: 20px;
+    cursor: pointer;
+    color: white;
+    padding: 8px;
+    border-radius: 4px;
+    /* ✅ PHẢN HỒI NGAY LẬP TỨC */
+    transition: none !important;
+    transform: none !important;
+}
+
+.header i:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.header-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: white;
+    flex: 1;
+    text-align: center;
+}
+
+/* CSS cho tabs - SÁT VỚI HEADER */
+.tabs-container {
+    background: #b71c1c;
+    margin: 0;
+    padding: 0;
+}
+
+.tab-item {
+    flex: 1;
+    padding: 8px 6px;
+    margin: 6px 4px;
+    text-align: center;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.3;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.tab-active {
+    background: rgba(255,255,255,0.2);
+}
+
+.tab-badge {
+    background: white;
+    color: red;
+    font-weight: bold;
+    width: 25px;
+    height: 20px;
+    font-size: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 4px;
+}
+
+.search-container {
+    padding: 15px 20px;
+    background: #f3f2f2;
+}
+
+.search-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.advanced-btn {
+    padding: 12px 16px;
+    background: #b71c1c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    /* ✅ BỎ HẾT DELAY */
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+}
+
+.notification-list {
+    padding: 0 20px 20px;
+    background: #f3f2f2;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.notification-item {
+    background: white;
+    margin: 12px 0;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.notification-time {
+    color: #666;
+    font-size: 12px;
+    margin-bottom: 6px;
+}
+
+.notification-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 14px;
+}
+
+.notification-content {
+    color: #555;
+    line-height: 1.4;
+    font-size: 13px;
+}
+
+/* ✅ THÊM: Optimized click response - NGAY LẬP TỨC */
+button, input, a, div[onclick] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+    /* ✅ BỎ HẾT DELAY */
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+}
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <!-- Header -->
+        <div class="header">
+            <i class="fas fa-arrow-left" onclick="window.location.href='index.html'"></i>
+            <div class="header-title">Tra cứu thông báo</div>
+            <i class="fas fa-house" onclick="window.location.href='index.html'"></i>
+        </div>
+
+        <!-- Tabs Section - SÁT VỚI HEADER -->
+        <div class="tabs-container">
+            <div style="display: flex; padding: 0; margin: 0;">
+                <!-- Tab đang chọn -->
+                <div class="tab-item tab-active">
+                    <div class="tab-badge">0</div>
+                    <div>Thông báo<br>hành chính của<br>CQT</div>
+                </div>
+                
+                <!-- Tab chưa chọn -->
+                <div class="tab-item">
+                    <div class="tab-badge">0</div>
+                    <div>Biến động<br>nghĩa vụ thuế</div>
+                </div>
+                
+                <!-- Tab chưa chọn -->
+                <div class="tab-item">
+                    <div class="tab-badge">0</div>
+                    <div>Thông báo<br>khác</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-container">
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Tìm theo nội dung hoặc ngày">
+                <button class="advanced-btn">
+                    <i class="fas fa-plus"></i> Nâng cao
+                </button>
+            </div>
+        </div>
+
+        <!-- Notification List -->
+        <div class="notification-list">
+            <div class="notification-item">
+                <div class="notification-time">27/06/2025 15:05:59</div>
+                <div class="notification-title">Thông báo kế hoạch tạm dừng hệ thống</div>
+                <div class="notification-content">
+                    Cục Thuế thông báo về việc tạm dừng các hệ thống thuế điện tử từ 13h00 ngày 27/6/2025 để thực hiện bảo trì, nâng cấp hệ thống. Thời gian dự kiến hoàn tất: 17h00 cùng ngày.
+                </div>
+            </div>
+
+            <div class="notification-item">
+                <div class="notification-time">13/06/2025 16:34:34</div>
+                <div class="notification-title">Thông báo kế hoạch tạm dừng hệ thống</div>
+                <div class="notification-content">
+                    Cục Thuế thông báo về việc tạm dừng Dịch vụ Thuế điện tử trên thiết bị di động (eTax Mobile) từ 20h00 ngày 13/6/2025 đến 06h00 ngày 14/6/2025 để bảo trì hệ thống.
+                </div>
+            </div>
+
+            <div class="notification-item">
+                <div class="notification-time">13/06/2025 16:24:25</div>
+                <div class="notification-title">Thông báo kế hoạch tạm dừng hệ thống</div>
+                <div class="notification-content">
+                    Cục Thuế thông báo về việc tạm dừng Dịch vụ Thuế điện tử trên thiết bị di động (eTax Mobile) từ 08h00 đến 12h00 ngày 14/6/2025 để triển khai nâng cấp tính năng mới.
+                </div>
+            </div>
+
+            <div class="notification-item">
+                <div class="notification-time">04/06/2025 10:09:38</div>
+                <div class="notification-title">Giao dịch nộp thuế</div>
+                <div class="notification-content">
+                    Người nộp thuế đã nộp thuế thành công cho mã số thuế 8868112232-002, mã tham chiếu: 1717473578. Số tiền: 2,500,000 VNĐ. Thời gian giao dịch: 04/06/2025 10:09:38.
+                </div>
+            </div>
+
+            <div class="notification-item">
+                <div class="notification-time">03/06/2025 17:34:22</div>
+                <div class="notification-title">V/v : Tài khoản giao dịch thuế điện tử</div>
+                <div class="notification-content">
+                    Kính gửi Quý khách hàng, Cục Thuế thông báo tài khoản giao dịch thuế điện tử của Quý khách đã được kích hoạt thành công. Vui lòng kiểm tra thông tin và liên hệ nếu có thắc mắc.
+                </div>
+            </div>
+
+            <div class="notification-item">
+                <div class="notification-time">01/06/2025 09:15:42</div>
+                <div class="notification-title">Nhắc nhở nghĩa vụ thuế</div>
+                <div class="notification-content">
+                    Kính thông báo Quý khách có nghĩa vụ thuế sắp đến hạn nộp. Vui lòng kiểm tra và thực hiện nghĩa vụ thuế đúng thời hạn để tránh phát sinh tiền chậm nộp.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ✅ PWA device auth check
+        document.addEventListener('DOMContentLoaded', function() {
+            const loggedInUser = localStorage.getItem('etax_logged_in_user');
+            if (!loggedInUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            console.log('✅ Page loaded for user:', loggedInUser);
+        });
+
+        // ✅ DOUBLE-TAP FIX - NGAY LẬP TỨC
+        document.addEventListener('touchstart', function(e) {
+          if (e.touches.length > 1) {
+            e.preventDefault();
+          }
+        });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(e) {
+          const now = (new Date()).getTime();
+          if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+          }
+          lastTouchEnd = now;
+        }, false);
+
+        // Khắc phục double tap zoom - NGAY LẬP TỨC
+        let lastTouchTime = 0;
+        document.addEventListener('touchstart', function(e) {
+          const now = Date.now();
+          if (now - lastTouchTime <= 500) {
+            e.preventDefault();
+          }
+          lastTouchTime = now;
+        });
+
+        // Tắt pull to refresh
+        let startY = 0;
+        document.addEventListener('touchstart', function(e) {
+          startY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchmove', function(e) {
+          const y = e.touches[0].clientY;
+          if (startY <= 10 && y > startY) {
+            e.preventDefault();
+          }
+        });
+
+        // 🔒 KHÓA BODY THÊM
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+    </script>
+</body>
+</html>`;
+
+// Ghi file thông báo sạch
+const thongbaoPath = path.join(__dirname, 'thongbao.html');
+fs.writeFileSync(thongbaoPath, thongbaoCleanContent, 'utf8');
+
+console.log('✅ Đã làm sạch trang thông báo - xóa hết \\n và tối ưu tốc độ!');

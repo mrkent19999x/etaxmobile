@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eTax Token Generator</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: white;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 30px;
+      color: #333;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      color: #667eea;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 15px;
+      transition: all 0.3s;
+    }
+
+    .btn:hover {
+      background: #5a67d8;
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn.secondary {
+      background: #48bb78;
+    }
+
+    .btn.secondary:hover {
+      background: #38a169;
+    }
+
+    .result-box {
+      background: #f7fafc;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      border-left: 4px solid #667eea;
+      display: none;
+    }
+
+    .result-box.show {
+      display: block;
+    }
+
+    .token-display {
+      background: #1a202c;
+      color: #68d391;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      margin: 15px 0;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .token-display:hover {
+      background: #2d3748;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      margin: 15px 0;
+      display: none;
+    }
+
+    .error { background: #fed7d7; color: #c53030; border: 1px solid #feb2b2; }
+    .success { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+    .info { background: #bee3f8; color: #2c5282; border: 1px solid #90cdf4; }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .user-list {
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      background: #f9f9f9;
+    }
+
+    .user-item {
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-bottom: 4px;
+      transition: background 0.2s;
+    }
+
+    .user-item:hover {
+      background: #e2e8f0;
+    }
+
+    .user-item.selected {
+      background: #667eea;
+      color: white;
+    }
+
+    .copy-btn {
+      background: #ed8936;
+      font-size: 14px;
+      padding: 8px 16px;
+      margin-left: 10px;
+    }
+
+    .copy-btn:hover {
+      background: #dd6b20;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎟️ eTax Token Generator</h1>
+      <p>Tạo token xác thực thiết bị mới</p>
+    </div>
+
+    <!-- Load Users -->
+    <button class="btn secondary" onclick="loadUsers()">📋 Load Danh Sách Users</button>
+    
+    <div id="usersList" class="user-list" style="display: none;">
+      <!-- Users will be loaded here -->
+    </div>
+
+    <!-- Token Generation Form -->
+    <div class="form-group">
+      <label for="userId">User ID (MST):</label>
+      <input type="text" id="userId" placeholder="Nhập MST user..." maxlength="15">
+    </div>
+
+    <div class="form-group">
+      <label for="tokenPrefix">Token Prefix:</label>
+      <select id="tokenPrefix">
+        <option value="ETAXMC">ETAXMC (Standard)</option>
+        <option value="JAVASCRIPT">JAVASCRIPT (Custom)</option>
+        <option value="CUSTOM">CUSTOM (Tự nhập)</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="customPrefixGroup" style="display: none;">
+      <label for="customPrefix">Custom Prefix:</label>
+      <input type="text" id="customPrefix" placeholder="Nhập prefix tùy chỉnh...">
+    </div>
+
+    <div class="form-group">
+      <label for="tokenLength">Token Length:</label>
+      <select id="tokenLength">
+        <option value="12">12 ký tự</option>
+        <option value="15" selected>15 ký tự</option>
+        <option value="20">20 ký tự</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="expiryDays">Thời hạn (ngày):</label>
+      <select id="expiryDays">
+        <option value="30">30 ngày</option>
+        <option value="90">90 ngày</option>
+        <option value="365" selected>365 ngày (1 năm)</option>
+        <option value="0">Không hết hạn</option>
+      </select>
+    </div>
+
+    <div class="quick-actions">
+      <button class="btn" onclick="generateToken()">🎲 Tạo Token</button>
+      <button class="btn" onclick="generateCustomToken()">⚡ Tạo "JAVASCRIPTKIMTR"</button>
+    </div>
+
+    <div class="message error" id="errorMsg"></div>
+    <div class="message success" id="successMsg"></div>
+    <div class="message info" id="infoMsg"></div>
+
+    <!-- Result Display -->
+    <div class="result-box" id="resultBox">
+      <h3>✅ Token đã được tạo thành công!</h3>
+      <div class="token-display" id="tokenDisplay" onclick="copyToken()">
+        <!-- Token will appear here -->
+      </div>
+      <p><strong>User:</strong> <span id="resultUser"></span></p>
+      <p><strong>Hết hạn:</strong> <span id="resultExpiry"></span></p>
+      <p><strong>Trạng thái:</strong> <span id="resultStatus">Chưa sử dụng</span></p>
+      
+      <button class="btn copy-btn" onclick="copyToken()">📋 Copy Token</button>
+      <button class="btn" onclick="testToken()">🔬 Test Token Ngay</button>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+      authDomain: "etax-7fbf8.firebaseapp.com",
+      databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "etax-7fbf8",
+      storageBucket: "etax-7fbf8.appspot.com",
+      messagingSenderId: "1030026724634",
+      appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3",
+      measurementId: "G-YS5DLECJE6"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let currentToken = '';
+    let users = {};
+
+    // Load users từ database
+    async function loadUsers() {
+      showInfo('🔄 Đang load danh sách users...');
+      
+      try {
+        const snapshot = await db.ref('users').once('value');
+        if (snapshot.exists()) {
+          users = snapshot.val();
+          displayUsers();
+          showSuccess(`✅ Đã load ${Object.keys(users).length} users`);
+        } else {
+          showError('❌ Không tìm thấy users nào trong database');
+        }
+      } catch (error) {
+        showError('❌ Lỗi load users: ' + error.message);
+      }
+    }
+
+    // Hiển thị danh sách users
+    function displayUsers() {
+      const usersList = document.getElementById('usersList');
+      usersList.innerHTML = '';
+      
+      Object.keys(users).forEach(userId => {
+        const user = users[userId];
+        const userItem = document.createElement('div');
+        userItem.className = 'user-item';
+        userItem.innerHTML = `
+          <strong>${userId}</strong> - ${user.name || 'N/A'}
+          <br><small>Role: ${user.role || 'N/A'} | Token: ${user.linkedToken || 'None'}</small>
+        `;
+        
+        userItem.onclick = () => {
+          document.getElementById('userId').value = userId;
+          document.querySelectorAll('.user-item').forEach(item => {
+            item.classList.remove('selected');
+          });
+          userItem.classList.add('selected');
+        };
+        
+        usersList.appendChild(userItem);
+      });
+      
+      usersList.style.display = 'block';
+    }
+
+    // Tạo token ngẫu nhiên
+    function generateRandomToken(prefix, length) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      const remainingLength = length - prefix.length;
+      let result = prefix;
+      
+      for (let i = 0; i < remainingLength; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      
+      return result;
+    }
+
+    // Tạo token mới
+    async function generateToken() {
+      const userId = document.getElementById('userId').value.trim();
+      const prefixSelect = document.getElementById('tokenPrefix').value;
+      const customPrefix = document.getElementById('customPrefix').value.trim();
+      const tokenLength = parseInt(document.getElementById('tokenLength').value);
+      const expiryDays = parseInt(document.getElementById('expiryDays').value);
+
+      if (!userId) {
+        showError('❌ Vui lòng nhập User ID');
+        return;
+      }
+
+      // Xác định prefix
+      let prefix = prefixSelect;
+      if (prefixSelect === 'CUSTOM' && customPrefix) {
+        prefix = customPrefix;
+      }
+
+      showInfo('⚡ Đang tạo token...');
+
+      try {
+        // Tạo token
+        const token = generateRandomToken(prefix, tokenLength);
+        
+        // Tính thời gian hết hạn
+        const now = Date.now();
+        const expiresAt = expiryDays > 0 ? now + (expiryDays * 24 * 60 * 60 * 1000) : 0;
+
+        // Token data
+        const tokenData = {
+          linkedUserId: userId,
+          createdAt: now,
+          expiresAt: expiresAt,
+          used: false,
+          createdBy: 'TokenGenerator',
+          createdVia: 'Manual'
+        };
+
+        // Lưu vào Firebase
+        await db.ref(`deviceTokens/${token}`).set(tokenData);
+
+        // Update user nếu tồn tại
+        if (users[userId]) {
+          await db.ref(`users/${userId}/linkedToken`).set(token);
+        }
+
+        // Hiển thị kết quả
+        showResult(token, userId, expiresAt);
+        showSuccess('🎉 Token đã được tạo và lưu thành công!');
+
+      } catch (error) {
+        showError('❌ Lỗi tạo token: ' + error.message);
+        console.error('Error:', error);
+      }
+    }
+
+    // Tạo token "JAVASCRIPTKIMTR" cụ thể
+    async function generateCustomToken() {
+      const token = 'JAVASCRIPTKIMTR';
+      
+      // Auto fill form
+      document.getElementById('userId').value = '001095026798'; // Hoặc user ID bạn muốn
+      
+      showInfo('⚡ Đang tạo token JAVASCRIPTKIMTR...');
+
+      try {
+        const now = Date.now();
+        const expiresAt = now + (365 * 24 * 60 * 60 * 1000); // 1 năm
+
+        const tokenData = {
+          linkedUserId: '001095026798', // Hoặc user ID bạn muốn
+          createdAt: now,
+          expiresAt: expiresAt,
+          used: false,
+          createdBy: 'TokenGenerator',
+          createdVia: 'CustomRequest'
+        };
+
+        await db.ref(`deviceTokens/${token}`).set(tokenData);
+
+        showResult(token, '001095026798', expiresAt);
+        showSuccess('🎉 Token JAVASCRIPTKIMTR đã được tạo!');
+
+      } catch (error) {
+        showError('❌ Lỗi tạo token: ' + error.message);
+      }
+    }
+
+    // Hiển thị kết quả
+    function showResult(token, userId, expiresAt) {
+      currentToken = token;
+      
+      document.getElementById('tokenDisplay').textContent = token;
+      document.getElementById('resultUser').textContent = userId;
+      document.getElementById('resultExpiry').textContent = 
+        expiresAt > 0 ? new Date(expiresAt).toLocaleString('vi-VN') : 'Không hết hạn';
+      
+      document.getElementById('resultBox').classList.add('show');
+    }
+
+    // Copy token
+    function copyToken() {
+      navigator.clipboard.writeText(currentToken).then(() => {
+        showSuccess('📋 Đã copy token vào clipboard!');
+      }).catch(() => {
+        showError('❌ Không thể copy token');
+      });
+    }
+
+    // Test token
+    function testToken() {
+      if (currentToken) {
+        const testUrl = `token-debug.html?token=${currentToken}`;
+        window.open(testUrl, '_blank');
+      }
+    }
+
+    // Show/hide custom prefix
+    document.getElementById('tokenPrefix').addEventListener('change', function() {
+      const customGroup = document.getElementById('customPrefixGroup');
+      if (this.value === 'CUSTOM') {
+        customGroup.style.display = 'block';
+      } else {
+        customGroup.style.display = 'none';
+      }
+    });
+
+    // Utility functions
+    function showError(message) {
+      const el = document.getElementById('errorMsg');
+      el.textContent = message;
+      el.style.display = 'block';
+      hideOtherMessages('errorMsg');
+    }
+
+    function showSuccess(message) {
+      const el = document.getElementById('successMsg');
+      el.textContent = message;
+      el.style.display = 'block';
+      hideOtherMessages('successMsg');
+    }
+
+    function showInfo(message) {
+      const el = document.getElementById('infoMsg');
+      el.textContent = message;
+      el.style.display = 'block';
+      hideOtherMessages('infoMsg');
+    }
+
+    function hideOtherMessages(keep) {
+      const messages = ['errorMsg', 'successMsg', 'infoMsg'];
+      messages.forEach(id => {
+        if (id !== keep) {
+          document.getElementById(id).style.display = 'none';
+        }
+      });
+    }
+
+    console.log('🎟️ eTax Token Generator loaded');
+  </script>
+</body>
+</html>

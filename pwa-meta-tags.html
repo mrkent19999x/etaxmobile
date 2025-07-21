@@ -1,0 +1,198 @@
+<!-- ===== PWA META TAGS - THÊM VÀO HEAD CỦA TẤT CẢ FILE HTML ===== -->
+
+<!-- Viewport chuẩn cho PWA -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="./manifest.json">
+
+<!-- Theme colors -->
+<meta name="theme-color" content="#b71c1c">
+<meta name="msapplication-navbutton-color" content="#b71c1c">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+<!-- Apple PWA Settings -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="eTax Mobile">
+
+<!-- Apple Touch Icons -->
+<link rel="apple-touch-icon" href="./assets/logo.png">
+<link rel="apple-touch-icon" sizes="152x152" href="./assets/logo.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./assets/logo.png">
+<link rel="apple-touch-icon" sizes="167x167" href="./assets/logo.png">
+
+<!-- Splash Screen Images cho iOS -->
+<link rel="apple-touch-startup-image" href="./assets/splash-2048x2732.png" sizes="2048x2732">
+<link rel="apple-touch-startup-image" href="./assets/splash-1668x2224.png" sizes="1668x2224">
+<link rel="apple-touch-startup-image" href="./assets/splash-1536x2048.png" sizes="1536x2048">
+<link rel="apple-touch-startup-image" href="./assets/splash-1125x2436.png" sizes="1125x2436">
+<link rel="apple-touch-startup-image" href="./assets/splash-1242x2208.png" sizes="1242x2208">
+<link rel="apple-touch-startup-image" href="./assets/splash-750x1334.png" sizes="750x1334">
+<link rel="apple-touch-startup-image" href="./assets/splash-640x1136.png" sizes="640x1136">
+
+<!-- Microsoft PWA -->
+<meta name="msapplication-starturl" content="./index.html">
+<meta name="msapplication-TileColor" content="#b71c1c">
+<meta name="msapplication-TileImage" content="./assets/logo.png">
+
+<!-- Tắt số điện thoại tự động link -->
+<meta name="format-detection" content="telephone=no">
+
+<!-- Tắt email tự động link -->
+<meta name="format-detection" content="email=no">
+
+<!-- Tắt address tự động link -->
+<meta name="format-detection" content="address=no">
+
+<!-- Security headers -->
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+<!-- CSS fixes cho PWA -->
+<link rel="stylesheet" href="./pwa-safari-fix.css">
+
+<!-- JavaScript cho PWA -->
+<script>
+// Đăng ký Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js')
+      .then(function(registration) {
+        console.log('✅ ServiceWorker registered successfully');
+      })
+      .catch(function(error) {
+        console.log('❌ ServiceWorker registration failed');
+      });
+  });
+}
+
+// Tắt context menu
+document.addEventListener('contextmenu', function(e) {
+  e.preventDefault();
+});
+
+// Tắt drag
+document.addEventListener('dragstart', function(e) {
+  e.preventDefault();
+});
+
+// Khắc phục iOS Safari swipe back
+document.addEventListener('touchstart', function(e) {
+  if (e.touches.length > 1) {
+    e.preventDefault();
+  }
+});
+
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(e) {
+  const now = (new Date()).getTime();
+  if (now - lastTouchEnd <= 300) {
+    e.preventDefault();
+  }
+  lastTouchEnd = now;
+}, false);
+
+// Khắc phục double tap zoom
+let lastTouchTime = 0;
+document.addEventListener('touchstart', function(e) {
+  const now = Date.now();
+  if (now - lastTouchTime <= 500) {
+    e.preventDefault();
+  }
+  lastTouchTime = now;
+});
+
+// Tắt pull to refresh
+let startY = 0;
+document.addEventListener('touchstart', function(e) {
+  startY = e.touches[0].clientY;
+});
+
+document.addEventListener('touchmove', function(e) {
+  const y = e.touches[0].clientY;
+  if (startY <= 10 && y > startY) {
+    e.preventDefault();
+  }
+});
+
+// Khắc phục viewport height cho mobile
+function setViewportHeight() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', vh + 'px');
+}
+
+window.addEventListener('resize', setViewportHeight);
+window.addEventListener('orientationchange', function() {
+  setTimeout(setViewportHeight, 500);
+});
+setViewportHeight();
+
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+  showInstallPrompt();
+});
+
+function showInstallPrompt() {
+  if (deferredPrompt) {
+    // Hiện prompt install PWA tùy chỉnh
+    console.log('PWA install available');
+  }
+}
+
+// Orientation lock warning
+function checkOrientation() {
+  if (window.innerHeight < 500 && window.innerWidth > window.innerHeight) {
+    document.body.classList.add('landscape-mode');
+  } else {
+    document.body.classList.remove('landscape-mode');
+  }
+}
+
+window.addEventListener('orientationchange', function() {
+  setTimeout(checkOrientation, 500);
+});
+window.addEventListener('resize', checkOrientation);
+checkOrientation();
+</script>
+
+<!-- CSS cho orientation warning -->
+<style>
+.landscape-mode .orientation-warning {
+  display: flex !important;
+}
+
+.orientation-warning {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #b71c1c;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 10000;
+  font-size: 18px;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.landscape-mode .phone-frame,
+.landscape-mode .app-container,
+.landscape-mode .main-container {
+  display: none !important;
+}
+</style>
+
+<!-- Orientation warning HTML -->
+<div class="orientation-warning">
+  <div>
+    <h2>📱 Xoay màn hình</h2>
+    <p>Vui lòng xoay thiết bị về chế độ dọc để sử dụng ứng dụng</p>
+  </div>
+</div>

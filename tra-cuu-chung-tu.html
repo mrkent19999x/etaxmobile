@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <!-- ===== PWA META TAGS HOÀN CHỈNH ===== -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#b71c1c">
+  <meta name="msapplication-navbutton-color" content="#b71c1c">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="eTax Mobile">
+  <link rel="apple-touch-icon" href="./assets/logo.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="./assets/logo.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/logo.png">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="format-detection" content="email=no">
+  
+  <title>Tra cứu chứng từ - eTax Mobile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <link rel="stylesheet" href="css/etax-template.css">
+  <style>
+    /* ✅ OVERRIDE EXTERNAL CSS - FORCE FULL WIDTH HEADER */
+    .header {
+      position: sticky !important;
+      top: 0 !important;
+      background-color: #b71c1c !important;
+      width: 100vw !important; /* ✅ Full width override */
+      max-width: none !important; /* ✅ Remove max-width constraint */
+      margin: 0 !important; /* ✅ Remove margin auto */
+      left: 0 !important;
+      right: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      border-radius: 0 !important; /* ✅ Remove border radius */
+      box-shadow: none !important; /* ✅ Remove border shadows */
+    }
+    
+    /* ✅ OVERRIDE PHONE-FRAME CONSTRAINTS */
+    .phone-frame {
+      width: 100vw !important;
+      max-width: none !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+    
+    /* ✅ CONTENT FULL WIDTH WITH PROPER SPACING */
+    .content {
+      width: 100vw !important;
+      max-width: none !important;
+      margin: 0 !important;
+      padding: 20px 16px !important; /* ✅ Better spacing for form */
+    }
+    
+    /* ✅ FORM ELEMENTS SPACING */
+    .form-group {
+      margin-bottom: 20px !important;
+    }
+    
+    .form-input {
+      padding: 12px 16px !important;
+      margin-top: 8px !important;
+      border-radius: 8px !important;
+      border: 1px solid #ddd !important;
+      font-size: 16px !important;
+    }
+    
+    .btn-search, .btn-print {
+      margin-top: 16px !important;
+      padding: 14px 20px !important;
+      border-radius: 8px !important;
+    }
+    
+    /* ✅ TABLE STYLING */
+    .result-table {
+      margin-top: 24px !important;
+      padding: 16px !important;
+      background: white !important;
+      border-radius: 8px !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    }
+    
+    /* ✅ LOẠI BỎ THANH ĐEN 2 BÊN - OVERRIDE EXTERNAL CSS */
+    body {
+      padding-top: 0 !important;
+      background: #fff !important; /* ✅ Force white background */
+      margin: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    
+    html {
+      background: #fff !important; /* ✅ Force white background */
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    /* ✅ OVERRIDE ANY CONTAINER BORDERS */
+    *, *::before, *::after {
+      border-left: none !important;
+      border-right: none !important;
+      outline: none !important;
+    }
+    
+    /* ✅ SPECIFIC OVERRIDE FOR EXTERNAL TEMPLATE */
+    .container, .main-container, .app-container {
+      border: none !important;
+      box-shadow: none !important;
+      margin: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      max-width: none !important;
+      width: 100vw !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="phone-frame">
+    <header class="header" style="background-color: #b71c1c; color: white; height: 100px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding-top: max(12px, env(safe-area-inset-top));">
+        <i class="fas fa-arrow-left" onclick="window.location.href='index.html'" style="font-size: 20px; cursor: pointer;"></i>
+        <div class="header-title" style="font-size: 20px; font-weight: 500; text-align: center; flex: 1;">Tra cứu chứng từ</div>
+        <i class="fas fa-house" onclick="window.location.href='index.html'" style="font-size: 20px; cursor: pointer; visibility: hidden;"></i>
+    </header>
+
+    <main class="content" style="padding-top: 100px;">
+      <!-- Search Form -->
+      <form id="searchForm">
+        <div class="form-group">
+          <label for="referenceCode">Mã tham chiếu</label>
+          <input type="text" id="referenceCode" class="form-input" placeholder="Nhập mã tham chiếu">
+        </div>
+
+        <div class="form-group">
+          <label for="fromDate">Từ ngày <span class="required">*</span></label>
+          <div class="date-input">
+            <input type="date" id="fromDate" class="form-input" value="2024-06-09">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="toDate">Đến ngày <span class="required">*</span></label>
+          <div class="date-input">
+            <input type="date" id="toDate" class="form-input" value="2025-06-09">
+          </div>
+        </div>
+
+        <button type="button" class="btn-search" onclick="searchDocuments()">
+          Tra cứu
+        </button>
+      </form>
+
+      <!-- Results Table -->
+      <div class="result-table" id="resultsTable" style="display: none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Mã tham chiếu</th>
+              <th>Số tiền</th>
+              <th>Ngày nộp</th>
+              <th>Trạng thái</th>
+              <th>In chứng từ</th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody">
+            <tr>
+              <td>1102025002536480</td>
+              <td>765,000</td>
+              <td>31/03/2025 10:34:06</td>
+              <td class="status-success">Thành công – NH/TGTT đã trừ tiền thành công</td>
+              <td><i class="fas fa-print print-icon" onclick="printDocument('1102025002536480')"></i></td>
+            </tr>
+            <tr>
+              <td>1102025002536480</td>
+              <td>765,000</td>
+              <td>28/02/2025</td>
+              <td class="status-success">Thành công</td>
+              <td><i class="fas fa-print print-icon" onclick="printDocument('1102025002536480')"></i></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <button type="button" class="btn-print" onclick="printAllDocuments()" id="printAllBtn" style="display: none;">
+        In chứng từ
+      </button>
+    </main>
+  </div>
+
+  <script>
+    // ✅ PWA Navigation Functions
+    function goBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    function goHome() {
+      window.location.href = 'index.html';
+    }
+
+    // Search functionality
+    function searchDocuments() {
+      const fromDate = document.getElementById('fromDate').value;
+      const toDate = document.getElementById('toDate').value;
+      
+      if (!fromDate || !toDate) {
+        alert('Vui lòng chọn đầy đủ khoảng thời gian');
+        return;
+      }
+
+      // Show results
+      document.getElementById('resultsTable').style.display = 'block';
+      document.getElementById('printAllBtn').style.display = 'block';
+    }
+
+    // Print functionality
+    function printDocument(referenceCode) {
+      alert(`In chứng từ: ${referenceCode}`);
+    }
+
+    function printAllDocuments() {
+      alert('In tất cả chứng từ');
+    }
+
+    // ✅ PWA Performance
+    if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
+      navigator.serviceWorker.register('service-worker.js').catch(console.error);
+    }
+  </script>
+</body>
+</html>
