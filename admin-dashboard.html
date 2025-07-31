@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🛡️ BẢNG ĐIỀU KHIỂN eTAX ADMIN</title>
+  
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Tahoma', 'Microsoft Sans Serif', 'Arial', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .admin-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .admin-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 24px;
+      font-weight: 700;
+      color: #dc3545;
+    }
+
+    .admin-user {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .logout-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: #c82333;
+    }
+
+    .admin-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+    }
+
+    .module-card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: 3px solid transparent;
+    }
+
+    .module-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+      border-color: #667eea;
+    }
+
+    .module-icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .module-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .module-description {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.5;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .module-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 24px;
+      font-weight: 700;
+      color: #667eea;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #999;
+      margin-top: 5px;
+    }
+
+    .quick-actions {
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+
+    .quick-actions h3 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .action-btn:hover {
+      background: #5a6fd8;
+      transform: translateY(-2px);
+    }
+
+    .action-btn.secondary {
+      background: #28a745;
+    }
+
+    .action-btn.secondary:hover {
+      background: #218838;
+    }
+
+    .action-btn.warning {
+      background: #ffc107;
+      color: #333;
+    }
+
+    .action-btn.warning:hover {
+      background: #e0a800;
+    }
+
+    @media (max-width: 768px) {
+      .admin-container {
+        padding: 20px 15px;
+      }
+      
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="admin-header">
+    <div class="admin-logo">
+      🛡️ eTAX ADMIN DASHBOARD
+    </div>
+    <div class="admin-user">
+      <span>👤 Admin System</span>
+      <button class="logout-btn" onclick="logout()">Đăng xuất</button>
+    </div>
+  </div>
+
+  <div class="admin-container">
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <h3>⚡ Thao tác nhanh</h3>
+      <div class="action-buttons">
+        <a href="admin-users.html" class="action-btn">👥 Tạo tài khoản mới</a>
+        <a href="admin-pdf.html" class="action-btn secondary">📄 Upload PDF</a>
+        <a href="admin-content.html" class="action-btn warning">✏️ Tạo thông báo</a>
+        <a href="admin-design.html" class="action-btn" style="background: #ff5722;">🎨 Visual Editor</a>
+        <button class="action-btn" onclick="refreshStats()">🔄 Làm mới dữ liệu</button>
+      </div>
+    </div>
+
+    <!-- Module Cards -->
+    <div class="dashboard-grid">
+      <!-- User Management -->
+      <div class="module-card" onclick="navigateToModule('admin-users.html')">
+        <div class="module-icon">👥</div>
+        <div class="module-title">Quản lý Người dùng</div>
+        <div class="module-description">
+          Tạo tài khoản, quản lý OTP, phân quyền user thường và nhân viên nội bộ
+        </div>
+        <div class="module-stats">
+          <div class="stat-item">
+            <div class="stat-number" id="totalUsers">-</div>
+            <div class="stat-label">Tổng users</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="pendingOTP">-</div>
+            <div class="stat-label">Chờ OTP</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="staffAccounts">-</div>
+            <div class="stat-label">Nhân viên</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PDF Management -->
+      <div class="module-card" onclick="navigateToModule('admin-pdf.html')">
+        <div class="module-icon">📄</div>
+        <div class="module-title">Quản lý PDF & Tài liệu</div>
+        <div class="module-description">
+          Upload PDF, tự động parsing, gán cho khách hàng, quản lý thư viện tài liệu
+        </div>
+        <div class="module-stats">
+          <div class="stat-item">
+            <div class="stat-number" id="totalPDFs">-</div>
+            <div class="stat-label">Tổng PDFs</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="assignedPDFs">-</div>
+            <div class="stat-label">Đã gán</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="recentUploads">-</div>
+            <div class="stat-label">Mới nhất</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Creator -->
+      <div class="module-card" onclick="navigateToModule('admin-content.html')">
+        <div class="module-icon">✏️</div>
+        <div class="module-title">Tạo Nội dung</div>
+        <div class="module-description">
+          WYSIWYG editor, template thông báo, công cụ tạo nội dung trực quan
+        </div>
+        <div class="module-stats">
+          <div class="stat-item">
+            <div class="stat-number" id="totalNotifications">-</div>
+            <div class="stat-label">Thông báo</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="activeTemplates">-</div>
+            <div class="stat-label">Templates</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="recentPosts">-</div>
+            <div class="stat-label">Bài mới</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual Design Editor ---->
+      <div class="module-card" onclick="navigateToModule('admin-design.html')">
+        <div class="module-icon">🎨</div>
+        <div class="module-title">Visual Design Editor</div>
+        <div class="module-description">
+          Chỉnh sửa UX/UI tất cả trang PWA, drag & drop, live preview mobile-first
+        </div>
+        <div class="module-stats">
+          <div class="stat-item">
+            <div class="stat-number" id="totalPages">8</div>
+            <div class="stat-label">PWA Pages</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="customStyles">-</div>
+            <div class="stat-label">Custom Styles</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="lastEdited">-</div>
+            <div class="stat-label">Last Edit</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings & Logs -->
+      <div class="module-card" onclick="navigateToModule('admin-settings.html')">
+        <div class="module-icon">⚙️</div>
+        <div class="module-title">Cài đặt & Logs</div>
+        <div class="module-description">
+          Cấu hình hệ thống, xem logs, quản lý bảo mật, thống kê hoạt động
+        </div>
+        <div class="module-stats">
+          <div class="stat-item">
+            <div class="stat-number" id="systemStatus">🟢</div>
+            <div class="stat-label">Trạng thái</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="todayLogs">-</div>
+            <div class="stat-label">Logs hôm nay</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="errorCount">-</div>
+            <div class="stat-label">Lỗi</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tax Obligation Management -->
+      <div class="module-card" onclick="navigateToModule('admin-nghiavu.html')">
+        <div class="module-icon">📝</div>
+        <div class="module-title">Quản lý Nghĩa vụ thuế</div>
+        <div class="module-description">
+          Nhập và quản lý các khoản nghĩa vụ thuế cho từng khách hàng
+        </div>
+        <div class="module-stats">
+          <div class="stat-item">
+            <div class="stat-number" id="totalObligations">-</div>
+            <div class="stat-label">Tổng số</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="pendingObligations">-</div>
+            <div class="stat-label">Chưa nộp</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="paidObligations">-</div>
+            <div class="stat-label">Đã nộp</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+      authDomain: "etax-7fbf8.firebaseapp.com",
+      databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "etax-7fbf8",
+      storageBucket: "etax-7fbf8.appspot.com",
+      messagingSenderId: "1030026724634",
+      appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3",
+      measurementId: "G-YS5DLECJE6"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('📊 Admin Dashboard loaded');
+      loadDashboardStats();
+    });
+
+    // Navigation functions
+    function navigateToModule(modulePath) {
+      console.log('🔗 Navigating to:', modulePath);
+      window.location.href = modulePath;
+    }
+
+    function logout() {
+      if (confirm('Bạn có chắc muốn đăng xuất?')) {
+        // Clear admin session
+        localStorage.removeItem('admin_session');
+        sessionStorage.clear();
+        
+        // Redirect to admin login
+        window.location.href = 'admin-panel-working.html';
+      }
+    }
+
+    async function loadDashboardStats() {
+      try {
+        console.log('📈 Loading dashboard statistics...');
+        
+        // Load users statistics
+        const usersRef = db.ref('users');
+        const usersSnapshot = await usersRef.once('value');
+        const users = usersSnapshot.val() || {};
+        const totalUsers = Object.keys(users).length;
+        
+        // Count pending OTP requests
+        const preAuthRef = db.ref('preAuthRequests');
+        const preAuthSnapshot = await preAuthRef.once('value');
+        const preAuthRequests = preAuthSnapshot.val() || {};
+        const pendingOTP = Object.values(preAuthRequests).filter(req => req.status === 'pending').length;
+        
+        // Count staff accounts (example - assuming userType field)
+        const staffAccounts = Object.values(users).filter(user => user.userType === 'staff').length;
+        
+        // Load PDF statistics
+        const pdfRef = db.ref('pdfDocuments');
+        const pdfSnapshot = await pdfRef.once('value');
+        const pdfs = pdfSnapshot.val() || {};
+        const totalPDFs = Object.keys(pdfs).length;
+        
+        // Count assigned PDFs
+        const customerPDFsRef = db.ref('customerPDFs');
+        const customerPDFsSnapshot = await customerPDFsRef.once('value');
+        const customerPDFs = customerPDFsSnapshot.val() || {};
+        let assignedCount = 0;
+        Object.values(customerPDFs).forEach(customerData => {
+          assignedCount += Object.keys(customerData).length;
+        });
+        
+        // Recent uploads (last 7 days)
+        const weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+        const recentUploads = Object.values(pdfs).filter(pdf => pdf.uploadTime > weekAgo).length;
+        
+        // Load notification statistics
+        const notifRef = db.ref('notifications');
+        const notifSnapshot = await notifRef.once('value');
+        const notifications = notifSnapshot.val() || {};
+        const totalNotifications = Object.keys(notifications).length;
+        
+        // Load custom styles statistics
+        const stylesRef = db.ref('customPageStyles');
+        const stylesSnapshot = await stylesRef.once('value');
+        const customStyles = stylesSnapshot.val() || {};
+        const totalCustomStyles = Object.keys(customStyles).length;
+        
+        // Update UI
+        document.getElementById('totalUsers').textContent = totalUsers;
+        document.getElementById('pendingOTP').textContent = pendingOTP;
+        document.getElementById('staffAccounts').textContent = staffAccounts;
+        document.getElementById('totalPDFs').textContent = totalPDFs;
+        document.getElementById('assignedPDFs').textContent = assignedCount;
+        document.getElementById('recentUploads').textContent = recentUploads;
+        document.getElementById('totalNotifications').textContent = totalNotifications;
+        document.getElementById('activeTemplates').textContent = '3'; // Placeholder
+        document.getElementById('recentPosts').textContent = '2'; // Placeholder
+        document.getElementById('customStyles').textContent = totalCustomStyles;
+        document.getElementById('lastEdited').textContent = totalCustomStyles > 0 ? '2h' : 'None';
+        document.getElementById('todayLogs').textContent = '47'; // Placeholder
+        document.getElementById('errorCount').textContent = '0'; // Placeholder
+        
+        console.log('✅ Dashboard statistics loaded');
+        
+      } catch (error) {
+        console.error('❌ Error loading dashboard stats:', error);
+        // Show default values on error
+        const statElements = document.querySelectorAll('.stat-number');
+        statElements.forEach(el => {
+          if (el.textContent === '-') {
+            el.textContent = '0';
+          }
+        });
+      }
+    }
+
+    function refreshStats() {
+      // Show loading animation
+      const statNumbers = document.querySelectorAll('.stat-number');
+      statNumbers.forEach(el => {
+        if (el.id !== 'systemStatus') {
+          el.textContent = '...';
+        }
+      });
+      
+      // Reload stats
+      setTimeout(loadDashboardStats, 500);
+    }
+
+    // Auto refresh every 5 minutes
+    setInterval(loadDashboardStats, 5 * 60 * 1000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✏️ Tạo Nội dung - eTAX ADMIN</title>
+  
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+a  <!-- 💡 Tối ưu hóa: Tải cấu hình Firebase từ tệp chung -->
+  <script src="./firebase-config.js"></script>
+  
+  <!-- CKEditor -->
+  <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Tahoma', 'Microsoft Sans Serif', 'Arial', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .admin-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .admin-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #dc3545;
+    }
+
+    .back-btn {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+
+    .back-btn:hover {
+      background: #545b62;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .content-header {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .content-title {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    .tabs {
+      display: flex;
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 5px;
+      margin-bottom: 25px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #666;
+      transition: all 0.3s;
+    }
+
+    .tab-btn.active,
+    .tab-btn:hover {
+      background: white;
+      color: #333;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 30px;
+    }
+
+    .editor-section {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .preview-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .card-title {
+      color: #b71c1c;
+      margin-bottom: 15px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 15px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    .btn-primary {
+      background: #007bff;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0056b3;
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #1e7e34;
+    }
+
+    .btn-warning {
+      background: #ffc107;
+      color: #333;
+    }
+
+    .btn-warning:hover {
+      background: #e0a800;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 12px;
+      margin-right: 8px;
+    }
+
+    /* Mobile Preview Frame */
+    .mobile-preview {
+      background: #333;
+      border-radius: 25px;
+      padding: 20px 15px;
+      position: relative;
+    }
+
+    .mobile-screen {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+      min-height: 400px;
+    }
+
+    .mobile-header {
+      background: #b71c1c;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .mobile-content {
+      padding: 20px;
+      min-height: 300px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .notification-item {
+      background: #f8f9fa;
+      border-left: 4px solid #007bff;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+    }
+
+    .notification-item.general {
+      border-left-color: #dc3545;
+    }
+
+    .notification-item.personal {
+      border-left-color: #28a745;
+    }
+
+    .notification-date {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .notification-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .notification-content {
+      color: #666;
+      font-size: 13px;
+    }
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .template-btn {
+      background: #f8f9fa;
+      border: 2px solid #e0e0e0;
+      padding: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .template-btn:hover {
+      border-color: #007bff;
+      background: #e3f2fd;
+    }
+
+    .template-btn.active {
+      border-color: #007bff;
+      background: #e3f2fd;
+    }
+
+    .ck-editor__editable {
+      min-height: 300px !important;
+    }
+
+    @media (max-width: 1200px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .preview-section {
+        order: -1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px 15px;
+      }
+      
+      .form-row {
+        flex-direction: column;
+      }
+      
+      .template-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="admin-header">
+    <div class="admin-logo">
+      ✏️ Tạo Nội dung Thông báo
+    </div>
+    <a href="admin-dashboard.html" class="back-btn">← Về Dashboard</a>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="content-header">
+      <h2 class="content-title">✏️ TẠO NỘI DUNG THÔNG BÁO REALTIME</h2>
+      
+      <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('create')">
+          📝 Tạo thông báo mới
+        </button>
+        <button class="tab-btn" onclick="showTab('manage')">
+          📋 Quản lý thông báo
+        </button>
+        <button class="tab-btn" onclick="showTab('auto')">
+          🤖 Thông báo tự động
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+      <!-- Editor Section -->
+      <div class="editor-section">
+        <div id="tabContent">
+          <!-- Content will be loaded here -->
+        </div>
+      </div>
+
+      <!-- Preview Section -->
+      <div class="preview-section">
+        <!-- Mobile Preview -->
+        <div class="card">
+          <h4 class="card-title">📱 Preview Mobile</h4>
+          <div class="mobile-preview">
+            <div class="mobile-screen">
+              <div class="mobile-header">
+                🔔 Thông báo - eTax Mobile
+              </div>
+              <div class="mobile-content" id="mobilePreview">
+                <div style="text-align: center; color: #999; padding: 40px 20px;">
+                  📝 Nội dung thông báo sẽ hiển thị ở đây...
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="card">
+          <h4 class="card-title">📊 Thống kê nhanh</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: center;">
+            <div>
+              <div style="font-size: 24px; font-weight: 700; color: #007bff;" id="totalNotifications">0</div>
+              <div style="font-size: 12px; color: #666;">Tổng thông báo</div>
+            </div>
+            <div>
+              <div style="font-size: 24px; font-weight: 700; color: #28a745;" id="activeNotifications">0</div>
+              <div style="font-size: 12px; color: #666;">Đang hiển thị</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let editor = null;
+    let currentNotificationType = 'general';
+    let allUsers = [];
+    let allNotifications = [];
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('✏️ Content Creator page loaded');
+      initializePage();
+    });
+
+    async function initializePage() {
+      try {
+        // Load users for personal notifications
+        await loadUsers();
+        
+        // Load existing notifications for stats
+        await loadNotifications();
+        
+        // Show default tab
+        showTab('create');
+        
+        console.log('✅ Content Creator initialized');
+        
+      } catch (error) {
+        console.error('❌ Error initializing page:', error);
+      }
+    }
+
+    // Load users
+    async function loadUsers() {
+      try {
+        const usersSnapshot = await db.ref('users').once('value');
+        const users = usersSnapshot.val() || {};
+        
+        allUsers = Object.entries(users).map(([mst, user]) => ({
+          mst,
+          name: `${user.lastName || ''} ${user.firstName || user.fullName || ''}`.trim(),
+          companyName: user.companyName || ''
+        }));
+        
+        console.log('✅ Users loaded:', allUsers.length);
+        
+      } catch (error) {
+        console.error('❌ Error loading users:', error);
+      }
+    }
+
+    // Load notifications for stats
+    async function loadNotifications() {
+      try {
+        const notificationsSnapshot = await db.ref('notifications').once('value');
+        const notifications = notificationsSnapshot.val() || {};
+        
+        allNotifications = Object.entries(notifications).map(([id, notif]) => ({ id, ...notif }));
+        
+        // Update stats
+        const total = allNotifications.length;
+        const active = allNotifications.filter(n => n.status === 'active').length;
+        
+        document.getElementById('totalNotifications').textContent = total;
+        document.getElementById('activeNotifications').textContent = active;
+        
+        console.log('✅ Notifications loaded:', total);
+        
+      } catch (error) {
+        console.error('❌ Error loading notifications:', error);
+      }
+    }
+
+    // Show tab
+    function showTab(tabType) {
+      // Update tab buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      const tabContent = document.getElementById('tabContent');
+      
+      if (tabType === 'create') {
+        showCreateTab();
+      } else if (tabType === 'manage') {
+        showManageTab();
+      } else if (tabType === 'auto') {
+        showAutoTab();
+      }
+    }
+
+    // Show create tab
+    function showCreateTab() {
+      const tabContent = document.getElementById('tabContent');
+      
+      tabContent.innerHTML = `
+        <h3 style="color: #b71c1c; margin-bottom: 20px;">📝 Tạo Thông báo Mới</h3>
+        
+        <!-- Notification Type -->
+        <div class="form-group">
+          <label class="form-label">📱 Loại thông báo:</label>
+          <div class="template-grid">
+            <div class="template-btn active" onclick="selectNotificationType('general')">
+              <div style="font-size: 24px; margin-bottom: 8px;">📢</div>
+              <div style="font-weight: 600;">Thông báo chung</div>
+              <div style="font-size: 12px; color: #666;">Cho tất cả user</div>
+            </div>
+            
+          </div>
+        </div>
+
+        
+
+        <!-- Basic Info -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">📋 Tiêu đề thông báo:</label>
+            <input type="text" class="form-input" id="notificationTitle" placeholder="Nhập tiêu đề..." onkeyup="updatePreview()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">⭐ Mức độ ưu tiên:</label>
+            <select class="form-select" id="notificationPriority" onchange="updatePreview()">
+              <option value="normal">🔵 Bình thường</option>
+              <option value="important">🟡 Quan trọng</option>
+              <option value="urgent">🔴 Khẩn cấp</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Content Templates -->
+        <div class="form-group">
+          <label class="form-label">📄 Template nhanh:</label>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+            <button class="btn btn-primary btn-small" onclick="insertTemplate('maintenance')">
+              🔧 Bảo trì hệ thống
+            </button>
+            <button class="btn btn-success btn-small" onclick="insertTemplate('tax_reminder')">
+              📅 Nhắc nộp thuế
+            </button>
+            <button class="btn btn-warning btn-small" onclick="insertTemplate('policy')">
+              📜 Chính sách mới
+            </button>
+            <button class="btn btn-danger btn-small" onclick="insertTemplate('security')">
+              🔒 Cảnh báo bảo mật
+            </button>
+          </div>
+        </div>
+
+        <!-- Rich Text Editor -->
+        <div class="form-group">
+          <label class="form-label">✏️ Nội dung thông báo:</label>
+          <textarea id="contentEditor" class="form-textarea" rows="10" placeholder="Nhập nội dung thông báo..." onkeyup="updatePreview()"></textarea>
+        </div>
+
+        <!-- Scheduling -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">📅 Ngày hiển thị:</label>
+            <input type="datetime-local" class="form-input" id="displayDate" value="${new Date().toISOString().slice(0, 16)}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">⏰ Ngày hết hạn:</label>
+            <input type="datetime-local" class="form-input" id="expireDate">
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="margin-top: 30px; display: flex; gap: 15px;">
+          <button class="btn btn-warning" onclick="previewNotification()">
+            👁️ Xem trước
+          </button>
+          <button class="btn btn-primary" onclick="saveNotification()">
+            💾 Lưu nháp
+          </button>
+          <button class="btn btn-success" onclick="publishNotification()">
+            🚀 Xuất bản ngay
+          </button>
+        </div>
+      `;
+      
+      // Initialize CKEditor for rich content
+      initializeEditor();
+    }
+
+    // Show manage tab
+    function showManageTab() {
+      const tabContent = document.getElementById('tabContent');
+      
+      if (allNotifications.length === 0) {
+        tabContent.innerHTML = `
+          <div style="text-align: center; padding: 60px 20px; color: #999;">
+            <div style="font-size: 64px; margin-bottom: 20px;">📭</div>
+            <h3>Chưa có thông báo nào</h3>
+            <p>Hãy tạo thông báo đầu tiên bằng tab "Tạo thông báo mới"</p>
+          </div>
+        `;
+        return;
+      }
+      
+      const sortedNotifications = [...allNotifications].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      
+      tabContent.innerHTML = `
+        <h3 style="color: #b71c1c; margin-bottom: 20px;">📋 Quản lý Thông báo (${allNotifications.length})</h3>
+        
+        <div style="max-height: 600px; overflow-y: auto;">
+          ${sortedNotifications.map(notif => `
+            <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 15px; border-left: 4px solid ${notif.type === 'general' ? '#dc3545' : '#28a745'};">
+              <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 10px;">
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; color: #333; margin-bottom: 5px;">
+                    ${notif.type === 'general' ? '📢' : '👤'} ${notif.title || 'Không có tiêu đề'}
+                  </div>
+                  <div style="font-size: 12px; color: #666;">
+                    ${notif.type === 'general' ? 'Thông báo chung' : 'Thông báo cá nhân'} • 
+                    ${notif.createdAt ? new Date(notif.createdAt).toLocaleString('vi-VN') : 'N/A'}
+                  </div>
+                </div>
+                <div style="display: flex; gap: 5px;">
+                  <button class="btn btn-primary btn-small" onclick="editNotification('${notif.id}')">
+                    ✏️ Sửa
+                  </button>
+                  <button class="btn btn-danger btn-small" onclick="deleteNotification('${notif.id}')">
+                    🗑️ Xóa
+                  </button>
+                </div>
+              </div>
+              <div style="color: #666; font-size: 14px; line-height: 1.5;">
+                ${(notif.content || '').substring(0, 200)}${(notif.content || '').length > 200 ? '...' : ''}
+              </div>
+              <div style="margin-top: 10px; display: flex; gap: 10px; align-items: center;">
+                <span class="btn btn-small" style="background: ${notif.status === 'active' ? '#28a745' : '#6c757d'}; color: white;">
+                  ${notif.status === 'active' ? '✅ Đang hiển thị' : '⏸️ Tạm dừng'}
+                </span>
+                <span style="font-size: 12px; color: #666;">
+                  Ưu tiên: ${notif.priority === 'urgent' ? '🔴 Khẩn cấp' : notif.priority === 'important' ? '🟡 Quan trọng' : '🔵 Bình thường'}
+                </span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // Show auto tab
+    function showAutoTab() {
+      const tabContent = document.getElementById('tabContent');
+      
+      tabContent.innerHTML = `
+        <h3 style="color: #b71c1c; margin-bottom: 20px;">🤖 Thông báo Tự động</h3>
+        
+        <div style="background: #e8f4fd; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #007bff;">
+          <h4 style="color: #0056b3; margin-bottom: 10px;">📋 Hệ thống tự động hoạt động:</h4>
+          <p style="margin-bottom: 8px;">• <strong>Tạo tài khoản:</strong> Tự động gửi thông báo "Tài khoản kích hoạt" cho user mới</p>
+          <p style="margin-bottom: 8px;">• <strong>Upload PDF:</strong> Tự động thông báo "Đã có tài liệu mới" khi admin upload</p>
+          <p style="margin-bottom: 8px;">• <strong>Template tùy chỉnh:</strong> Có thể chỉnh sửa nội dung mẫu bên dưới</p>
+        </div>
+
+        <!-- Account Creation Template -->
+        <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+          <h4 style="color: #28a745; margin-bottom: 15px;">👤 Template: Tạo tài khoản</h4>
+          <div class="form-group">
+            <label class="form-label">📋 Tiêu đề:</label>
+            <input type="text" class="form-input" id="accountTemplate_title" value="🎉 Tài khoản được kích hoạt thành công!">
+          </div>
+          <div class="form-group">
+            <label class="form-label">✏️ Nội dung (sử dụng {MST}, {NAME}, {DATE}):</label>
+            <textarea class="form-textarea" id="accountTemplate_content" rows="4">Xin chào {NAME},
+
+Tài khoản MST {MST} của bạn đã được kích hoạt thành công vào {DATE}.
+
+Bạn có thể đăng nhập và sử dụng đầy đủ các tính năng của eTax Mobile.
+
+Trân trọng,
+Đội ngũ eTax Support</textarea>
+          </div>
+          <button class="btn btn-success" onclick="saveAutoTemplate('account')">💾 Lưu template</button>
+        </div>
+
+        <!-- PDF Upload Template -->
+        <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+          <h4 style="color: #007bff; margin-bottom: 15px;">📄 Template: Upload PDF</h4>
+          <div class="form-group">
+            <label class="form-label">📋 Tiêu đề:</label>
+            <input type="text" class="form-input" id="pdfTemplate_title" value="📄 Có tài liệu thuế mới">
+          </div>
+          <div class="form-group">
+            <label class="form-label">✏️ Nội dung (sử dụng {MST}, {FILENAME}, {DATE}, {AMOUNT}):</label>
+            <textarea class="form-textarea" id="pdfTemplate_content" rows="4">Kính gửi khách hàng MST {MST},
+
+Chúng tôi đã cập nhật tài liệu thuế mới cho bạn:
+📄 File: {FILENAME}
+💰 Số tiền: {AMOUNT}
+📅 Ngày cập nhật: {DATE}
+
+Bạn có thể tra cứu và tải về tại mục "Tra cứu chứng từ".
+
+eTax Mobile Team</textarea>
+          </div>
+          <button class="btn btn-primary" onclick="saveAutoTemplate('pdf')">💾 Lưu template</button>
+        </div>
+
+        <!-- Test Auto Notification -->
+        <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 20px;">
+          <h4 style="color: #856404; margin-bottom: 15px;">🧪 Test Thông báo Tự động</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">👤 Chọn user test:</label>
+              <select class="form-select" id="testUser">
+                <option value="">-- Chọn user --</option>
+                ${allUsers.map(user => 
+                  `<option value="${user.mst}">${user.mst} - ${user.name || 'N/A'}</option>`
+                ).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">🎭 Loại test:</label>
+              <select class="form-select" id="testType">
+                <option value="account">👤 Kích hoạt tài khoản</option>
+                <option value="pdf">📄 Upload PDF</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-warning" onclick="testAutoNotification()">🧪 Gửi thông báo test</button>
+        </div>
+      `;
+      
+      // Load existing templates
+      loadAutoTemplates();
+    }
+
+    // Select notification type
+    function selectNotificationType(type) {
+      currentNotificationType = type;
+      
+      // Update template buttons
+      document.querySelectorAll('.template-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      updatePreview();
+    }
+
+    // Insert template
+    function insertTemplate(templateType) {
+      const editor = document.getElementById('contentEditor');
+      let content = '';
+      
+      switch (templateType) {
+        case 'maintenance':
+          content = `🔧 THÔNG BÁO BẢO TRÌ HỆ THỐNG
+
+Kính gửi quý khách hàng,
+
+Hệ thống eTax Mobile sẽ tạm dừng hoạt động để bảo trì từ:
+📅 Thời gian: 02:00 - 06:00 ngày [DATE]
+
+Trong thời gian này, quý khách tạm thời không thể:
+• Đăng nhập vào hệ thống
+• Tra cứu thông tin thuế
+• Thực hiện các giao dịch
+
+Chúng tôi xin lỗi vì sự bất tiện này!
+
+Trân trọng,
+Ban Quản Trị eTax`;
+          break;
+          
+        case 'tax_reminder':
+          content = `📅 NHẮC NHỞ NỘP THUẾ
+
+Kính gửi quý khách hàng,
+
+Đây là thông báo nhắc nhở về việc nộp thuế:
+
+📋 Loại thuế: [TAX_TYPE]
+📅 Hạn nộp: [DUE_DATE]
+💰 Số tiền: [AMOUNT]
+
+Vui lòng hoàn thành việc nộp thuế trước hạn để tránh bị phạt chậm nộp.
+
+Tra cứu chi tiết tại mục "Tra cứu chứng từ".
+
+eTax Mobile Team`;
+          break;
+          
+        case 'policy':
+          content = `📜 THÔNG BÁO CHÍNH SÁCH MỚI
+
+Kính gửi quý khách hàng,
+
+Bộ Tài Chính vừa ban hành chính sách thuế mới có hiệu lực từ [DATE]:
+
+🔸 [POLICY_POINT_1]
+🔸 [POLICY_POINT_2]
+🔸 [POLICY_POINT_3]
+
+Chi tiết xem tại: [LINK]
+
+Mọi thắc mắc vui lòng liên hệ hotline hỗ trợ.
+
+Ban Quản Trị eTax`;
+          break;
+          
+        case 'security':
+          content = `🔒 CẢNH BÁO BẢO MẬT
+
+QUAN TRỌNG! Vui lòng đọc kỹ thông báo này.
+
+⚠️ Chúng tôi phát hiện có dấu hiệu bất thường trong hệ thống.
+
+📋 Khuyến cáo bảo mật:
+• Không chia sẻ mật khẩu cho bất kỳ ai
+• Đăng xuất sau khi sử dụng
+• Cập nhật ứng dụng về phiên bản mới nhất
+• Liên hệ ngay nếu phát hiện bất thường
+
+☎️ Hotline: 1900-xxxx (24/7)
+
+Đội ngũ Bảo mật eTax`;
+          break;
+      }
+      
+      editor.value = content;
+      updatePreview();
+    }
+
+    // Initialize CKEditor
+    function initializeEditor() {
+      if (editor) {
+        editor.destroy();
+      }
+      
+      ClassicEditor
+        .create(document.querySelector('#contentEditor'), {
+          toolbar: [
+            'heading', '|',
+            'bold', 'italic', 'underline', '|',
+            'bulletedList', 'numberedList', '|',
+            'link', 'blockQuote', '|',
+            'undo', 'redo'
+          ]
+        })
+        .then(newEditor => {
+          editor = newEditor;
+          editor.model.document.on('change:data', () => {
+            updatePreview();
+          });
+          console.log('✅ CKEditor initialized');
+        })
+        .catch(error => {
+          console.error('❌ CKEditor error:', error);
+          // Fallback to textarea if CKEditor fails
+          document.getElementById('contentEditor').style.display = 'block';
+        });
+    }
+
+    // Update preview
+    function updatePreview() {
+      const title = document.getElementById('notificationTitle')?.value || '';
+      const priority = document.getElementById('notificationPriority')?.value || 'normal';
+      
+      let content = '';
+      if (editor) {
+        content = editor.getData();
+      } else {
+        content = document.getElementById('contentEditor')?.value || '';
+      }
+      
+      const priorityIcons = {
+        normal: '🔵',
+        important: '🟡',
+        urgent: '🔴'
+      };
+      
+      const typeIcon = currentNotificationType === 'general' ? '📢' : '👤';
+      
+      const preview = document.getElementById('mobilePreview');
+      preview.innerHTML = `
+        <div class="notification-item ${currentNotificationType}">
+          <div class="notification-date">
+            ${new Date().toLocaleString('vi-VN')} • ${priorityIcons[priority]}
+          </div>
+          <div class="notification-title">
+            ${typeIcon} ${title || 'Tiêu đề thông báo'}
+          </div>
+          <div class="notification-content">
+            ${content || 'Nội dung thông báo sẽ hiển thị ở đây...'}
+          </div>
+        </div>
+      `;
+    }
+
+    // Save notification
+    async function saveNotification() {
+      try {
+        const notificationData = collectNotificationData();
+        notificationData.status = 'draft';
+        
+        const notificationId = 'notif_' + Date.now();
+        await db.ref('notifications/' + notificationId).set(notificationData);
+        
+        console.log('✅ Notification saved as draft:', notificationId);
+        alert('💾 Đã lưu thông báo vào nháp');
+        
+        await loadNotifications();
+        
+      } catch (error) {
+        console.error('❌ Error saving notification:', error);
+        alert('❌ Lỗi lưu thông báo: ' + error.message);
+      }
+    }
+
+    // Publish notification
+    async function publishNotification() {
+      try {
+        const notificationData = collectNotificationData();
+        notificationData.status = 'active';
+        notificationData.publishedAt = Date.now();
+        
+        const notificationId = 'notif_' + Date.now();
+        await db.ref('notifications/' + notificationId).set(notificationData);
+        
+        console.log('✅ Notification published:', notificationId);
+        alert('🚀 Đã xuất bản thông báo thành công!');
+        
+        // Clear form
+        clearForm();
+        await loadNotifications();
+        
+      } catch (error) {
+        console.error('❌ Error publishing notification:', error);
+        alert('❌ Lỗi xuất bản thông báo: ' + error.message);
+      }
+    }
+
+    // Collect notification data
+    function collectNotificationData() {
+      const title = document.getElementById('notificationTitle')?.value || '';
+      const priority = document.getElementById('notificationPriority')?.value || 'normal';
+      const displayDate = document.getElementById('displayDate')?.value || '';
+      const expireDate = document.getElementById('expireDate')?.value || '';
+      const targetUser = document.getElementById('targetUser')?.value || '';
+      
+      let content = '';
+      if (editor) {
+        content = editor.getData();
+      } else {
+        content = document.getElementById('contentEditor')?.value || '';
+      }
+      
+      return {
+        title,
+        content,
+        type: currentNotificationType,
+        priority,
+        targetUser: currentNotificationType === 'personal' ? targetUser : null,
+        displayDate: displayDate ? new Date(displayDate).getTime() : Date.now(),
+        expireDate: expireDate ? new Date(expireDate).getTime() : null,
+        createdAt: Date.now(),
+        createdBy: 'admin@etax.vn'
+      };
+    }
+
+    // Clear form
+    function clearForm() {
+      document.getElementById('notificationTitle').value = '';
+      document.getElementById('displayDate').value = new Date().toISOString().slice(0, 16);
+      document.getElementById('expireDate').value = '';
+      if (document.getElementById('targetUser')) {
+        document.getElementById('targetUser').value = '';
+      }
+      
+      if (editor) {
+        editor.setData('');
+      } else {
+        document.getElementById('contentEditor').value = '';
+      }
+      
+      updatePreview();
+    }
+
+    // Delete notification
+    async function deleteNotification(notificationId) {
+      if (!confirm('Bạn có chắc muốn xóa thông báo này?')) return;
+      
+      try {
+        await db.ref('notifications/' + notificationId).remove();
+        
+        console.log('✅ Notification deleted:', notificationId);
+        alert('🗑️ Đã xóa thông báo');
+        
+        await loadNotifications();
+        showManageTab();
+        
+      } catch (error) {
+        console.error('❌ Error deleting notification:', error);
+        alert('❌ Lỗi xóa thông báo: ' + error.message);
+      }
+    }
+
+    // Load auto templates
+    async function loadAutoTemplates() {
+      try {
+        const templatesSnapshot = await db.ref('autoTemplates').once('value');
+        const templates = templatesSnapshot.val() || {};
+        
+        if (templates.account) {
+          document.getElementById('accountTemplate_title').value = templates.account.title || '';
+          document.getElementById('accountTemplate_content').value = templates.account.content || '';
+        }
+        
+        if (templates.pdf) {
+          document.getElementById('pdfTemplate_title').value = templates.pdf.title || '';
+          document.getElementById('pdfTemplate_content').value = templates.pdf.content || '';
+        }
+        
+      } catch (error) {
+        console.error('❌ Error loading auto templates:', error);
+      }
+    }
+
+    // Save auto template
+    async function saveAutoTemplate(templateType) {
+      try {
+        const title = document.getElementById(`${templateType}Template_title`).value;
+        const content = document.getElementById(`${templateType}Template_content`).value;
+        
+        await db.ref(`autoTemplates/${templateType}`).set({
+          title,
+          content,
+          updatedAt: Date.now(),
+          updatedBy: 'admin@etax.vn'
+        });
+        
+        console.log('✅ Auto template saved:', templateType);
+        alert('💾 Đã lưu template tự động');
+        
+      } catch (error) {
+        console.error('❌ Error saving auto template:', error);
+        alert('❌ Lỗi lưu template: ' + error.message);
+      }
+    }
+
+    // Test auto notification
+    async function testAutoNotification() {
+      const testUser = document.getElementById('testUser').value;
+      const testType = document.getElementById('testType').value;
+      
+      if (!testUser) {
+        alert('❌ Vui lòng chọn user để test');
+        return;
+      }
+      
+      try {
+        const user = allUsers.find(u => u.mst === testUser);
+        if (!user) {
+          alert('❌ Không tìm thấy user');
+          return;
+        }
+        
+        // Load template
+        const templatesSnapshot = await db.ref(`autoTemplates/${testType}`).once('value');
+        const template = templatesSnapshot.val() || {};
+        
+        let title = template.title || 'Test notification';
+        let content = template.content || 'Test content';
+        
+        // Replace placeholders
+        const replacements = {
+          '{MST}': user.mst,
+          '{NAME}': user.name || user.mst,
+          '{DATE}': new Date().toLocaleString('vi-VN'),
+          '{FILENAME}': 'test_document.pdf',
+          '{AMOUNT}': '1,000,000 VND'
+        };
+        
+        Object.entries(replacements).forEach(([placeholder, value]) => {
+          title = title.replace(new RegExp(placeholder, 'g'), value);
+          content = content.replace(new RegExp(placeholder, 'g'), value);
+        });
+        
+        // Send test notification
+        const notificationId = 'test_' + Date.now();
+        await db.ref('notifications/' + notificationId).set({
+          title,
+          content,
+          type: 'personal',
+          targetUser: user.mst,
+          priority: 'normal',
+          status: 'active',
+          isTest: true,
+          createdAt: Date.now(),
+          createdBy: 'admin@etax.vn'
+        });
+        
+        console.log('✅ Test notification sent:', notificationId);
+        alert(`🧪 Đã gửi thông báo test cho user ${user.mst}`);
+        
+      } catch (error) {
+        console.error('❌ Error sending test notification:', error);
+        alert('❌ Lỗi gửi test: ' + error.message);
+      }
+    }
+
+    // Initialize
+    updatePreview();
+  </script>
+</body>
+</html>

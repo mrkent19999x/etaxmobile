@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🛡️ BẢNG ĐIỀU KHIỂN eTAX ADMIN</title>
+  <title>🛡️ ĐĂNG NHẬP ADMIN - eTAX</title>
   
   <!-- Firebase CDN -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -20,262 +20,244 @@
     body {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       color: #333;
     }
 
-    .admin-header {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding: 15px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-
-    .admin-logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 24px;
-      font-weight: 700;
-      color: #dc3545;
-    }
-
-    .admin-user {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      font-size: 14px;
-      color: #666;
-    }
-
-    .logout-btn {
-      background: #dc3545;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: background 0.3s;
-    }
-
-    .logout-btn:hover {
-      background: #c82333;
-    }
-
-    .admin-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 30px 20px;
-      display: grid;
-      grid-template-columns: 300px 1fr;
-      gap: 30px;
-    }
-
-    .admin-sidebar {
+    .login-container {
       background: white;
       border-radius: 20px;
-      padding: 25px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      height: fit-content;
-      position: sticky;
-      top: 100px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      padding: 40px;
+      width: 100%;
+      max-width: 450px;
+      margin: 20px;
     }
 
-    .sidebar-title {
-      font-size: 18px;
+    .login-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .login-logo {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .login-title {
+      font-size: 24px;
       font-weight: 700;
       color: #333;
-      margin-bottom: 20px;
-      text-align: center;
-      padding-bottom: 15px;
-      border-bottom: 2px solid #f0f0f0;
+      margin-bottom: 8px;
     }
 
-    .menu-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 15px;
+    .login-subtitle {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    .form-label {
+      display: block;
       margin-bottom: 8px;
-      border-radius: 12px;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 15px 20px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s;
+      background: #fafafa;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .password-container {
+      position: relative;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #999;
+      font-size: 18px;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.3s;
+      margin-bottom: 20px;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .security-notice {
+      background: #e8f4fd;
+      border: 1px solid #b3d9ff;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #1976d2;
+    }
+
+    .error-message {
+      background: #ffebee;
+      border: 1px solid #ffcdd2;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      color: #c62828;
+      font-size: 14px;
+      display: none;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
       color: #666;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .back-link a {
+      color: #667eea;
+      text-decoration: none;
+      font-size: 14px;
       font-weight: 500;
     }
 
-    .menu-item:hover, .menu-item.active {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      transform: translateX(5px);
+    .back-link a:hover {
+      text-decoration: underline;
     }
 
-    .menu-icon {
-      font-size: 18px;
-      width: 24px;
-    }
-
-    .admin-content {
-      background: white;
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      min-height: 600px;
-    }
-
-    .content-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-      padding-bottom: 20px;
-      border-bottom: 2px solid #f0f0f0;
-    }
-
-    .content-title {
-      font-size: 28px;
-      font-weight: 700;
-      color: #333;
-    }
-
-    .add-btn {
-      background: #28a745;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.3s;
-    }
-
-    .add-btn:hover {
-      background: #218838;
-      transform: translateY(-2px);
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-
-    .stat-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 25px;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-      text-align: center;
-    }
-
-    .stat-number {
-      font-size: 36px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .stat-label {
-      font-size: 14px;
-      opacity: 0.9;
-    }
-
-    @media (max-width: 768px) {
-      .admin-container {
-        grid-template-columns: 1fr;
-        gap: 20px;
-        padding: 20px 15px;
+    @media (max-width: 480px) {
+      .login-container {
+        margin: 10px;
+        padding: 30px 25px;
       }
       
-      .admin-header {
-        padding: 15px 20px;
-      }
-      
-      .stats-grid {
-        grid-template-columns: 1fr;
+      .login-title {
+        font-size: 20px;
       }
     }
   </style>
 </head>
+
 <body>
-  <!-- Header -->
-  <div class="admin-header">
-    <div class="admin-logo">
-      🛡️ eTax Admin Panel
+  <div class="login-container">
+    <div class="login-header">
+      <div class="login-logo">🛡️</div>
+      <h1 class="login-title">ADMIN PANEL</h1>
+      <p class="login-subtitle">Đăng nhập hệ thống quản trị eTAX</p>
     </div>
+
+    <div class="error-message" id="errorMessage">
+      <!-- Error messages will appear here -->
+    </div>
+
+    <div class="loading" id="loadingScreen">
+      <div class="spinner"></div>
+      Đang xác thực...
+    </div>
+
+    <form id="adminLoginForm">
+      <div class="form-group">
+        <label class="form-label">👤 Tên đăng nhập Admin</label>
+        <input 
+          type="text" 
+          class="form-input" 
+          id="adminUsername" 
+          placeholder="Nhập tên đăng nhập"
+          required
+          autocomplete="username"
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">🔐 Mật khẩu</label>
+        <div class="password-container">
+          <input 
+            type="password" 
+            class="form-input" 
+            id="adminPassword" 
+            placeholder="Nhập mật khẩu"
+            required
+            autocomplete="current-password"
+          >
+          <button type="button" class="toggle-password" onclick="togglePassword()">
+            👁️
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="login-btn" id="loginBtn">
+        🚀 Đăng nhập Admin
+      </button>
+    </form>
+
+    <div class="security-notice">
+      <strong>🔒 Bảo mật:</strong> Chỉ admin được ủy quyền mới có thể truy cập. 
+      Tất cả hoạt động đăng nhập đều được ghi log và giám sát.
+    </div>
+
     
-    <div class="admin-user">
-      <span id="currentTime">Loading...</span>
-      <span>•</span>
-      <span>admin@etax.vn</span>
-      <button class="logout-btn" onclick="adminLogout()">Đăng xuất</button>
-    </div>
-  </div>
-
-  <!-- Main Container -->
-  <div class="admin-container">
-    <!-- Sidebar -->
-    <div class="admin-sidebar">
-      <div class="sidebar-title">🎛️ MENU ĐIỀU KHIỂN</div>
-      
-      <div class="menu-item active" onclick="showDashboard()">
-        <div class="menu-icon">📊</div>
-        Tổng quan hệ thống
-      </div>
-      
-      <div class="menu-item" onclick="showSystemNotifications()">
-        <div class="menu-icon">📢</div>
-        Thông báo toàn hệ thống
-      </div>
-      
-      <div class="menu-item" onclick="showUserManagement()">
-        <div class="menu-icon">👥</div>
-        Quản lý người dùng
-      </div>
-      
-      <div class="menu-item" onclick="showContentManagement()">
-        <div class="menu-icon">📄</div>
-        Quản lý nội dung
-      </div>
-      
-      <div class="menu-item" onclick="openVisualEditor()">
-        <div class="menu-icon">🎨</div>
-        Visual Editor
-      </div>
-      
-      <div class="menu-item" onclick="showPageManagement()">
-        <div class="menu-icon">📱</div>
-        Quản lý trang con
-      </div>
-      
-      <div class="menu-item" onclick="showSystemLogs()">
-        <div class="menu-icon">📋</div>
-        Nhật ký hệ thống
-      </div>
-      
-      <div class="menu-item" onclick="showSettings()">
-        <div class="menu-icon">⚙️</div>
-        Cài đặt hệ thống
-      </div>
-    </div>
-
-    <!-- Content -->
-    <div class="admin-content">
-      <div id="contentArea">
-        <!-- Content will be loaded here -->
-      </div>
-    </div>
   </div>
 
   <script>
@@ -294,594 +276,210 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Helper functions
-    function setActiveMenu(clickedItem) {
-      document.querySelectorAll('.menu-item').forEach(item => {
-        item.classList.remove('active');
-      });
-      if (clickedItem) {
-        clickedItem.classList.add('active');
-      }
-    }
-
-    function updateTime() {
-      const now = new Date();
-      document.getElementById('currentTime').textContent = now.toLocaleTimeString('vi-VN');
-    }
-
-    // Menu functions
-    function showDashboard() {
-      console.log('📊 Loading Dashboard...');
-      
-      setActiveMenu(document.querySelector('[onclick="showDashboard()"]'));
-      
-      document.getElementById('contentArea').innerHTML = `
-        <div class="content-header">
-          <h2 class="content-title">📊 TỔNG QUAN HỆ THỐNG</h2>
-          <span style="color: #666;">Cập nhật: ${new Date().toLocaleString('vi-VN')}</span>
-        </div>
-        
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-number" id="totalUsers">Loading...</div>
-            <div class="stat-label">👥 Tổng người dùng</div>
-          </div>
-          
-          <div class="stat-card" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);">
-            <div class="stat-number" id="pendingUsers">Loading...</div>
-            <div class="stat-label">⏳ Chờ duyệt</div>
-          </div>
-          
-          <div class="stat-card" style="background: linear-gradient(135deg, #a8e6cf 0%, #00b894 100%);">
-            <div class="stat-number" id="systemNotifications">Loading...</div>
-            <div class="stat-label">📢 Thông báo hệ thống</div>
-          </div>
-        </div>
-        
-        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
-          <h4>📈 Hoạt động gần đây</h4>
-          <div id="recentActivity">
-            <p>Đang tải dữ liệu...</p>
-          </div>
-        </div>
-      `;
-      
-      loadDashboardData();
-    }
-
-    function showSystemNotifications() {
-      console.log('📢 Loading Notifications...');
-      
-      setActiveMenu(document.querySelector('[onclick="showSystemNotifications()"]'));
-      
-      document.getElementById('contentArea').innerHTML = `
-        <div class="content-header">
-          <h2 class="content-title">📢 THÔNG BÁO TOÀN HỆ THỐNG</h2>
-          <button class="add-btn" onclick="createSystemNotification()">
-            ➕ Tạo thông báo mới
-          </button>
-        </div>
-        
-        <div style="background: #e8f4fd; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-          <h4>📢 Tạo thông báo hệ thống</h4>
-          <p>Thông báo sẽ hiển thị trên tất cả trang của hệ thống eTax với khả năng backdate.</p>
-        </div>
-        
-        <div id="notificationsList" style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
-          <h4>📋 Danh sách thông báo</h4>
-          <div id="notificationsContent">Đang tải...</div>
-        </div>
-      `;
-      
-      loadSystemNotifications();
-    }
-
-    function createSystemNotification() {
-      const title = prompt('📢 Nhập tiêu đề thông báo:');
-      if (!title) return;
-      
-      const content = prompt('📝 Nhập nội dung thông báo:');
-      if (!content) return;
-      
-      const dateInput = prompt('📅 Nhập ngày hiển thị (dd/mm/yyyy) hoặc để trống cho hôm nay:');
-      
-      let publishDate = new Date();
-      if (dateInput) {
-        const parts = dateInput.split('/');
-        if (parts.length === 3) {
-          publishDate = new Date(parts[2], parts[1] - 1, parts[0]);
-        }
-      }
-      
-      const notificationData = {
-        title: title,
-        content: content,
-        type: 'system',
-        publishDate: publishDate.getTime(),
-        createdAt: Date.now(),
-        createdBy: 'admin@etax.vn',
-        status: 'active'
-      };
-      
-      db.ref('systemNotifications').push(notificationData)
-        .then(() => {
-          alert('✅ Thông báo đã được tạo thành công!');
-          loadSystemNotifications();
-        })
-        .catch(error => {
-          alert('❌ Lỗi tạo thông báo: ' + error.message);
-        });
-    }
-
-    async function loadSystemNotifications() {
-      try {
-        const snapshot = await db.ref('systemNotifications').once('value');
-        const notifications = snapshot.val() || {};
-        
-        const notificationsArray = Object.entries(notifications).map(([id, data]) => ({
-          id,
-          ...data
-        })).sort((a, b) => b.createdAt - a.createdAt);
-        
-        const content = notificationsArray.length > 0 
-          ? notificationsArray.map(notif => `
-              <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #007bff;">
-                <h5 style="color: #333; margin-bottom: 8px;">${notif.title}</h5>
-                <p style="color: #666; margin-bottom: 8px;">${notif.content}</p>
-                <small style="color: #999;">
-                  📅 ${new Date(notif.publishDate).toLocaleDateString('vi-VN')} • 
-                  👤 ${notif.createdBy}
-                </small>
-              </div>
-            `).join('')
-          : '<p style="text-align: center; color: #999;">Chưa có thông báo nào</p>';
-        
-        document.getElementById('notificationsContent').innerHTML = content;
-        
-      } catch (error) {
-        console.error('Load notifications failed:', error);
-        document.getElementById('notificationsContent').innerHTML = 
-          '<p style="color: #dc3545;">❌ Lỗi tải thông báo</p>';
-      }
-    }
-
-    function showUserManagement() {
-      console.log('👥 Loading Users...');
-      
-      setActiveMenu(document.querySelector('[onclick="showUserManagement()"]'));
-      
-      document.getElementById('contentArea').innerHTML = `
-        <div class="content-header">
-          <h2 class="content-title">👥 QUẢN LÝ NGƯỜI DÙNG & OTP</h2>
-          <button class="add-btn" onclick="refreshUserData()">
-            🔄 Refresh Data
-          </button>
-        </div>
-        
-        <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-          <h4 style="color: #1976d2; margin-bottom: 10px;">🔐 SYSTEM OTP:</h4>
-          <p style="color: #333; margin-bottom: 8px;">• <strong>Lần đầu:</strong> User nhập MST + Password → Admin duyệt + gửi OTP</p>
-          <p style="color: #333; margin-bottom: 8px;">• <strong>Lần sau:</strong> User vào luôn không cần OTP</p>
-          <p style="color: #333;">• <strong>Admin control:</strong> Có thể yêu cầu OTP lại bất kỳ lúc nào</p>
-        </div>
-
-        <div class="tabs-container" style="margin-bottom: 20px;">
-          <div class="tabs" style="display: flex; background: #f8f9fa; border-radius: 10px; padding: 5px;">
-            <button class="tab-btn active" onclick="showUserTab('approved')" style="flex: 1; padding: 10px; border: none; background: white; border-radius: 6px; font-weight: 600; cursor: pointer;">
-              ✅ User đã duyệt (<span id="approvedCount">0</span>)
-            </button>
-            <button class="tab-btn" onclick="showUserTab('pending')" style="flex: 1; padding: 10px; border: none; background: transparent; border-radius: 6px; font-weight: 600; cursor: pointer;">
-              ⏳ Chờ duyệt (<span id="pendingCount">0</span>)
-            </button>
-            <button class="tab-btn" onclick="showUserTab('blocked')" style="flex: 1; padding: 10px; border: none; background: transparent; border-radius: 6px; font-weight: 600; cursor: pointer;">
-              🚫 Đã khóa (<span id="blockedCount">0</span>)
-            </button>
-          </div>
-        </div>
-
-        <div id="userTabContent"></div>
-      `;
-      
-      loadUserManagement();
-    }
-
-    function refreshUserData() {
-      loadUserManagement();
-      alert('🔄 Dữ liệu đã được refresh!');
-    }
-
-    async function loadUserManagement() {
-      try {
-        // Load users
-        const usersSnapshot = await db.ref('users').once('value');
-        const users = usersSnapshot.val() || {};
-        
-        // Load pending requests
-        const requestsSnapshot = await db.ref('userRequests').once('value');
-        const requests = requestsSnapshot.val() || {};
-        
-        // Count by status
-        const approvedUsers = Object.values(users).filter(user => user.status === 'active');
-        const pendingRequests = Object.values(requests).filter(req => req.status === 'pending');
-        const blockedUsers = Object.values(users).filter(user => user.status === 'blocked');
-        
-        // Update counts
-        document.getElementById('approvedCount').textContent = approvedUsers.length;
-        document.getElementById('pendingCount').textContent = pendingRequests.length;
-        document.getElementById('blockedCount').textContent = blockedUsers.length;
-        
-        // Show approved users by default
-        showUserTab('approved');
-        
-      } catch (error) {
-        console.error('Load user management failed:', error);
-      }
-    }
-
-    async function showUserTab(tabType) {
-      // Update tab buttons
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.style.background = 'transparent';
-        btn.style.color = '#666';
-      });
-      
-      event.target.style.background = 'white';
-      event.target.style.color = '#333';
-      
-      const contentArea = document.getElementById('userTabContent');
-      contentArea.innerHTML = '<p>Đang tải...</p>';
-      
-      try {
-        if (tabType === 'approved') {
-          const snapshot = await db.ref('users').once('value');
-          const users = snapshot.val() || {};
-          const approvedUsers = Object.entries(users)
-            .filter(([id, user]) => user.status === 'active')
-            .map(([id, user]) => ({ id, ...user }));
-          
-          contentArea.innerHTML = approvedUsers.length > 0 
-            ? approvedUsers.map(user => `
-                <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #28a745;">
-                  <h5>👤 MST: ${user.mst}</h5>
-                  <p>📅 Tạo: ${new Date(user.createdAt).toLocaleDateString('vi-VN')}</p>
-                  <p>🕐 Login cuối: ${new Date(user.lastLogin).toLocaleDateString('vi-VN')}</p>
-                  <button onclick="blockUser('${user.id}')" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-top: 8px;">
-                    🚫 Khóa user
-                  </button>
-                </div>
-              `).join('')
-            : '<p style="text-align: center; color: #999;">Chưa có user nào được duyệt</p>';
-            
-        } else if (tabType === 'pending') {
-          const snapshot = await db.ref('userRequests').once('value');
-          const requests = snapshot.val() || {};
-          const pendingRequests = Object.entries(requests)
-            .filter(([id, req]) => req.status === 'pending')
-            .map(([id, req]) => ({ id, ...req }));
-          
-          contentArea.innerHTML = pendingRequests.length > 0 
-            ? pendingRequests.map(req => `
-                <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #ffc107;">
-                  <h5>👤 MST: ${req.mst}</h5>
-                  <p>📅 Yêu cầu: ${new Date(req.requestTime).toLocaleString('vi-VN')}</p>
-                  <div style="margin-top: 10px;">
-                    <button onclick="approveUser('${req.id}', '${req.mst}', '${req.password}')" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-right: 10px;">
-                      ✅ Duyệt
-                    </button>
-                    <button onclick="rejectUser('${req.id}')" style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">
-                      ❌ Từ chối
-                    </button>
-                  </div>
-                </div>
-              `).join('')
-            : '<p style="text-align: center; color: #999;">Không có yêu cầu nào đang chờ</p>';
-            
-        } else if (tabType === 'blocked') {
-          const snapshot = await db.ref('users').once('value');
-          const users = snapshot.val() || {};
-          const blockedUsers = Object.entries(users)
-            .filter(([id, user]) => user.status === 'blocked')
-            .map(([id, user]) => ({ id, ...user }));
-          
-          contentArea.innerHTML = blockedUsers.length > 0 
-            ? blockedUsers.map(user => `
-                <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #dc3545;">
-                  <h5>👤 MST: ${user.mst}</h5>
-                  <p>📅 Bị khóa: ${new Date(user.blockedAt || user.createdAt).toLocaleDateString('vi-VN')}</p>
-                  <button onclick="unblockUser('${user.id}')" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-top: 8px;">
-                    ✅ Mở khóa
-                  </button>
-                </div>
-              `).join('')
-            : '<p style="text-align: center; color: #999;">Không có user nào bị khóa</p>';
-        }
-        
-      } catch (error) {
-        console.error('Show user tab failed:', error);
-        contentArea.innerHTML = '<p style="color: #dc3545;">❌ Lỗi tải dữ liệu</p>';
-      }
-    }
-
-    async function approveUser(requestId, mst, password) {
-      try {
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        
-        // Create user
-        await db.ref('users/' + mst).set({
-          mst: mst,
-          password: password,
-          status: 'active',
-          createdAt: Date.now(),
-          lastLogin: Date.now()
-        });
-        
-        // Update request with OTP
-        await db.ref('userRequests/' + requestId).update({
-          status: 'approved',
-          otp: otp,
-          approvedTime: Date.now(),
-          approvedBy: 'admin@etax.vn'
-        });
-        
-        alert(`✅ User được duyệt thành công!\nOTP: ${otp}\n(OTP đã được gửi cho user)`);
-        loadUserManagement();
-        
-      } catch (error) {
-        alert('❌ Lỗi duyệt user: ' + error.message);
-      }
-    }
-
-    async function rejectUser(requestId) {
-      if (!confirm('Bạn có chắc muốn từ chối yêu cầu này?')) return;
-      
-      try {
-        await db.ref('userRequests/' + requestId).update({
-          status: 'rejected',
-          rejectedTime: Date.now(),
-          rejectedBy: 'admin@etax.vn'
-        });
-        
-        alert('❌ Yêu cầu đã được từ chối');
-        loadUserManagement();
-        
-      } catch (error) {
-        alert('❌ Lỗi từ chối user: ' + error.message);
-      }
-    }
-
-    async function blockUser(userId) {
-      if (!confirm('Bạn có chắc muốn khóa user này?')) return;
-      
-      try {
-        await db.ref('users/' + userId).update({
-          status: 'blocked',
-          blockedAt: Date.now(),
-          blockedBy: 'admin@etax.vn'
-        });
-        
-        alert('🚫 User đã được khóa');
-        loadUserManagement();
-        
-      } catch (error) {
-        alert('❌ Lỗi khóa user: ' + error.message);
-      }
-    }
-
-    async function unblockUser(userId) {
-      if (!confirm('Bạn có chắc muốn mở khóa user này?')) return;
-      
-      try {
-        await db.ref('users/' + userId).update({
-          status: 'active',
-          unblockedAt: Date.now(),
-          unblockedBy: 'admin@etax.vn'
-        });
-        
-        alert('✅ User đã được mở khóa');
-        loadUserManagement();
-        
-      } catch (error) {
-        alert('❌ Lỗi mở khóa user: ' + error.message);
-      }
-    }
-
-    function showContentManagement() {
-      console.log('📄 Loading Content...');
-      
-      setActiveMenu(document.querySelector('[onclick="showContentManagement()"]'));
-      
-      document.getElementById('contentArea').innerHTML = `
-        <div class="content-header">
-          <h2 class="content-title">📄 QUẢN LÝ NỘI DUNG</h2>
-          <button class="add-btn" onclick="alert('Rich Text Editor sẽ được tích hợp')">
-            📝 Tạo nội dung mới
-          </button>
-        </div>
-        
-        <div style="background: #f3e5f5; padding: 20px; border-radius: 10px;">
-          <h4>📝 Content Management</h4>
-          <p>Quản lý nội dung và rich text editor cho hệ thống.</p>
-        </div>
-      `;
-    }
-
-    function openVisualEditor() {
-      console.log('🎨 Opening Visual Editor...');
-      
-      setActiveMenu(document.querySelector('[onclick="openVisualEditor()"]'));
-      
-      try {
-        window.open('multi-page-visual-editor.html', '_blank', 'width=1400,height=900');
-        
-        document.getElementById('contentArea').innerHTML = `
-          <div class="content-header">
-            <h2 class="content-title">🎨 VISUAL EDITOR</h2>
-            <button class="add-btn" onclick="openVisualEditor()">
-              🎨 Mở lại Visual Editor
-            </button>
-          </div>
-          
-          <div style="background: #e8f4fd; padding: 30px; border-radius: 15px; text-align: center;">
-            <div style="font-size: 48px; margin-bottom: 20px;">🎨</div>
-            <h3 style="color: #333; margin-bottom: 15px;">Visual Editor đã mở trong tab mới!</h3>
-            <p style="color: #666;">
-              Công cụ chỉnh sửa visual cho phép chỉnh sửa styling cho tất cả trang eTax.
-            </p>
-          </div>
-        `;
-        
-        console.log('✅ Visual Editor opened successfully');
-        
-      } catch (error) {
-        console.error('❌ Visual Editor failed:', error);
-        alert('❌ Không thể mở Visual Editor: ' + error.message);
-      }
-    }
-
-    function showPageManagement() {
-      console.log('📱 Loading Page Management...');
-      
-      setActiveMenu(document.querySelector('[onclick="showPageManagement()"]'));
-      
-      document.getElementById('contentArea').innerHTML = `
-        <div class="content-header">
-          <h2 class="content-title">📱 QUẢN LÝ TRANG CON</h2>
-          <button class="add-btn" onclick="alert('Tính năng sẽ được phát triển')">
-            ➕ Thêm trang mới
-          </button>
-        </div>
-        
-        <div style="background: #e8f5e8; padding: 20px; border-radius: 10px;">
-          <h3>🚧 Chức năng đang phát triển</h3>
-          <p>Quản lý các trang con sẽ được bổ sung trong phiên bản tiếp theo</p>
-        </div>
-      `;
-    }
-
-    function showSystemLogs() {
-      console.log('📋 Loading System Logs...');
-      
-      setActiveMenu(document.querySelector('[onclick="showSystemLogs()"]'));
-      
-      document.getElementById('contentArea').innerHTML = `
-        <div class="content-header">
-          <h2 class="content-title">📋 NHẬT KÝ HỆ THỐNG</h2>
-          <button class="add-btn" onclick="alert('Tính năng export logs sẽ được bổ sung')">
-            📥 Export logs
-          </button>
-        </div>
-        
-        <div style="background: #fff3cd; padding: 20px; border-radius: 10px;">
-          <h3>📋 System Logs</h3>
-          <p>Chức năng theo dõi nhật ký hệ thống sẽ được phát triển</p>
-        </div>
-      `;
-    }
-
-    function showSettings() {
-      console.log('⚙️ Loading Settings...');
-      
-      setActiveMenu(document.querySelector('[onclick="showSettings()"]'));
-      
-      document.getElementById('contentArea').innerHTML = `
-        <div class="content-header">
-          <h2 class="content-title">⚙️ CÀI ĐẶT HỆ THỐNG</h2>
-          <button class="add-btn" onclick="alert('Tính năng backup sẽ được bổ sung')">
-            💾 Backup System
-          </button>
-        </div>
-        
-        <div style="background: #f8d7da; padding: 20px; border-radius: 10px;">
-          <h3>⚙️ System Settings</h3>
-          <p>Cài đặt hệ thống sẽ được phát triển trong phiên bản tiếp theo</p>
-        </div>
-      `;
-    }
-
-    function adminLogout() {
-      if (confirm('Bạn có chắc muốn đăng xuất?')) {
-        localStorage.removeItem('etax_admin_session');
-        window.location.href = 'admin-login.html';
-      }
-    }
-
-    async function loadDashboardData() {
-      try {
-        console.log('📊 Loading real dashboard data...');
-        
-        // Load users
-        const usersSnapshot = await db.ref('users').once('value');
-        const users = usersSnapshot.val() || {};
-        const totalUsers = Object.keys(users).length;
-        
-        // Load requests  
-        const requestsSnapshot = await db.ref('userRequests').once('value');
-        const requests = requestsSnapshot.val() || {};
-        const pendingUsers = Object.values(requests).filter(req => req.status === 'pending').length;
-        
-        // Load notifications
-        const notificationsSnapshot = await db.ref('systemNotifications').once('value');
-        const notifications = notificationsSnapshot.val() || {};
-        const totalNotifications = Object.keys(notifications).length;
-        
-        // Update UI
-        document.getElementById('totalUsers').textContent = totalUsers;
-        document.getElementById('pendingUsers').textContent = pendingUsers;
-        document.getElementById('systemNotifications').textContent = totalNotifications;
-        
-        document.getElementById('recentActivity').innerHTML = `
-          <p>✅ Dữ liệu đã được tải thành công</p>
-          <p>📊 ${totalUsers} users, ${pendingUsers} pending, ${totalNotifications} notifications</p>
-        `;
-        
-        console.log(`✅ Data loaded: ${totalUsers} users, ${pendingUsers} pending, ${totalNotifications} notifications`);
-        
-      } catch (error) {
-        console.error('❌ Dashboard data load failed:', error);
-        document.getElementById('totalUsers').textContent = 'Error';
-        document.getElementById('pendingUsers').textContent = 'Error';
-        document.getElementById('systemNotifications').textContent = 'Error';
-      }
-    }
-
-    // Check admin session
-    function checkAdminSession() {
-      const session = localStorage.getItem('etax_admin_session');
-      if (!session) {
-        alert('❌ Bạn chưa đăng nhập! Chuyển về trang đăng nhập...');
-        window.location.href = 'admin-login.html';
-        return false;
-      }
-
-      try {
-        const sessionData = JSON.parse(session);
-        if (Date.now() > sessionData.expiresAt) {
-          alert('⏰ Phiên làm việc đã hết hạn! Vui lòng đăng nhập lại...');
-          localStorage.removeItem('etax_admin_session');
-          window.location.href = 'admin-login.html';
-          return false;
-        }
-        return true;
-      } catch (error) {
-        console.error('Session error:', error);
-        localStorage.removeItem('etax_admin_session');
-        window.location.href = 'admin-login.html';
-        return false;
-      }
-    }
-
-    // Initialize
-    window.onload = function() {
-      console.log('🛡️ Admin Panel loading...');
-      
-      if (!checkAdminSession()) return;
-      
-      updateTime();
-      setInterval(updateTime, 1000);
-      showDashboard();
-      
-      console.log('✅ Admin Panel loaded successfully');
+    // Admin credentials - Hardcoded as requested
+    const adminCredentials = {
+      'admin_super': 'super_password_123',
+      'admin_content': 'content_password_456'
     };
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', async function() {
+      console.log('🛡️ Admin login page loaded');
+      
+      // Check if already logged in
+      const adminSession = localStorage.getItem('admin_session');
+      if (adminSession) {
+        try {
+          const session = JSON.parse(adminSession);
+          if (session.expires > Date.now()) {
+            console.log('✅ Valid admin session found, redirecting...');
+            window.location.href = 'admin-dashboard.html';
+            return;
+          } else {
+            localStorage.removeItem('admin_session');
+          }
+        } catch (error) {
+          localStorage.removeItem('admin_session');
+        }
+      }
+      
+      // Focus on username field
+      document.getElementById('adminUsername').focus();
+    });
+
+    // Form submission
+    document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById('adminUsername').value.trim();
+      const password = document.getElementById('adminPassword').value;
+      
+      if (!username || !password) {
+        showError('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu');
+        return;
+      }
+      
+      try {
+        await loginAdmin(username, password);
+      } catch (error) {
+        console.error('❌ Login error:', error);
+        showError('Lỗi hệ thống: ' + error.message);
+      }
+    });
+
+    // Admin login function
+    async function loginAdmin(username, password) {
+      showLoading(true);
+      hideError();
+      
+      try {
+        // Simulate authentication delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Check credentials against Firebase admins
+        if (adminCredentials[username] && adminCredentials[username] === password) {
+          console.log('✅ Admin authentication successful');
+          
+          // Create admin session
+          const session = {
+            username: username,
+            loginTime: Date.now(),
+            expires: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
+            sessionId: 'admin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+          };
+          
+          localStorage.setItem('admin_session', JSON.stringify(session));
+          
+          // Log admin login
+          await logAdminActivity('login', {
+            username: username,
+            timestamp: Date.now(),
+            ip: await getClientIP(),
+            userAgent: navigator.userAgent
+          });
+          
+          // Redirect to dashboard
+          showLoading(false);
+          window.location.href = 'admin-dashboard.html';
+          
+        } else {
+          console.log('❌ Invalid admin credentials');
+          
+          // Log failed login attempt
+          await logAdminActivity('failed_login', {
+            username: username,
+            timestamp: Date.now(),
+            ip: await getClientIP(),
+            userAgent: navigator.userAgent
+          });
+          
+          showLoading(false);
+          showError('❌ Tên đăng nhập hoặc mật khẩu không chính xác');
+          
+          // Clear password field
+          document.getElementById('adminPassword').value = '';
+          document.getElementById('adminPassword').focus();
+        }
+        
+      } catch (error) {
+        console.error('❌ Error during admin login:', error);
+        showLoading(false);
+        showError('Lỗi kết nối. Vui lòng thử lại sau.');
+      }
+    }
+
+    // Log admin activities
+    async function logAdminActivity(action, data) {
+      try {
+        const logEntry = {
+          action: action,
+          data: data,
+          timestamp: Date.now()
+        };
+        
+        await db.ref('adminLogs').push(logEntry);
+        console.log('📝 Admin activity logged:', action);
+        
+      } catch (error) {
+        console.error('❌ Error logging admin activity:', error);
+      }
+    }
+
+    // Get client IP (simplified)
+    async function getClientIP() {
+      try {
+        // In production, use a proper IP detection service
+        return 'Unknown';
+      } catch (error) {
+        return 'Unknown';
+      }
+    }
+
+    // UI helper functions
+    function showLoading(show) {
+      const loadingScreen = document.getElementById('loadingScreen');
+      const loginForm = document.getElementById('adminLoginForm');
+      const loginBtn = document.getElementById('loginBtn');
+      
+      if (show) {
+        loadingScreen.style.display = 'block';
+        loginForm.style.display = 'none';
+        loginBtn.disabled = true;
+      } else {
+        loadingScreen.style.display = 'none';
+        loginForm.style.display = 'block';
+        loginBtn.disabled = false;
+      }
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+      
+      // Auto hide after 5 seconds
+      setTimeout(() => {
+        hideError();
+      }, 5000);
+    }
+
+    function hideError() {
+      document.getElementById('errorMessage').style.display = 'none';
+    }
+
+    function togglePassword() {
+      const passwordInput = document.getElementById('adminPassword');
+      const toggleBtn = event.target;
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleBtn.textContent = '🙈';
+      } else {
+        passwordInput.type = 'password';
+        toggleBtn.textContent = '👁️';
+      }
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Escape to clear form
+      if (e.key === 'Escape') {
+        document.getElementById('adminLoginForm').reset();
+        hideError();
+        document.getElementById('adminUsername').focus();
+      }
+    });
+
+    // Prevent right-click and F12 (basic security)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+        e.preventDefault();
+      }
+    });
   </script>
 </body>
 </html>

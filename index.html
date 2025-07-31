@@ -57,9 +57,6 @@
   <!-- Thư viện Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-  
-  <!-- 📢 SYSTEM NOTIFICATIONS MODULE -->
-  <script src="js/system-notifications.js"></script>
 
   <style>
     /* ✅ NATIVE APP - CỐ ĐỊNH MÀN HÌNH NHƯ APP MOBILE THẬT */
@@ -581,22 +578,8 @@ h3 {
   </style>
   
   <script>
-    // 🔧 FIX: Disable service worker để tránh conflict với app.js cached
+    // Đăng ký Service Worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for(let registration of registrations) {
-          registration.unregister().then(() => {
-            console.log('🔄 Service worker unregistered successfully');
-          });
-        }
-      });
-    }
-  </script>
-
-  <!-- JavaScript cho PWA -->
-  <script>
-  // Đăng ký Service Worker
-  if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
       navigator.serviceWorker.register('./sw.js')
         .then(function(registration) {
@@ -606,7 +589,10 @@ h3 {
           console.log('❌ ServiceWorker registration failed');
         });
     });
+    }
   }
+  </script>
+  <script>
 
   // Tắt context menu
   document.addEventListener('contextmenu', function(e) {
@@ -687,7 +673,8 @@ h3 {
 
   <!-- CSS cho orientation warning -->
   <style>
-  .landscape-mode .orientation-warning {
+  .landscape-mode .orient
+  ation-warning {
     display: flex !important;
   }
 
@@ -987,21 +974,8 @@ h3 {
       }
     });
 
-    // Cấu hình Firebase (chỉ khai báo một lần)
-    const firebaseConfig = {
-      apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
-      authDomain: "etax-7fbf8.firebaseapp.com",
-      databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "etax-7fbf8",
-      storageBucket: "etax-7fbf8.appspot.com",
-      messagingSenderId: "1030026724634",
-      appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3",
-      measurementId: "G-YS5DLECJE6"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    // Biến user toàn cục (chỉ khai báo một lần)
-    let user = JSON.parse(localStorage.getItem("etax_user_info") || "{}");
+    // 💡 Tối ưu hóa: Cấu hình Firebase đã được chuyển vào js/firebase-config.js
+    let user = JSON.parse(localStorage.getItem("etax_user_info") || "{}"); // Biến user toàn cục
 
     // ✅ NESTED SCROLL SOLUTION - Vertical + Horizontal smooth
     document.addEventListener('DOMContentLoaded', function() {
@@ -1227,13 +1201,6 @@ h3 {
       }
     }, { passive: true });
     
-    // 🔒 CHẶN BROWSER BACK NAVIGATION
-    history.pushState(null, null, location.href);
-    window.addEventListener('popstate', function(e) {
-      e.preventDefault();
-      history.pushState(null, null, location.href);
-      console.log('🔒 Blocked browser back navigation');
-    });
   </script>
 </body>
 </html>

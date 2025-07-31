@@ -1,0 +1,72 @@
+FORM INPUT :
+    +----------------------------------------------------------------------------------------------------+
+    |                                       Bảng điền nghĩa vụ Form                                      |
+    +----------------------------------------------------------------------------------------------------+
+    | Cục thuế | Số tiền | Đã nộp | ID nghĩa vụ | Ngày duyệt | Kỳ thuế | Tiểu mục | Tên cơ quan | Chương |
+    |                                                                                                    |
+    +----------------------------------------------------------------------------------------------------+
+=>>>xử lý:
+    =>> dẫn link ra trang nghiavuthue.html : link mặc định "nghĩa vụ form/"
+        "ID khoản"    = "ID nghĩa vụ"
+        "Ngày"        = "Ngày duyệt"
+        "Tên cơ quan" = "thông tin form/Chi cục thuế"
+        "Chương"      = "Chương"
+        "Kỳ thuế"     = "Kỳ thuế" 
+        "Tiểu mục"    = "Tiểu mục"
+        "Tiền"        = "Số tiền"
+        "Tiền đã nộp" = "Đã nộp"
+        "Loại NV"     = if ("Số tiền" < "Đã nộp") = "Còn phải nộp"
+                        else = "Đã nộp thành công"
+
+
+ FORM INPUT :   
+    +------------------------------------------------------------------+
+    |                             Bảng điền Thông tin Form             |
+    +------------------------------------------------------------------+
+    | Họ và tên | MST | Chi cục thuế | Địa chỉ | Số điện thoại | email |  
+    |                                            
+    +------------------------------------------------------------------+
+=>>>xử lý:
+    =>> dẫn ra link thongtin.html: (link mặc định là "Thông tin form/")
+        "Họ và tên"     = "Họ và tên"
+        "MST"           = "MST"
+        "Chi cục thuế"  = "Chi cục thuế"
+        "Địa chỉ"       = "Địa chỉ"
+        "Số điện thoại" = "Số điện thoại"
+        "Thư điện tử"   = "email"
+    =>> dẫn ra link index.html: (link mặc định là "Thông tin form/")
+        "MST"  = "MST"
+        "name" = "Họ và tên"   
+        * trong sidelink : dẫn mẫu "Xin chào + name" 
+
+
+
+
+FORM INPUT : File PDF
+=>>>xử lý:
+    // Từ file PDF tải lên, trích xuất các thông tin dưới đây
+    +------------------------------------------------------------+
+    |                 Bảng trích xuất PDF Fo                     |
+    +------------------------------------------------------------+
+    | Mã tham chiếu | Số tiền pdf | Ngày nộp pdf | MST pdf | Giờ |
+    |                                             
+    +------------------------------------------------------------+
+    =>> dẫn ra link tra-cuu-chung-tu.html : link mặc định là "PDFForm/"
+        "Mã tham chiếu" = "Mã tham chiếu"
+        "Số tiền"       = "Số tiền pdf"
+        "Ngày nộp"      = "Ngày nộp pdf"
+        "Trạng thái"    = <div>Thành công -NH<br>TGTT đã<br>trừ tiền thành<br>công</div>
+        "In chứng từ"   = link.pdf
+    =>> dẫn link ra thongbao.html : dành cho thông báo cá nhân
+        + Mẫu form Thông báo hiện trong trang thongbao.html:
+            <b> Giao dịch nộp thuế</b>
+            <div>Người nộp thuế đã nộp thuế thành công cho<br>mã số thuế + "MST pdf", mã tham chiếu :..</div>
+        + Mẫu form thông báo pop up:
+            <b>Giao dịch nộp thuế</b>
+            <div>Ngày thông báo: + "Ngày nộp pdf" + "Giờ"</div>
+            <div>
+                Người nộp thuế đã nộp thuế thành công cho<br>
+                mã số thuế + "MST pdf", mã tham chiếu:<br>
+                + "Mã tham chiếu", số tiền nộp: + "Số tiền pdf" VND.
+            </div>
+

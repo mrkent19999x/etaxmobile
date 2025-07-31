@@ -20,6 +20,10 @@
   <title>Tra cứu chứng từ - eTax Mobile</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
   <link rel="stylesheet" href="css/etax-template.css">
   <style>
     /* ✅ OVERRIDE EXTERNAL CSS - FORCE FULL WIDTH HEADER */
@@ -57,7 +61,23 @@
     
     /* ✅ FORM ELEMENTS SPACING */
     .form-group {
-      margin-bottom: 20px !important;
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px !important;
+    }
+    .form-group label {
+        width: 120px; /* Fixed width for labels */
+        text-align: left;
+        margin-right: 10px;
+        color: #333;
+    }
+    .form-input {
+        flex: 1;
+        text-align: left;
+    }
+    /* Style for date input icon */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(20%) sepia(100%) saturate(500%) hue-rotate(330deg);
     }
     
     .form-input {
@@ -115,6 +135,109 @@
       max-width: none !important;
       width: 100vw !important;
     }
+
+    /* ✅ POPUP XÁC NHẬN DOWNLOAD */
+    .download-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .popup-content {
+      background: white;
+      padding: 30px 25px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 320px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .popup-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .popup-subtitle {
+      color: #b71c1c;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 25px;
+    }
+
+    .popup-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .popup-btn {
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 2px solid #b71c1c;
+    }
+
+    .popup-btn-cancel {
+      background: white;
+      color: #b71c1c;
+    }
+
+    .popup-btn-confirm {
+      background: #b71c1c;
+      color: white;
+    }
+
+    .popup-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    /* ✅ LOADING STATE */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+    }
+
+    .loading-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #b71c1c;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: #b71c1c;
+      font-weight: 600;
+    }
   </style>
 </head>
 
@@ -130,22 +253,18 @@
       <!-- Search Form -->
       <form id="searchForm">
         <div class="form-group">
-          <label for="referenceCode">Mã tham chiếu</label>
-          <input type="text" id="referenceCode" class="form-input" placeholder="Nhập mã tham chiếu">
-        </div>
-
-        <div class="form-group">
           <label for="fromDate">Từ ngày <span class="required">*</span></label>
-          <div class="date-input">
-            <input type="date" id="fromDate" class="form-input" value="2024-06-09">
-          </div>
+          <input type="date" id="fromDate" class="form-input">
         </div>
 
         <div class="form-group">
           <label for="toDate">Đến ngày <span class="required">*</span></label>
-          <div class="date-input">
-            <input type="date" id="toDate" class="form-input" value="2025-06-09">
-          </div>
+          <input type="date" id="toDate" class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label for="refNumber">Mã tham chiếu</label>
+          <input type="text" id="refNumber" class="form-input" placeholder="Nhập mã tham chiếu">
         </div>
 
         <button type="button" class="btn-search" onclick="searchDocuments()">
@@ -155,33 +274,33 @@
 
       <!-- Results Table -->
       <div class="result-table" id="resultsTable" style="display: none;">
+        <h3 style="color: #b71c1c; margin-bottom: 15px; text-align: center;" id="resultsTitle">📄 Kết quả tra cứu</h3>
         <table>
           <thead>
             <tr>
-              <th>Mã tham chiếu</th>
+              <th>Mã<br>tham<br>chiếu</th>
               <th>Số tiền</th>
               <th>Ngày nộp</th>
-              <th>Trạng thái</th>
-              <th>In chứng từ</th>
+              <th>Trạng<br>thái</th>
+              <th>In<br>chứng<br>từ</th>
             </tr>
           </thead>
           <tbody id="resultsBody">
-            <tr>
-              <td>1102025002536480</td>
-              <td>765,000</td>
-              <td>31/03/2025 10:34:06</td>
-              <td class="status-success">Thành công – NH/TGTT đã trừ tiền thành công</td>
-              <td><i class="fas fa-print print-icon" onclick="printDocument('1102025002536480')"></i></td>
-            </tr>
-            <tr>
-              <td>1102025002536480</td>
-              <td>765,000</td>
-              <td>28/02/2025</td>
-              <td class="status-success">Thành công</td>
-              <td><i class="fas fa-print print-icon" onclick="printDocument('1102025002536480')"></i></td>
-            </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-overlay" id="loadingState" style="display: none;">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Đang tìm kiếm chứng từ...</div>
+      </div>
+
+      <!-- Empty State -->
+      <div style="display: none; text-align: center; padding: 40px; color: #999;" id="emptyState">
+        <div style="font-size: 48px; margin-bottom: 15px;">📄</div>
+        <h3>Không tìm thấy chứng từ</h3>
+        <p>Không có chứng từ nào trong khoảng thời gian đã chọn.</p>
       </div>
 
       <button type="button" class="btn-print" onclick="printAllDocuments()" id="printAllBtn" style="display: none;">
@@ -190,7 +309,624 @@
     </main>
   </div>
 
+  <!-- Popup xác nhận download -->
+  <div class="download-popup" id="downloadPopup" style="display: none;">
+    <div class="popup-content">
+      <div class="popup-title">Bạn có muốn tải tập tin?</div>
+      <div class="popup-subtitle">Tải ngay!</div>
+      <div class="popup-buttons">
+        <button class="popup-btn popup-btn-cancel" onclick="cancelDownload()">Bỏ qua</button>
+        <button class="popup-btn popup-btn-confirm" onclick="confirmDownload()">Đồng ý</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+      authDomain: "etax-7fbf8.firebaseapp.com",
+      databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "etax-7fbf8",
+      storageBucket: "etax-7fbf8.appspot.com",
+      messagingSenderId: "1030026724634",
+      appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3",
+      measurementId: "G-YS5DLECJE6"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let currentUserMST = null;
+    let searchResults = [];
+    let pendingDownloadId = null;
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('📄 Document Search page loaded');
+      
+      // Get current user MST
+      getCurrentUserMST();
+      
+      // Set default date range (1 year)
+      setDefaultDateRange();
+      
+      // Setup date validation
+      setupDateValidation();
+    });
+
+    function getCurrentUserMST() {
+      // Get from session or URL parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const mstParam = urlParams.get('mst');
+      
+      if (mstParam) {
+        currentUserMST = mstParam;
+      } else {
+        // Try to get from localStorage or session
+        const session = localStorage.getItem('etax_user_session');
+        if (session) {
+          try {
+            const sessionData = JSON.parse(session);
+            currentUserMST = sessionData.mst;
+          } catch (error) {
+            console.error('Error parsing user session:', error);
+          }
+        }
+      }
+      
+      if (!currentUserMST) {
+        // Default MST for demo
+        currentUserMST = '001095026798';
+      }
+      
+      console.log('📊 Current user MST:', currentUserMST);
+    }
+
+    function setDefaultDateRange() {
+      // Lấy ngày hiện tại theo múi giờ Việt Nam (UTC+7)
+      const now = new Date();
+      console.log('⏰ Current local time:', now);
+      
+      // Chuyển đổi sang múi giờ Việt Nam
+      const vietnamTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Ho_Chi_Minh"}));
+      console.log('🇻🇳 Vietnam time:', vietnamTime);
+      
+      // Format thành YYYY-MM-DD cho input date
+      const year = vietnamTime.getFullYear();
+      const month = String(vietnamTime.getMonth() + 1).padStart(2, '0');  
+      const day = String(vietnamTime.getDate()).padStart(2, '0');
+      const today = `${year}-${month}-${day}`;
+      
+      console.log('📅 Formatted today:', today);
+      
+      // Mặc định cả 2 ô đều là ngày hiện tại Việt Nam
+      document.getElementById('fromDate').value = today;
+      document.getElementById('toDate').value = today;
+      
+      console.log('✅ Default date set to Vietnam time:', today);
+    }
+
+    function setupDateValidation() {
+      const fromDate = document.getElementById('fromDate');
+      const toDate = document.getElementById('toDate');
+      
+      // Lấy ngày hiện tại Việt Nam
+      const now = new Date();
+      const vietnamOffset = 7 * 60;
+      const vietnamTime = new Date(now.getTime() + (vietnamOffset - now.getTimezoneOffset()) * 60000);
+      const today = vietnamTime.toISOString().split('T')[0];
+      
+      // Tính ngày 2 năm trước
+      const twoYearsAgo = new Date(vietnamTime);
+      twoYearsAgo.setFullYear(vietnamTime.getFullYear() - 2);
+      const minDate = twoYearsAgo.toISOString().split('T')[0];
+      
+      // Cài đặt giới hạn cho fromDate (cho phép sửa trong phạm vi 2 năm)
+      fromDate.max = today;
+      fromDate.min = minDate;
+      
+      // Cài đặt toDate (KHÔNG cho sửa - readonly)
+      toDate.max = today;
+      toDate.min = today;
+      toDate.readOnly = true;
+      toDate.style.backgroundColor = '#f5f5f5';
+      toDate.style.cursor = 'not-allowed';
+      
+      fromDate.addEventListener('change', validateDateRange);
+      
+      console.log('📅 Date validation setup:', { today, minDate });
+    }
+
+    function validateDateRange() {
+      const fromDateValue = document.getElementById('fromDate').value;
+      const toDateValue = document.getElementById('toDate').value;
+      
+      if (!fromDateValue || !toDateValue) return true;
+      
+      const fromDate = new Date(fromDateValue);
+      const toDate = new Date(toDateValue);
+      
+      // Lấy ngày hiện tại Việt Nam
+      const now = new Date();
+      const vietnamOffset = 7 * 60;
+      const vietnamTime = new Date(now.getTime() + (vietnamOffset - now.getTimezoneOffset()) * 60000);
+      
+      const today = new Date(vietnamTime.toISOString().split('T')[0]);
+      const twoYearsAgo = new Date(vietnamTime);
+      twoYearsAgo.setFullYear(vietnamTime.getFullYear() - 2);
+      
+      if (fromDate > toDate) {
+        alert('❌ Ngày bắt đầu không thể lớn hơn ngày kết thúc');
+        return false;
+      }
+      
+      const diffTime = Math.abs(toDate - fromDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays > (365 * 2)) { // Approx 2 years
+        alert('❌ Khoảng thời gian tra cứu không được vượt quá 2 năm');
+        return false;
+      }
+      
+      if (fromDate < twoYearsAgo || toDate > today) {
+        alert('❌ Thời gian tra cứu chỉ được phép trong vòng 2 năm gần nhất');
+        return false;
+      }
+      
+      return true;
+    }
+
+    async function searchDocuments() {
+      if (!validateDateRange()) return;
+      if (!currentUserMST) {
+        alert('❌ Không tìm thấy thông tin MST người dùng');
+        return;
+      }
+      
+      const fromDate = new Date(document.getElementById('fromDate').value);
+      const toDate = new Date(document.getElementById('toDate').value);
+      
+      // Show loading
+      showLoading();
+      
+      try {
+        console.log('🔍 Searching documents for MST:', currentUserMST);
+        
+        // NEW: Get certificates assigned to this user (from admin-pdf.html)
+        const userCertificatesRef = db.ref('userCertificates/' + currentUserMST);
+        const userCertificatesSnapshot = await userCertificatesRef.once('value');
+        const userCertificates = userCertificatesSnapshot.val() || {};
+        
+        console.log('📋 User Certificates found:', Object.keys(userCertificates).length);
+        console.log('📋 Raw userCertificates data:', userCertificates);
+        
+        const documents = [];
+        
+        // Method 1: Load from certificates (NEW - from admin-pdf.html)
+        for (const [certId, assignment] of Object.entries(userCertificates)) {
+          try {
+            console.log('🔍 Loading certificate:', certId);
+            const certSnapshot = await db.ref('certificates/' + certId).once('value');
+            const certData = certSnapshot.val();
+            
+            console.log('📋 Certificate data:', certData);
+            
+            if (certData) {
+              // Parse payment date from certificate
+              let paymentDate = null;
+              if (certData.paymentDate) {
+                const dateStr = certData.paymentDate;
+                console.log('🔍 Parsing date:', dateStr);
+                const dateParts = dateStr.split(/[\/\-]/);
+                
+                if (dateParts.length === 3) {
+                  const day = parseInt(dateParts[0]);
+                  const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed
+                  const year = parseInt(dateParts[2]);
+                  
+                  paymentDate = new Date(year, month, day);
+                  console.log('📅 Parsed paymentDate:', paymentDate);
+                }
+              }
+              
+              // If no payment date, use creation time
+              if (!paymentDate || isNaN(paymentDate.getTime())) {
+                paymentDate = new Date(certData.createdAt);
+                console.log('📅 Using createdAt as paymentDate:', paymentDate);
+              }
+              
+              console.log('📊 Date range check:', {
+                paymentDate: paymentDate,
+                fromDate: fromDate, 
+                toDate: toDate,
+                inRange: paymentDate >= fromDate && paymentDate <= toDate
+              });
+              
+              // Check if payment date is within search range
+              if (paymentDate >= fromDate && paymentDate <= toDate) {
+                documents.push({
+                  id: certId,
+                  referenceNumber: certData.referenceNumber || certId.substring(5, 18),
+                  amount: certData.amount || '0',
+                  paymentDate: paymentDate,
+                  status: certData.status || '<div>Thành công -NH<br>TGTT đã<br>trừ tiền thành<br>công</div>',
+                  pdfLink: certData.pdfLink || 'PDFForm/unknown.pdf',
+                  extractedData: {
+                    referenceNumber: certData.referenceNumber,
+                    amount: certData.amount,
+                    paymentDate: certData.paymentDate
+                  }
+                });
+              }
+            }
+          } catch (error) {
+            console.error('Error loading certificate details:', error);
+          }
+        }
+        
+        // Method 2: Fallback to old method (customerPDFs → pdfDocuments)
+        if (documents.length === 0) {
+          console.log('📄 No certificates found, trying customerPDFs...');
+          
+          const customerPDFsRef = db.ref('customerPDFs/' + currentUserMST);
+          const customerPDFsSnapshot = await customerPDFsRef.once('value');
+          const customerPDFs = customerPDFsSnapshot.val() || {};
+          
+          console.log('📄 CustomerPDFs found:', Object.keys(customerPDFs).length);
+          console.log('📄 Raw customerPDFs data:', customerPDFs);
+          
+          for (const [pdfId, assignment] of Object.entries(customerPDFs)) {
+            try {
+              console.log('🔍 Loading PDF:', pdfId);
+              const pdfSnapshot = await db.ref('pdfDocuments/' + pdfId).once('value');
+              const pdfData = pdfSnapshot.val();
+              
+              console.log('📄 PDF data:', pdfData);
+              
+              if (pdfData && pdfData.extractedData) {
+                // Parse payment date
+                let paymentDate = null;
+                if (pdfData.extractedData.paymentDate) {
+                  const dateStr = pdfData.extractedData.paymentDate;
+                  const dateParts = dateStr.split(/[\/\-]/);
+                  
+                  if (dateParts.length === 3) {
+                    const day = parseInt(dateParts[0]);
+                    const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed
+                    const year = parseInt(dateParts[2]);
+                    
+                    paymentDate = new Date(year, month, day);
+                  }
+                }
+                
+                // If no payment date from PDF, use upload time
+                if (!paymentDate || isNaN(paymentDate.getTime())) {
+                  paymentDate = new Date(pdfData.uploadTime);
+                }
+                
+                // Check if payment date is within search range
+                if (paymentDate >= fromDate && paymentDate <= toDate) {
+                  documents.push({
+                    id: pdfId,
+                    referenceNumber: pdfData.extractedData.referenceNumber || pdfId.substring(4, 17),
+                    amount: pdfData.extractedData.amount || '50,000',
+                    paymentDate: paymentDate,
+                    status: '<div>Thành công -NH<br>TGTT đã<br>trừ tiền thành<br>công</div>',
+                    pdfLink: `PDFForm/${pdfData.fileName}`,
+                    extractedData: pdfData.extractedData
+                  });
+                }
+              }
+            } catch (error) {
+              console.error('Error loading PDF details:', error);
+            }
+          }
+        }
+        
+        console.log('📊 Documents in date range:', documents.length);
+        
+        // Sort by payment date (newest first)
+        documents.sort((a, b) => b.paymentDate - a.paymentDate);
+        
+        searchResults = documents;
+        
+        if (documents.length > 0) {
+          displayResults(documents);
+        } else {
+          showEmptyState();
+        }
+        
+      } catch (error) {
+        console.error('❌ Search error:', error);
+        alert('❌ Lỗi tìm kiếm: ' + error.message);
+        hideLoading();
+      }
+    }
+
+    function displayResults(documents) {
+      hideLoading();
+      
+      const resultsTable = document.getElementById('resultsTable');
+      const resultsTitle = document.getElementById('resultsTitle');
+      const resultsBody = document.getElementById('resultsBody');
+      const printAllBtn = document.getElementById('printAllBtn');
+      
+      resultsTitle.textContent = `📄 Kết quả tra cứu (${documents.length} chứng từ)`;
+      
+      // Build table rows
+      resultsBody.innerHTML = documents.map((doc, index) => `
+        <tr>
+          <td>${doc.referenceNumber}</td>
+          <td style="color: #28a745; font-weight: 600;">${formatAmount(doc.amount)}</td>
+          <td>${formatDate(doc.paymentDate)}</td>
+          <td style="color: #28a745; font-weight: 600; font-size: 12px;">${doc.status}</td>
+          <td>
+            <div style="background: #b71c1c; color: white; border: none; padding: 8px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin: 0 auto;" onclick="printDocument('${doc.id}')" title="In chứng từ: ${doc.pdfLink || 'N/A'}">
+              ⭕
+            </div>
+          </td>
+        </tr>
+      `).join('');
+      
+      // Show results
+      resultsTable.style.display = 'block';
+      printAllBtn.style.display = 'block';
+    }
+
+    function formatDate(date) {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      
+      return `${day}/${month}/${year}`;
+    }
+    
+    function formatAmount(amount) {
+      if (!amount) return '0';
+      // Remove any existing formatting and convert to number
+      const numAmount = parseFloat(amount.toString().replace(/[,\.]/g, ''));
+      if (isNaN(numAmount)) return amount;
+      
+      // Format with comma thousands separator
+      return numAmount.toLocaleString('vi-VN');
+    }
+
+    function showLoading() {
+      document.getElementById('loadingState').style.display = 'flex';
+      document.getElementById('resultsTable').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'none';
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingState').style.display = 'none';
+    }
+
+    function showEmptyState() {
+      hideLoading();
+      document.getElementById('emptyState').style.display = 'block';
+      document.getElementById('resultsTable').style.display = 'none';
+    }
+
+    // Print functionality với popup xác nhận
+    function printDocument(documentId) {
+      console.log('🖨️ Print document requested:', documentId);
+      pendingDownloadId = documentId;
+      document.getElementById('downloadPopup').style.display = 'flex';
+    }
+
+    function cancelDownload() {
+      document.getElementById('downloadPopup').style.display = 'none';
+      pendingDownloadId = null;
+    }
+
+    async function confirmDownload() {
+      document.getElementById('downloadPopup').style.display = 'none';
+      
+      if (!pendingDownloadId) return;
+      
+      try {
+        console.log('📥 Downloading document:', pendingDownloadId);
+        
+        // Get document data
+        const pdfSnapshot = await db.ref('pdfDocuments/' + pendingDownloadId).once('value');
+        const pdfData = pdfSnapshot.val();
+        
+        if (!pdfData) {
+          alert('❌ Không tìm thấy chứng từ');
+          return;
+        }
+        
+        // Generate PDF content
+        const pdfContent = generateAdvancedPDF(pdfData);
+        
+        // Create blob
+        const blob = new Blob([pdfContent], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        
+        // Mobile device detection
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        
+        console.log('📱 Device detection:', { isMobile, isIOS });
+        
+        // Use window.open for native PDF viewer (as requested)
+        const fileName = pdfData.fileName || `ChungTu_${pendingDownloadId.substring(4, 12)}.pdf`;
+        
+        // Open PDF in new tab/window (triggers native viewer)
+        const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+        
+        if (newWindow) {
+          console.log('✅ PDF opened in native viewer');
+          setTimeout(() => URL.revokeObjectURL(url), 3000);
+        } else {
+          // Fallback to download if popup blocked
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+        
+        pendingDownloadId = null;
+        
+      } catch (error) {
+        console.error('❌ Download error:', error);
+        alert('❌ Lỗi tải chứng từ: ' + error.message);
+      }
+    }
+
+    function generateAdvancedPDF(pdfData) {
+      // Generate enhanced PDF content with Vietnamese tax receipt format
+      const extractedData = pdfData.extractedData || {};
+      const timestamp = new Date().toLocaleString('vi-VN');
+      
+      const content = `%PDF-1.4
+1 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+
+2 0 obj
+<<
+/Type /Pages
+/Kids [3 0 R]
+/Count 1
+>>
+endobj
+
+3 0 obj
+<<
+/Type /Page
+/Parent 2 0 R
+/MediaBox [0 0 612 792]
+/Contents 4 0 R
+/Resources <<
+/Font <<
+/F1 5 0 R
+/F2 6 0 R
+>>
+>>
+>>
+endobj
+
+4 0 obj
+<<
+/Length 1200
+>>
+stream
+BT
+/F2 16 Tf
+50 750 Td
+(CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM) Tj
+0 -20 Td
+(Độc lập - Tự do - Hạnh phúc) Tj
+0 -40 Td
+/F1 18 Tf
+150 0 Td
+(GIẤY NỘP TIỀN VÀO NGÂN SÁCH NHÀ NƯỚC) Tj
+-150 -60 Td
+/F1 12 Tf
+(Mã số thuế: ${extractedData.mst || currentUserMST || '001095026798'}) Tj
+0 -25 Td
+(Tên người nộp: ${extractedData.name || 'CÔNG TY TNHH ABC'}) Tj
+0 -25 Td
+(Địa chỉ: ${extractedData.address || 'Phường Vĩnh Tuy, Hai Bà Trưng, Hà Nội'}) Tj
+0 -40 Td
+/F2 14 Tf
+(THÔNG TIN NỘP THUẾ) Tj
+0 -30 Td
+/F1 12 Tf
+(Loại thuế: ${extractedData.taxType || 'Thu từ đất ở tại đô thị'}) Tj
+0 -20 Td
+(Số tiền: ${extractedData.amount || '519,042'} VND) Tj
+0 -20 Td
+(Ngày nộp: ${extractedData.paymentDate || '09/03/2025'}) Tj
+0 -20 Td
+(Mã tham chiếu: ${extractedData.referenceNumber || 'RF' + Date.now().toString().substring(8)}) Tj
+0 -40 Td
+(Trạng thái: ĐÃ NỘP THÀNH CÔNG) Tj
+0 -15 Td
+(Thời gian tạo chứng từ: ${timestamp}) Tj
+0 -15 Td
+(Nguồn: eTax Mobile System - Chứng từ điện tử) Tj
+ET
+endstream
+endobj
+
+5 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+endobj
+
+6 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica-Bold
+>>
+endobj
+
+xref
+0 7
+0000000000 65535 f 
+0000000010 00000 n 
+0000000068 00000 n 
+0000000125 00000 n 
+0000000284 00000 n 
+0000001536 00000 n 
+0000001593 00000 n 
+trailer
+<<
+/Size 7
+/Root 1 0 R
+>>
+startxref
+1657
+%%EOF`;
+      
+      return content;
+    }
+
+    async function printAllDocuments() {
+      if (searchResults.length === 0) {
+        alert('❌ Không có chứng từ nào để in');
+        return;
+      }
+      
+      if (!confirm(`Bạn muốn in tất cả ${searchResults.length} chứng từ không?`)) {
+        return;
+      }
+      
+      try {
+        // Download all documents
+        for (let i = 0; i < searchResults.length; i++) {
+          await new Promise(resolve => {
+            pendingDownloadId = searchResults[i].id;
+            confirmDownload().then(resolve);
+          });
+          
+          // Small delay between downloads
+          if (i < searchResults.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
+        
+        alert('✅ Đã tải xuống tất cả chứng từ');
+        
+      } catch (error) {
+        console.error('❌ Print all error:', error);
+        alert('❌ Lỗi in chứng từ: ' + error.message);
+      }
+    }
+
     // ✅ PWA Navigation Functions
     function goBack() {
       if (window.history.length > 1) {
@@ -202,30 +938,6 @@
 
     function goHome() {
       window.location.href = 'index.html';
-    }
-
-    // Search functionality
-    function searchDocuments() {
-      const fromDate = document.getElementById('fromDate').value;
-      const toDate = document.getElementById('toDate').value;
-      
-      if (!fromDate || !toDate) {
-        alert('Vui lòng chọn đầy đủ khoảng thời gian');
-        return;
-      }
-
-      // Show results
-      document.getElementById('resultsTable').style.display = 'block';
-      document.getElementById('printAllBtn').style.display = 'block';
-    }
-
-    // Print functionality
-    function printDocument(referenceCode) {
-      alert(`In chứng từ: ${referenceCode}`);
-    }
-
-    function printAllDocuments() {
-      alert('In tất cả chứng từ');
     }
 
     // ✅ PWA Performance

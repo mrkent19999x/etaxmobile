@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚙️ Cài đặt & Logs - eTAX ADMIN</title>
+  
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <!-- 💡 Tối ưu hóa: Tải cấu hình Firebase từ tệp chung -->
+  <script src="./firebase-config.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Tahoma', 'Microsoft Sans Serif', 'Arial', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .admin-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .admin-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #dc3545;
+    }
+
+    .back-btn {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+
+    .back-btn:hover {
+      background: #545b62;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .content-header {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .content-title {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .card-title {
+      color: #b71c1c;
+      margin-bottom: 20px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .settings-section {
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .settings-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+
+    .setting-label {
+      flex: 1;
+    }
+
+    .setting-name {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .setting-desc {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .setting-control {
+      margin-left: 15px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 25px;
+      background: #ccc;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle-switch.active {
+      background: #28a745;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 21px;
+      height: 21px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(25px);
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: #007bff;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0056b3;
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #1e7e34;
+    }
+
+    .btn-warning {
+      background: #ffc107;
+      color: #333;
+    }
+
+    .btn-warning:hover {
+      background: #e0a800;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
+    .system-info {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .info-value {
+      color: #666;
+    }
+
+    .logs-container {
+      max-height: 400px;
+      overflow-y: auto;
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+    }
+
+    .log-entry {
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 12px;
+      border-left: 4px solid #007bff;
+    }
+
+    .log-entry.info {
+      background: #e3f2fd;
+      border-left-color: #007bff;
+    }
+
+    .log-entry.success {
+      background: #e8f5e8;
+      border-left-color: #28a745;
+    }
+
+    .log-entry.warning {
+      background: #fff3cd;
+      border-left-color: #ffc107;
+    }
+
+    .log-entry.error {
+      background: #f8d7da;
+      border-left-color: #dc3545;
+    }
+
+    .log-time {
+      color: #666;
+      margin-right: 10px;
+    }
+
+    .log-message {
+      color: #333;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 24px;
+      font-weight: 700;
+      color: #007bff;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .backup-section {
+      background: #e8f4fd;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .backup-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #d0e3f0;
+    }
+
+    .backup-item:last-child {
+      border-bottom: none;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px 15px;
+      }
+      
+      .main-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="admin-header">
+    <div class="admin-logo">
+      ⚙️ Cài đặt & Logs
+    </div>
+    <a href="admin-dashboard.html" class="back-btn">← Về Dashboard</a>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="content-header">
+      <h2 class="content-title">⚙️ CÀI ĐẶT HỆ THỐNG & QUẢN LÝ LOGS</h2>
+      
+      <!-- System Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="systemUptime">-</div>
+          <div class="stat-label">Uptime (giờ)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="totalRequests">-</div>
+          <div class="stat-label">Requests hôm nay</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="errorRate">-</div>
+          <div class="stat-label">Tỷ lệ lỗi (%)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="dbSize">-</div>
+          <div class="stat-label">DB Size (MB)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+      <!-- Left: System Settings -->
+      <div class="card">
+        <h3 class="card-title">🔧 Cài đặt Hệ thống</h3>
+        
+        
+
+        <!-- Security Settings -->
+        <div class="settings-section">
+          <h4 style="margin-bottom: 15px; color: #333;">🔒 Bảo mật</h4>
+          
+          <div class="setting-item" style="flex-direction: column; align-items: flex-start;">
+            <div class="setting-label" style="margin-bottom: 15px;">
+              <div class="setting-name">🔐 Đổi mật khẩu Admin</div>
+              <div class="setting-desc">Thay đổi mật khẩu đăng nhập hệ thống admin</div>
+            </div>
+            <button class="btn btn-warning" onclick="openChangePasswordModal()" style="padding: 8px 16px; background: #ffc107; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: 500;">
+              🔑 Đổi mật khẩu
+            </button>
+          </div>
+          
+          
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <div class="setting-name">Auto-lock tài khoản</div>
+              <div class="setting-desc">Tự động khóa sau 5 lần đăng nhập sai</div>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch active" onclick="toggleSetting('autoLock')"></div>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <div class="setting-name">Log IP addresses</div>
+              <div class="setting-desc">Ghi lại địa chỉ IP của tất cả requests</div>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch active" onclick="toggleSetting('logIP')"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Settings -->
+        <div class="settings-section">
+          <h4 style="margin-bottom: 15px; color: #333;">⚙️ Hệ thống</h4>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <div class="setting-name">Auto-backup</div>
+              <div class="setting-desc">Tự động backup database hàng ngày</div>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch active" onclick="toggleSetting('autoBackup')"></div>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <div class="setting-name">Debug mode</div>
+              <div class="setting-desc">Hiển thị thông tin debug chi tiết</div>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch" onclick="toggleSetting('debugMode')"></div>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <div class="setting-name">Maintenance mode</div>
+              <div class="setting-desc">Chế độ bảo trì (chỉ admin truy cập)</div>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch" onclick="toggleSetting('maintenanceMode')"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Info -->
+        <div class="settings-section">
+          <h4 style="margin-bottom: 15px; color: #333;">📊 Thông tin Hệ thống</h4>
+          <div class="system-info">
+            <div class="info-row">
+              <span class="info-label">Phiên bản:</span>
+              <span class="info-value">eTAX v2.1.0</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Database:</span>
+              <span class="info-value">Firebase Realtime DB</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Server time:</span>
+              <span class="info-value" id="serverTime">-</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Last backup:</span>
+              <span class="info-value" id="lastBackup">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Backup Section -->
+        <div class="settings-section">
+          <h4 style="margin-bottom: 15px; color: #333;">💾 Backup & Phục hồi</h4>
+          <div class="backup-section">
+            <div class="backup-item">
+              <span>Backup toàn bộ database</span>
+              <button class="btn btn-primary" onclick="createBackup()">📦 Tạo backup</button>
+            </div>
+            <div class="backup-item">
+              <span>Xuất dữ liệu người dùng</span>
+              <button class="btn btn-success" onclick="exportUsers()">📊 Xuất Excel</button>
+            </div>
+            <div class="backup-item">
+              <span>Dọn dẹp logs cũ</span>
+              <button class="btn btn-warning" onclick="cleanOldLogs()">🧹 Dọn dẹp</button>
+            </div>
+            <div class="backup-item">
+              <span>Reset toàn bộ hệ thống</span>
+              <button class="btn btn-danger" onclick="resetSystem()">⚠️ Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: System Logs -->
+      <div class="card">
+        <h3 class="card-title">📋 System Logs & Hoạt động</h3>
+        
+        <div style="margin-bottom: 20px;">
+          <button class="btn btn-primary" onclick="refreshLogs()">🔄 Làm mới</button>
+          <button class="btn btn-success" onclick="exportLogs()">📊 Xuất logs</button>
+          <button class="btn btn-warning" onclick="clearLogs()">🗑️ Xóa logs</button>
+        </div>
+        
+        <div class="logs-container" id="logsContainer">
+          <div class="loading">Đang tải logs...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let systemSettings = {
+      otpRequired: true,
+      autoLock: true,
+      logIP: true,
+      autoBackup: true,
+      debugMode: false,
+      maintenanceMode: false
+    };
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('⚙️ Settings page loaded');
+      initializePage();
+    });
+
+    async function initializePage() {
+      try {
+        await loadSystemStats();
+        await loadSystemLogs();
+        updateServerTime();
+        
+        console.log('✅ Settings page initialized');
+        
+      } catch (error) {
+        console.error('❌ Error initializing settings page:', error);
+      }
+    }
+
+    // Load system statistics
+    async function loadSystemStats() {
+      try {
+        // Mock data - replace with real system metrics
+        document.getElementById('systemUptime').textContent = Math.floor(Math.random() * 720) + 24;
+        document.getElementById('totalRequests').textContent = Math.floor(Math.random() * 5000) + 1000;
+        document.getElementById('errorRate').textContent = (Math.random() * 2).toFixed(1);
+        document.getElementById('dbSize').textContent = (Math.random() * 100 + 50).toFixed(1);
+        
+        console.log('✅ System stats loaded');
+        
+      } catch (error) {
+        console.error('❌ Error loading system stats:', error);
+      }
+    }
+
+    // Load system logs
+    async function loadSystemLogs() {
+      try {
+        const logsContainer = document.getElementById('logsContainer');
+        
+        // Generate sample logs - replace with real log data
+        const sampleLogs = [
+          { time: new Date(), type: 'info', message: 'Hệ thống khởi động thành công' },
+          { time: new Date(Date.now() - 300000), type: 'success', message: 'User 0123456789 đăng nhập thành công' },
+          { time: new Date(Date.now() - 600000), type: 'warning', message: 'OTP request from IP 192.168.1.100' },
+          { time: new Date(Date.now() - 900000), type: 'info', message: 'PDF uploaded: tax_doc_2024.pdf' },
+          { time: new Date(Date.now() - 1200000), type: 'success', message: 'Backup tự động hoàn thành' },
+          { time: new Date(Date.now() - 1500000), type: 'error', message: 'Failed login attempt for MST: 0987654321' },
+          { time: new Date(Date.now() - 1800000), type: 'info', message: 'Notification sent to 15 users' },
+          { time: new Date(Date.now() - 2100000), type: 'warning', message: 'High memory usage detected: 87%' }
+        ];
+        
+        logsContainer.innerHTML = sampleLogs.map(log => `
+          <div class="log-entry ${log.type}">
+            <span class="log-time">${log.time.toLocaleTimeString('vi-VN')}</span>
+            <span class="log-message">${log.message}</span>
+          </div>
+        `).join('');
+        
+        console.log('✅ System logs loaded');
+        
+      } catch (error) {
+        console.error('❌ Error loading system logs:', error);
+        document.getElementById('logsContainer').innerHTML = '<div class="log-entry error">Lỗi tải logs</div>';
+      }
+    }
+
+    // Toggle system setting
+    function toggleSetting(settingName) {
+      const toggle = event.target;
+      systemSettings[settingName] = !systemSettings[settingName];
+      
+      if (systemSettings[settingName]) {
+        toggle.classList.add('active');
+      } else {
+        toggle.classList.remove('active');
+      }
+      
+      console.log(`⚙️ Setting ${settingName} changed to:`, systemSettings[settingName]);
+      
+      // Save to Firebase (optional)
+      try {
+        db.ref('systemSettings/' + settingName).set(systemSettings[settingName]);
+      } catch (error) {
+        console.error('❌ Error saving setting:', error);
+      }
+    }
+
+    // Update server time
+    function updateServerTime() {
+      const now = new Date();
+      document.getElementById('serverTime').textContent = now.toLocaleString('vi-VN');
+      document.getElementById('lastBackup').textContent = 'Hôm nay, 03:00 AM';
+    }
+
+    // Backup functions
+    async function createBackup() {
+      try {
+        const confirmed = confirm('Tạo backup toàn bộ database? Quá trình này có thể mất vài phút.');
+        if (!confirmed) return;
+        
+        console.log('💾 Creating system backup...');
+        alert('🔄 Đang tạo backup... (Demo)');
+        
+        // Simulate backup process
+        setTimeout(() => {
+          alert('✅ Backup hoàn thành! File: etax_backup_' + new Date().toISOString().split('T')[0] + '.json');
+          updateServerTime();
+        }, 2000);
+        
+      } catch (error) {
+        console.error('❌ Error creating backup:', error);
+        alert('❌ Lỗi tạo backup: ' + error.message);
+      }
+    }
+
+    async function exportUsers() {
+      try {
+        console.log('📊 Exporting user data...');
+        alert('📊 Đang xuất dữ liệu người dùng... (Demo)');
+        
+        // Simulate export
+        setTimeout(() => {
+          alert('✅ Xuất dữ liệu thành công! File: users_export_' + new Date().toISOString().split('T')[0] + '.xlsx');
+        }, 1500);
+        
+      } catch (error) {
+        console.error('❌ Error exporting users:', error);
+        alert('❌ Lỗi xuất dữ liệu: ' + error.message);
+      }
+    }
+
+    function cleanOldLogs() {
+      if (!confirm('Xóa logs cũ hơn 30 ngày? Hành động này không thể hoàn tác.')) return;
+      
+      console.log('🧹 Cleaning old logs...');
+      alert('🧹 Đã dọn dẹp logs cũ (Demo)');
+      refreshLogs();
+    }
+
+    function resetSystem() {
+      const confirmed = confirm('⚠️ CẢNH BÁO: Reset toàn bộ hệ thống sẽ xóa TẤT CẢ dữ liệu!\n\nBạn có CHẮC CHẮN muốn tiếp tục?');
+      if (!confirmed) return;
+      
+      const doubleConfirm = confirm('Lần xác nhận cuối: Bạn có thực sự muốn RESET TOÀN BỘ hệ thống?');
+      if (!doubleConfirm) return;
+      
+      alert('⚠️ Chức năng reset hệ thống đã bị vô hiệu hóa vì lý do an toàn (Demo)');
+    }
+
+    // Log functions
+    function refreshLogs() {
+      console.log('🔄 Refreshing logs...');
+      loadSystemLogs();
+    }
+
+    function exportLogs() {
+      console.log('📊 Exporting logs...');
+      alert('📊 Đã xuất logs (Demo)');
+    }
+
+    function clearLogs() {
+      if (!confirm('Xóa tất cả logs hiện tại?')) return;
+      
+      document.getElementById('logsContainer').innerHTML = '<div class="log-entry info">Logs đã được xóa</div>';
+      console.log('🗑️ Logs cleared');
+    }
+
+    // Auto refresh every 30 seconds
+    setInterval(() => {
+      updateServerTime();
+      loadSystemStats();
+    }, 30000);
+
+    // Auto refresh logs every 2 minutes
+    setInterval(loadSystemLogs, 120000);
+    
+    // Load admins list on page load
+    loadAdminsList();
+    
+    // Change Password Modal Functions
+    function openChangePasswordModal() {
+      const modal = document.getElementById('changePasswordModal');
+      if (modal) {
+        modal.style.display = 'flex';
+        document.getElementById('currentPassword').focus();
+      }
+    }
+    
+    function closeChangePasswordModal() {
+      const modal = document.getElementById('changePasswordModal');
+      if (modal) {
+        modal.style.display = 'none';
+        document.getElementById('changePasswordForm').reset();
+      }
+    }
+    
+    async function changeAdminPassword() {
+      const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      
+      // Validation
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        alert('❌ Vui lòng điền đầy đủ thông tin');
+        return;
+      }
+      
+      if (newPassword !== confirmPassword) {
+        alert('❌ Mật khẩu mới và xác nhận không khớp');
+        return;
+      }
+      
+      if (newPassword.length < 8) {
+        alert('❌ Mật khẩu mới phải có ít nhất 8 ký tự');
+        return;
+      }
+      
+      try {
+        // 🔒 CẢNH BÁO BẢO MẬT NGHIÊM TRỌNG
+        // Logic xác thực và thay đổi mật khẩu không bao giờ được thực hiện ở phía client.
+        // Đoạn code này đã được vô hiệu hóa để tránh lộ mật khẩu.
+        // BẠN CẦN XÂY DỰNG một backend (ví dụ: Firebase Functions) để:
+        // 1. Xác thực mật khẩu cũ một cách an toàn.
+        // 2. Băm (hash) mật khẩu mới trước khi lưu vào cơ sở dữ liệu.
+        
+        alert('🔒 Chức năng này cần được xử lý ở backend để đảm bảo an toàn. Vui lòng tham khảo tài liệu về Firebase Functions.');
+        return;
+
+        // Log password change activity
+        await db.ref('adminLogs').push({
+          action: 'password_change',
+          timestamp: Date.now(),
+          adminId: 'admin@etax.vn',
+          details: 'Admin password changed successfully'
+        });
+        
+        alert('✅ Đổi mật khẩu thành công!\n⚠️ Lưu ý: Cần cập nhật mật khẩu mới trong code admin-panel-working.html');
+        closeChangePasswordModal();
+        
+        console.log('🔐 New admin password:', newPassword);
+        console.log('📝 Please update ADMIN_CREDENTIALS in admin-panel-working.html');
+        
+      } catch (error) {
+        console.error('❌ Error changing password:', error);
+        alert('❌ Lỗi khi đổi mật khẩu: ' + error.message);
+      }
+    }
+    
+    // Admin Management Functions
+    async function loadAdminsList() {
+      try {
+        const adminsSnapshot = await db.ref('admins').once('value');
+        const admins = adminsSnapshot.val();
+        const adminsList = document.getElementById('adminsList');
+        
+        if (!admins || Object.keys(admins).length === 0) {
+          // Initialize with default admin if no admins exist
+          await db.ref('admins').set({
+            'admin@etax.vn': {
+              username: 'admin@etax.vn', // 🔒 CẢNH BÁO: Mật khẩu không được lưu dạng văn bản thô
+              // Cần được băm và muối (hashed and salted)
+              password: 'eTax2024@Admin',
+              role: 'super_admin',
+              createdAt: Date.now(),
+              createdBy: 'system',
+              lastLogin: null,
+              status: 'active'
+            }
+          });
+          
+          adminsList.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #f0f0f0;">
+              <div>
+                <strong>admin@etax.vn</strong> <span style="color: #28a745; font-size: 12px;">(Super Admin)</span><br>
+                <small style="color: #666;">Tạo: System Default</small>
+              </div>
+              <span style="color: #28a745; font-weight: 500;">Active</span>
+            </div>
+          `;
+        } else {
+          let adminHTML = '';
+          Object.keys(admins).forEach(adminId => {
+            const admin = admins[adminId];
+            const roleText = admin.role === 'super_admin' ? 'Super Admin' : 'Admin';
+            const statusColor = admin.status === 'active' ? '#28a745' : '#dc3545';
+            
+            adminHTML += `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #f0f0f0;">
+                <div>
+                  <strong>${admin.username}</strong> <span style="color: #28a745; font-size: 12px;">(${roleText})</span><br>
+                  <small style="color: #666;">Tạo: ${new Date(admin.createdAt).toLocaleDateString('vi-VN')}</small>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="color: ${statusColor}; font-weight: 500;">${admin.status === 'active' ? 'Active' : 'Blocked'}</span>
+                  ${admin.username !== 'admin@etax.vn' ? `<button onclick="toggleAdminStatus('${adminId}', '${admin.status}')" style="padding: 4px 8px; border: none; border-radius: 3px; cursor: pointer; font-size: 12px; background: ${admin.status === 'active' ? '#dc3545' : '#28a745'}; color: white;">${admin.status === 'active' ? 'Block' : 'Unblock'}</button>` : ''}
+                </div>
+              </div>
+            `;
+          });
+          adminsList.innerHTML = adminHTML;
+        }
+      } catch (error) {
+        console.error('❌ Error loading admins:', error);
+        document.getElementById('adminsList').innerHTML = '<div style="color: #dc3545; text-align: center;">Lỗi khi tải danh sách admin</div>';
+      }
+    }
+    
+    function openCreateAdminModal() {
+      const modal = document.getElementById('createAdminModal');
+      if (modal) {
+        modal.style.display = 'flex';
+        document.getElementById('adminUsername').focus();
+      }
+    }
+    
+    function closeCreateAdminModal() {
+      const modal = document.getElementById('createAdminModal');
+      if (modal) {
+        modal.style.display = 'none';
+        document.getElementById('createAdminForm').reset();
+      }
+    }
+    
+    async function createNewAdmin() {
+      const username = document.getElementById('adminUsername').value.trim();
+      const password = document.getElementById('adminPassword').value;
+      const confirmPassword = document.getElementById('adminConfirmPassword').value;
+      const fullName = document.getElementById('adminFullName').value.trim();
+      
+      // Validation
+      if (!username || !password || !confirmPassword || !fullName) {
+        alert('❌ Vui lòng điền đầy đủ thông tin');
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        alert('❌ Mật khẩu và xác nhận không khớp');
+        return;
+      }
+      
+      if (password.length < 8) {
+        alert('❌ Mật khẩu phải có ít nhất 8 ký tự');
+        return;
+      }
+      
+      if (!username.includes('@')) {
+        alert('❌ Username phải có định dạng email');
+        return;
+      }
+      
+      try {
+        // Check if admin already exists
+        const existingAdmin = await db.ref(`admins/${username.replace('.', '_dot_')}`).once('value');
+        if (existingAdmin.exists()) {
+          alert('❌ Admin này đã tồn tại trong hệ thống');
+          return;
+        }
+        
+        // Create new admin
+        const adminData = {
+          // 🔒 CẢNH BÁO BẢO MẬT: Mật khẩu không được lưu dạng văn bản thô.
+          // Cần gọi Firebase Function để băm (hash) mật khẩu này trước khi lưu.
+          // Ví dụ: passwordHash: await callFirebaseFunction('hashPassword', { password })
+          username: username,
+          password: password,
+          fullName: fullName,
+          role: 'admin',
+          createdAt: Date.now(),
+          createdBy: 'admin@etax.vn',
+          lastLogin: null,
+          status: 'active'
+        };
+        
+        await db.ref(`admins/${username.replace('.', '_dot_')}`).set(adminData);
+        
+        // Log admin creation
+        await db.ref('adminLogs').push({
+          action: 'create_admin',
+          timestamp: Date.now(),
+          adminId: 'admin@etax.vn',
+          targetAdmin: username,
+          details: `Created new admin: ${fullName}`
+        });
+        
+        alert('✅ Tạo admin mới thành công!');
+        closeCreateAdminModal();
+        loadAdminsList();
+        
+      } catch (error) {
+        console.error('❌ Error creating admin:', error);
+        alert('❌ Lỗi khi tạo admin: ' + error.message);
+      }
+    }
+    
+    async function toggleAdminStatus(adminId, currentStatus) {
+      const newStatus = currentStatus === 'active' ? 'blocked' : 'active';
+      const action = newStatus === 'active' ? 'unblock' : 'block';
+      
+      if (!confirm(`Bạn có chắc muốn ${action} admin này?`)) return;
+      
+      try {
+        await db.ref(`admins/${adminId}/status`).set(newStatus);
+        
+        // Log action
+        await db.ref('adminLogs').push({
+          action: `${action}_admin`,
+          timestamp: Date.now(),
+          adminId: 'admin@etax.vn',
+          targetAdmin: adminId,
+          details: `Admin ${action}ed successfully`
+        });
+        
+        alert(`✅ Admin đã được ${action} thành công!`);
+        loadAdminsList();
+        
+      } catch (error) {
+        console.error('❌ Error toggling admin status:', error);
+        alert('❌ Lỗi khi thay đổi trạng thái admin: ' + error.message);
+      }
+    }
+  </script>
+
+  <!-- Change Password Modal -->
+  <div id="changePasswordModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000;">
+    <div style="background: white; border-radius: 15px; padding: 30px; width: 90%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h3 style="color: #b71c1c; margin: 0;">🔐 Đổi mật khẩu Admin</h3>
+        <button onclick="closeChangePasswordModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
+      </div>
+      
+      <form id="changePasswordForm" onsubmit="event.preventDefault(); changeAdminPassword();">
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Mật khẩu hiện tại *</label>
+          <input type="password" id="currentPassword" placeholder="Nhập mật khẩu hiện tại" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Mật khẩu mới *</label>
+          <input type="password" id="newPassword" placeholder="Nhập mật khẩu mới (tối thiểu 8 ký tự)" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+        </div>
+        
+        <div style="margin-bottom: 25px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Xác nhận mật khẩu mới *</label>
+          <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu mới" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+        </div>
+        
+        <div style="display: flex; gap: 15px; justify-content: flex-end;">
+          <button type="button" onclick="closeChangePasswordModal()" style="padding: 12px 24px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">Hủy</button>
+          <button type="submit" style="padding: 12px 24px; background: #b71c1c; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">🔑 Đổi mật khẩu</button>
+        </div>
+      </form>
+      
+      <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+        <strong>⚠️ Lưu ý quan trọng:</strong><br>
+        Sau khi đổi mật khẩu, bạn cần cập nhật mật khẩu mới trong file <code>admin-panel-working.html</code> để có thể đăng nhập được.
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Admin Modal -->
+  <div id="createAdminModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000;">
+    <div style="background: white; border-radius: 15px; padding: 30px; width: 90%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h3 style="color: #b71c1c; margin: 0;">👨‍💼 Tạo Admin mới</h3>
+        <button onclick="closeCreateAdminModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
+      </div>
+      
+      <form id="createAdminForm" onsubmit="event.preventDefault(); createNewAdmin();">
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Username (Email) *</label>
+          <input type="email" id="adminUsername" placeholder="admin@company.com" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Họ và tên *</label>
+          <input type="text" id="adminFullName" placeholder="Nguyễn Văn A" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Mật khẩu *</label>
+          <input type="password" id="adminPassword" placeholder="Nhập mật khẩu (tối thiểu 8 ký tự)" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+        </div>
+        
+        <div style="margin-bottom: 25px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Xác nhận mật khẩu *</label>
+          <input type="password" id="adminConfirmPassword" placeholder="Nhập lại mật khẩu" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; box-sizing: border-box;">
+        </div>
+        
+        <div style="display: flex; gap: 15px; justify-content: flex-end;">
+          <button type="button" onclick="closeCreateAdminModal()" style="padding: 12px 24px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">Hủy</button>
+          <button type="submit" style="padding: 12px 24px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">👨‍💼 Tạo Admin</button>
+        </div>
+      </form>
+      
+      <div style="margin-top: 20px; padding: 15px; background: #d4edda; border-radius: 8px; border-left: 4px solid #28a745;">
+        <strong>ℹ️ Thông tin:</strong><br>
+        Admin mới sẽ có quyền tương đương và có thể đăng nhập vào admin panel với username/password vừa tạo.
+      </div>
+    </div>
+  </div>
+</body>
+</html>

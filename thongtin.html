@@ -383,42 +383,59 @@ button:active {
         </div>
     </div>
 
-    <script>
-        // Đọc user từ localStorage và set default name
-        const user = JSON.parse(localStorage.getItem("etax_user_info") || "{}");
-        
-        // Default user name as per requirement
-        const defaultUserName = "Nguyễn Trung Nghĩa";
-        
-        document.getElementById("info-mst").innerText = user.mst || "001095026798";
-        document.getElementById("info-name").innerText = user.name || defaultUserName;
-        document.getElementById("info-address").innerText = user.address || "-";
-        document.getElementById("info-taxoffice").innerText = user.taxoffice || "-";
-        document.getElementById("info-header-name").innerText = user.name || defaultUserName;
-        document.getElementById("info-phonenumber").innerText = user.phonenumber || user.phone || "-";
-        document.getElementById("info-email").innerText = user.email || "-";
-        
-        // Also update localStorage with default values if not present
-        if (!user.name || user.name === "(Chưa đăng nhập)") {
-            const updatedUser = {
-                ...user,
-                name: defaultUserName,
-                mst: user.mst || "001095026798"
-            };
-            localStorage.setItem("etax_user_info", JSON.stringify(updatedUser));
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script>
+    // ===== FIREBASE CONFIG =====
+    const firebaseConfig = {
+        apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+        authDomain: "etax-7fbf8.firebaseapp.com",
+        databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "etax-7fbf8",
+        storageBucket: "etax-7fbf8.appspot.com",
+        messagingSenderId: "1030026724634",
+        appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // ===== AUTH & DISPLAY LOGIC =====
+    document.addEventListener('DOMContentLoaded', function() {
+        const loggedInMST = localStorage.getItem('etax_logged_in_user');
+        if (!loggedInMST) {
+            window.location.href = 'login.html';
+            return;
+        }
+        loadAndDisplayUserInfo(loggedInMST);
+    });
+
+    function loadAndDisplayUserInfo(mst) {
+        const localUserInfo = JSON.parse(localStorage.getItem("etax_user_info"));
+
+        // Immediately display data from localStorage
+        if (localUserInfo && localUserInfo.mst === mst) {
+            updateInfoUI(localUserInfo);
         }
 
-        // ✅ THÊM: PWA device auth check
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is logged in
-            const loggedInUser = localStorage.getItem('etax_logged_in_user');
-            if (!loggedInUser) {
-                window.location.href = 'login.html';
-                return;
+        // Fetch the latest data from Firebase
+        db.ref('users/' + mst).once('value').then(snapshot => {
+            if (snapshot.exists()) {
+                const firebaseUserData = snapshot.val();
+                updateInfoUI(firebaseUserData);
+                localStorage.setItem('etax_user_info', JSON.stringify(firebaseUserData));
             }
+        }).catch(error => console.error("Error fetching user info:", error));
+    }
 
-            console.log('✅ Account info page loaded for user:', loggedInUser);
-        });
-    </script>
+    function updateInfoUI(userData) {
+        document.getElementById("info-header-name").innerText = userData.fullName || "N/A";
+        document.getElementById("info-mst").innerText = userData.mst || "N/A";
+        document.getElementById("info-name").innerText = userData.fullName || "N/A";
+        document.getElementById("info-address").innerText = userData.address || "N/A";
+        document.getElementById("info-taxoffice").innerText = userData.taxOffice || "N/A";
+        document.getElementById("info-phonenumber").innerText = userData.phone || "N/A";
+        document.getElementById("info-email").innerText = userData.email || "N/A";
+    }
+</script>
 </body>
 </html>
