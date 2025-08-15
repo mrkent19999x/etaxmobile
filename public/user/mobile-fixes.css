@@ -1,0 +1,86 @@
+/* ===== MOBILE-FIXES.CSS - THÊM VÀO TẤT CẢ TRANG ===== */
+
+/* Universal mobile viewport fix */
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  min-height: 100vh;
+  overflow-x: hidden !important;
+  position: relative;
+}
+
+/* Prevent horizontal scroll */
+* {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* Container fixes */
+.phone-frame, .container, .main-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+}
+
+/* PWA Safe Areas */
+@supports (padding: max(0px)) {
+  .safe-top {
+    padding-top: max(20px, env(safe-area-inset-top));
+  }
+  
+  .safe-bottom {
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+  }
+  
+  .safe-left {
+    padding-left: max(16px, env(safe-area-inset-left));
+  }
+  
+  .safe-right {
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+}
+
+/* Input zoom prevention */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* Prevent double-tap zoom */
+* {
+  touch-action: manipulation;
+}
+
+/* Bottom navigation safe area */
+.bottom-nav {
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+
+/* Desktop responsive */
+@media (min-width: 768px) {
+  body {
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  
+  .phone-frame, .container, .main-container {
+    width: 414px !important;
+    max-width: 414px !important;
+    height: 896px;
+    margin: 20px auto !important;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+  }
+}

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#b71c1c">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/login-original.css">
+    <!-- Theme System CSS -->
+    <link rel="stylesheet" href="css/user-interface-manager.css">
+    <title>eTax Mobile - Đăng nhập</title>
+</head>
+<body>
+    <div class="phone-frame">
+        <!-- Logo và Title -->
+        <div class="logo-wrapper">
+            <img src="assets/logo.png" alt="Logo Thuế" class="logo" />
+            <h1 class="title">eTax Mobile</h1>
+        </div>
+
+        <!-- Circular Login Form -->
+        <div class="login-form-container">
+            <form class="login-form" id="loginForm">
+                <div class="error-msg" id="errorMsg"></div>
+
+                <div class="form-group">
+                    <div class="input-icon-wrap">
+                        <input type="text" id="tax-id" placeholder="Mã số thuế" autocomplete="username" />
+                        <i class="fa-solid fa-user-large"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-icon-wrap">
+                        <input type="password" id="password" placeholder="Mật khẩu" autocomplete="current-password" />
+                        <i class="fa-solid fa-lock"></i>
+                        <i class="fa-solid fa-eye" id="togglePassword" onclick="togglePassword()"></i>
+                    </div>
+                </div>
+
+                <!-- Forgot Links -->
+                <div class="forgot-links">
+                    <a href="#" onclick="alert('Chức năng đang phát triển')">Quên tài khoản (mã số thuế)?</a>
+                    <a href="#" onclick="alert('Chức năng đang phát triển')">Quên mật khẩu?</a>
+                </div>
+                
+                <button type="submit" class="btn-login" id="loginBtn">Đăng nhập</button>
+            </form>
+        </div>
+
+        <!-- VNeID Button -->
+        <div class="vneid-container">
+            <div class="btn-vneid" onclick="alert('Chức năng đang phát triển')">
+                <div class="text-box">
+                    <div>Đăng nhập bằng tài khoản</div>
+                    <div class="line2">Định danh điện tử</div>
+                </div>
+                <img src="assets/vnid.png" alt="VNeID" />
+            </div>
+        </div>
+
+        <!-- Register Link -->
+        <div class="register-link">
+            <span>Bạn chưa có tài khoản? </span>
+            <a href="dangky.html">Đăng ký ngay</a>
+        </div>
+
+        <!-- Bottom Functions -->
+        <div class="bottom-functions">
+            <div class="function-item" onclick="alert('Chức năng QR tém đang phát triển')">
+                <img src="assets/icon-qr.png" alt="QR tém">
+                <span>QR tém</span>
+            </div>
+            <div class="function-item" onclick="window.location.href='tienich.html'">
+                <img src="assets/tienich.png" alt="Tiện ích">
+                <span>Tiện ích</span>
+            </div>
+            <div class="function-item" onclick="window.location.href='hotro.html'">
+                <img src="assets/hotro.png" alt="Hỗ trợ">
+                <span>Hỗ trợ</span>
+            </div>
+            <div class="function-item" onclick="shareApp()">
+                <img src="assets/chiase.png" alt="Chia sẻ">
+                <span>Chia sẻ</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    
+    <!-- Theme System Scripts -->
+    <script src="js/theme-manager.js"></script>
+    <script src="js/placeholder-system.js"></script>
+
+    <script>
+        // ===== FIREBASE CONFIG ===== 
+        const firebaseConfig = {
+            apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+            authDomain: "etax-7fbf8.firebaseapp.com",
+            databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "etax-7fbf8",
+            storageBucket: "etax-7fbf8.appspot.com",
+            messagingSenderId: "1030026724634",
+            appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // ===== MAIN INITIALIZATION ===== 
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if already logged in
+            const loggedInUser = localStorage.getItem('etax_logged_in_user');
+            if (loggedInUser) {
+                console.log('User already logged in, redirecting...');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Setup form
+            setupLoginForm();
+            
+            // Focus first input
+            document.getElementById('tax-id').focus();
+        });
+
+        function setupLoginForm() {
+            const form = document.getElementById('loginForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                login();
+            });
+
+            // Enter key handlers
+            document.getElementById('password').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    login();
+                }
+            });
+        }
+
+        async function login() {
+            const taxId = document.getElementById('tax-id').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!taxId) {
+                showError("Vui lòng nhập mã số thuế.");
+                return;
+            }
+
+            if (!password) {
+                showError("Vui lòng nhập mật khẩu.");
+                return;
+            }
+
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.classList.add('loading');
+            loginBtn.textContent = 'Đang đăng nhập...';
+
+            try {
+                // Query Firebase users
+                const userSnapshot = await db.ref('users/' + taxId).once('value');
+                if (!userSnapshot.exists()) {
+                    throw new Error("Tài khoản không tồn tại.");
+                }
+
+                const userData = userSnapshot.val();
+                if (userData.password !== password) {
+                    throw new Error("Mật khẩu không chính xác.");
+                }
+
+                console.log('✅ Login successful for:', userData.fullName || userData.name);
+
+                // Store enhanced session with theme support
+                localStorage.setItem('etax_logged_in_user', taxId);
+                localStorage.setItem('etax_user', JSON.stringify({
+                    id: taxId,
+                    mst: taxId,
+                    ...userData
+                }));
+
+                // Initialize theme based on user type (preview)
+                if (window.themeManager) {
+                    const theme = determineUserTheme(userData);
+                    console.log('🎨 Determined theme for login:', theme);
+                    await window.themeManager.applyTheme(theme, userData);
+                    
+                    // Save theme preference
+                    await window.themeManager.saveUserThemePreference(taxId, theme, {
+                        ui_preferences: userData.ui_preferences || {}
+                    });
+                }
+
+                // Brief theme preview before redirect
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 800); // Allow theme to load
+
+            } catch (error) {
+                showError(error.message);
+                console.error('Login error:', error.message);
+            } finally {
+                loginBtn.classList.remove('loading');
+                loginBtn.textContent = 'Đăng nhập';
+            }
+        }
+
+        function showError(message) {
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.textContent = message;
+            errorMsg.style.display = 'block';
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                errorMsg.style.display = 'none';
+            }, 5000);
+        }
+
+        // ===== THEME DETERMINATION =====
+        function determineUserTheme(userData) {
+            // Check if user has preferred theme
+            if (userData.preferredTheme) {
+                return userData.preferredTheme;
+            }
+            
+            // Check user type
+            if (userData.userType) {
+                return userData.userType;
+            }
+            
+            // Auto-detect based on business type
+            if (userData.businessType) {
+                const businessType = userData.businessType.toLowerCase();
+                if (businessType.includes('dnnv') || businessType.includes('nhà nước')) {
+                    return 'government';
+                } else if (businessType.includes('hkd') || businessType.includes('cá nhân')) {
+                    return 'individual';
+                } else {
+                    return 'corporate';
+                }
+            }
+            
+            // Default to corporate
+            return 'corporate';
+        }
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('togglePassword');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // PWA Share function
+        function shareApp() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'eTax Mobile',
+                    text: 'Ứng dụng khai thuế điện tử',
+                    url: window.location.href
+                }).catch(console.error);
+            } else {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert('Đã sao chép link vào clipboard!');
+                } else {
+                    alert('Link: ' + window.location.href);
+                }
+            }
+        }
+
+        console.log('✅ Simple login page loaded successfully!');
+    </script>
+</body>
+</html>

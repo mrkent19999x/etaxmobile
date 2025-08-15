@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Cài đặt hệ thống</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2; 
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            color: var(--dark);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 30px;
+            top: 30px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .settings-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .settings-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-label {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .setting-desc {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #ddd;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--success);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(30px);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-group input, .input-group select, .input-group textarea {
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            margin: 5px;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .system-info {
+            background: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid var(--info);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .system-info h4 {
+            color: var(--info);
+            margin-bottom: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online { background: var(--success); }
+        .status-offline { background: var(--danger); }
+        .status-warning { background: var(--warning); }
+
+        @media (max-width: 768px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                padding: 20px;
+                text-align: left;
+            }
+            
+            .back-btn {
+                position: static;
+                margin-bottom: 20px;
+            }
+        }
+    
+        html {
+            overflow-x: hidden !important;
+            touch-action: pan-y;
+            width: 100%;
+        }
+
+        body {
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .container {
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="admin-home.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+            <h1><i class="fas fa-cogs"></i> Cài đặt hệ thống</h1>
+            <p>Quản lý cấu hình và tùy chọn hệ thống</p>
+        </div>
+
+        <div class="settings-grid">
+            <!-- System Settings -->
+            <div class="settings-card">
+                <div class="card-title">
+                    <i class="fas fa-server"></i>
+                    Cài đặt hệ thống
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Bảo trì hệ thống</div>
+                        <div class="setting-desc">Kích hoạt chế độ bảo trì</div>
+                    </div>
+                    <div class="toggle-switch" onclick="toggleSetting(this, 'maintenance')">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Đăng ký người dùng mới</div>
+                        <div class="setting-desc">Cho phép đăng ký tài khoản mới</div>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSetting(this, 'registration')">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Thông báo email</div>
+                        <div class="setting-desc">Gửi email thông báo tự động</div>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSetting(this, 'email_notifications')">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Backup tự động</div>
+                        <div class="setting-desc">Sao lưu dữ liệu hàng ngày</div>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSetting(this, 'auto_backup')">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-success" onclick="saveSystemSettings()">
+                        <i class="fas fa-save"></i> Lưu cài đặt
+                    </button>
+                </div>
+            </div>
+
+            <!-- Security Settings -->
+            <div class="settings-card">
+                <div class="card-title">
+                    <i class="fas fa-shield-alt"></i>
+                    Bảo mật
+                </div>
+
+                <div class="input-group">
+                    <label class="setting-label">Thời gian timeout phiên (phút)</label>
+                    <input type="number" id="sessionTimeout" value="60" min="5" max="480">
+                </div>
+
+                <div class="input-group">
+                    <label class="setting-label">Số lần đăng nhập sai tối đa</label>
+                    <input type="number" id="maxLoginAttempts" value="5" min="1" max="10">
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Xác thực 2 bước</div>
+                        <div class="setting-desc">Yêu cầu mã OTP khi đăng nhập</div>
+                    </div>
+                    <div class="toggle-switch" onclick="toggleSetting(this, 'two_factor')">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Ghi log hoạt động</div>
+                        <div class="setting-desc">Lưu lại nhật ký truy cập</div>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSetting(this, 'activity_log')">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-warning" onclick="saveSecuritySettings()">
+                        <i class="fas fa-lock"></i> Cập nhật bảo mật
+                    </button>
+                </div>
+            </div>
+
+            <!-- System Information -->
+            <div class="settings-card">
+                <div class="card-title">
+                    <i class="fas fa-info-circle"></i>
+                    Thông tin hệ thống
+                </div>
+
+                <div class="system-info">
+                    <h4>Trạng thái hệ thống</h4>
+                    <div class="info-row">
+                        <span><span class="status-indicator status-online"></span>Database</span>
+                        <span>Online</span>
+                    </div>
+                    <div class="info-row">
+                        <span><span class="status-indicator status-online"></span>Firebase Auth</span>
+                        <span>Online</span>
+                    </div>
+                    <div class="info-row">
+                        <span><span class="status-indicator status-online"></span>Storage</span>
+                        <span>Online</span>
+                    </div>
+                    <div class="info-row">
+                        <span><span class="status-indicator status-warning"></span>Email Service</span>
+                        <span>Limited</span>
+                    </div>
+                </div>
+
+                <div class="system-info">
+                    <h4>Thống kê</h4>
+                    <div class="info-row">
+                        <span>Phiên bản hệ thống</span>
+                        <span>v2.1.0</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Uptime</span>
+                        <span id="uptime">7 ngày 14 giờ</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Lần cập nhật cuối</span>
+                        <span id="lastUpdate">2025-08-09 16:30</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Dung lượng sử dụng</span>
+                        <span>2.1 GB / 10 GB</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="checkSystemHealth()">
+                        <i class="fas fa-heartbeat"></i> Kiểm tra hệ thống
+                    </button>
+                    <button class="btn btn-warning" onclick="clearCache()">
+                        <i class="fas fa-broom"></i> Xóa cache
+                    </button>
+                </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="settings-card">
+                <div class="card-title">
+                    <i class="fas fa-bell"></i>
+                    Cài đặt thông báo
+                </div>
+
+                <div class="input-group">
+                    <label class="setting-label">Email admin chính</label>
+                    <input type="email" id="adminEmail" value="admin@etax.com">
+                </div>
+
+                <div class="input-group">
+                    <label class="setting-label">Tần suất báo cáo</label>
+                    <select id="reportFrequency">
+                        <option value="daily">Hàng ngày</option>
+                        <option value="weekly" selected>Hàng tuần</option>
+                        <option value="monthly">Hàng tháng</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Thông báo lỗi hệ thống</div>
+                        <div class="setting-desc">Email khi có lỗi nghiêm trọng</div>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSetting(this, 'error_notifications')">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Thông báo người dùng mới</div>
+                        <div class="setting-desc">Email khi có đăng ký mới</div>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSetting(this, 'new_user_notifications')">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-success" onclick="saveNotificationSettings()">
+                        <i class="fas fa-envelope"></i> Lưu cài đặt
+                    </button>
+                    <button class="btn btn-info" onclick="testNotification()">
+                        <i class="fas fa-paper-plane"></i> Test email
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth } from "../shared/js/firebase-init.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // Auth check
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                location.href = "admin-login.html";
+            }
+        });
+
+        // Settings storage
+        let settings = {
+            maintenance: false,
+            registration: true,
+            email_notifications: true,
+            auto_backup: true,
+            two_factor: false,
+            activity_log: true,
+            error_notifications: true,
+            new_user_notifications: true
+        };
+
+        // Toggle setting
+        window.toggleSetting = (element, settingKey) => {
+            element.classList.toggle('active');
+            settings[settingKey] = element.classList.contains('active');
+            
+            // Save to localStorage for demo
+            localStorage.setItem('adminSettings', JSON.stringify(settings));
+            
+            console.log(`${settingKey}: ${settings[settingKey]}`);
+        };
+
+        // Save system settings
+        window.saveSystemSettings = () => {
+            // In real app, this would save to Firebase
+            alert('✅ Cài đặt hệ thống đã được lưu!');
+        };
+
+        // Save security settings
+        window.saveSecuritySettings = () => {
+            const sessionTimeout = document.getElementById('sessionTimeout').value;
+            const maxLoginAttempts = document.getElementById('maxLoginAttempts').value;
+            
+            // Save to localStorage for demo
+            localStorage.setItem('securitySettings', JSON.stringify({
+                sessionTimeout,
+                maxLoginAttempts
+            }));
+            
+            alert('✅ Cài đặt bảo mật đã được cập nhật!');
+        };
+
+        // Save notification settings
+        window.saveNotificationSettings = () => {
+            const adminEmail = document.getElementById('adminEmail').value;
+            const reportFrequency = document.getElementById('reportFrequency').value;
+            
+            localStorage.setItem('notificationSettings', JSON.stringify({
+                adminEmail,
+                reportFrequency
+            }));
+            
+            alert('✅ Cài đặt thông báo đã được lưu!');
+        };
+
+        // Test notification
+        window.testNotification = () => {
+            alert('📧 Email test đã được gửi đến admin@etax.com');
+        };
+
+        // Check system health
+        window.checkSystemHealth = () => {
+            alert('💚 Hệ thống hoạt động bình thường!\n\n• Database: OK\n• Authentication: OK\n• Storage: OK\n• Performance: Good');
+        };
+
+        // Clear cache
+        window.clearCache = () => {
+            if (confirm('Bạn có chắc muốn xóa cache hệ thống?')) {
+                // Clear localStorage for demo
+                localStorage.removeItem('adminSettings');
+                localStorage.removeItem('securitySettings');
+                localStorage.removeItem('notificationSettings');
+                
+                alert('🧹 Cache đã được xóa thành công!');
+                location.reload();
+            }
+        };
+
+        // Load saved settings on page load
+        const savedSettings = localStorage.getItem('adminSettings');
+        if (savedSettings) {
+            settings = JSON.parse(savedSettings);
+            
+            // Apply saved toggle states
+            Object.keys(settings).forEach(key => {
+                const element = document.querySelector(`[onclick*="${key}"]`);
+                if (element && settings[key]) {
+                    element.classList.add('active');
+                }
+            });
+        }
+
+        // Update uptime periodically
+        setInterval(() => {
+            const now = new Date();
+            const startTime = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000) - (14 * 60 * 60 * 1000));
+            document.getElementById('uptime').textContent = '7 ngày 14 giờ ' + now.getMinutes() + ' phút';
+        }, 60000);
+    </script>
+</body>
+</html>

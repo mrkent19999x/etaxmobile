@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Page Editor</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/grapesjs/dist/css/grapes.min.css">
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2; 
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            color: var(--dark);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 15px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-50%) translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px 30px;
+            font-size: 1.3em;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #2ecc71);
+        }
+
+        .editor-container {
+            height: 600px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #gjs {
+            height: 100%;
+            width: 100%;
+        }
+
+        .toolbar {
+            background: #f8f9fa;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+    
+        html {
+            overflow-x: hidden !important;
+            touch-action: pan-y;
+            width: 100%;
+        }
+
+        body {
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .container {
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Auth Check -->
+    <script type="module">
+        import { auth } from "../shared/js/firebase-init.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                alert("🔒 Cần đăng nhập admin để truy cập trang này");
+                location.href = "admin-login.html";
+            }
+        });
+    </script>
+
+    <div class="container">
+        <div class="header">
+            <a href="admin-home.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+            <h1><i class="fas fa-magic"></i> Advanced Page Editor</h1>
+            <p>Chỉnh sửa giao diện trang web với GrapesJS</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span><i class="fas fa-palette"></i> Editor Tools</span>
+                <div>
+                    <button class="btn" onclick="saveProject()" style="margin-right: 10px;">
+                        <i class="fas fa-save"></i> Lưu
+                    </button>
+                    <button class="btn btn-success" onclick="exportProject()">
+                        <i class="fas fa-download"></i> Xuất HTML
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="toolbar">
+                    <button class="btn" onclick="addText()"><i class="fas fa-font"></i> Text</button>
+                    <button class="btn" onclick="addButton()"><i class="fas fa-mouse-pointer"></i> Button</button>
+                    <button class="btn" onclick="clearEditor()"><i class="fas fa-trash"></i> Xóa tất cả</button>
+                </div>
+                <div class="editor-container">
+                    <div id="gjs"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/grapesjs"></script>
+    <script type="module">
+        import { auth, db, storage } from "../shared/js/firebase-init.js";
+        
+        // Initialize GrapesJS Editor
+        const editor = grapesjs.init({
+            container: '#gjs',
+            width: 'auto',
+            height: '100%',
+            storageManager: false,
+            panels: { defaults: [] }
+        });
+
+        // Add basic content
+        editor.setComponents(`
+            <div style="padding: 20px; text-align: center;">
+                <h1>Chào mừng đến với eTax Editor</h1>
+                <p>Kéo thả các thành phần để tạo trang web</p>
+            </div>
+        `);
+        
+        // Functions
+        window.addText = function() {
+            editor.getSelected() && editor.getSelected().append('<div>Text mới</div>');
+        };
+        
+        window.addButton = function() {
+            editor.getSelected() && editor.getSelected().append('<button style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px;">Button mới</button>');
+        };
+        
+        window.clearEditor = function() {
+            if(confirm('Xóa tất cả nội dung?')) {
+                editor.setComponents('');
+            }
+        };
+        
+        window.saveProject = function() {
+            const html = editor.getHtml();
+            const css = editor.getCss();
+            alert('✅ Dự án đã được lưu!');
+        };
+        
+        window.exportProject = function() {
+            const html = editor.getHtml();
+            const css = editor.getCss();
+            const fullHtml = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eTax Page</title>
+    <style>${css}</style>
+</head>
+<body>
+    ${html}
+</body>
+</html>`;
+            
+            const blob = new Blob([fullHtml], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'etax-page.html';
+            a.click();
+        };
+    </script>
+</body>
+</html>

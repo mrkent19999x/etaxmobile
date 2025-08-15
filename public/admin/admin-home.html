@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin eTAX</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-light: linear-gradient(to right, #e0eafc, #cfdef3);
+      --bg-dark: #1e1e2f;
+      --card-light: white;
+      --card-dark: #2c2c3c;
+      --text-light: #2c3e50;
+      --text-dark: #f0f0f0;
+      --highlight: #3498db;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg-light);
+      color: var(--text-light);
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+    .header {
+      background: #1e3c72;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    .logout-btn {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+    .logout-btn:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-50%) scale(1.05);
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: var(--card-light);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      transition: all 0.3s;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+    body.dark .card {
+      background: var(--card-dark);
+      border-color: rgba(255,255,255,0.1);
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+    }
+    .card h3 {
+      margin: 0 0 15px 0;
+      color: var(--highlight);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card p {
+      margin: 0 0 20px 0;
+      line-height: 1.6;
+      opacity: 0.8;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: var(--highlight);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn:hover {
+      background: #2980b9;
+      transform: translateY(-1px);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .stat-item {
+      text-align: center;
+      padding: 20px;
+      background: rgba(52,152,219,0.1);
+      border-radius: 10px;
+      border: 1px solid rgba(52,152,219,0.2);
+    }
+    .stat-number {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--highlight);
+      display: block;
+    }
+    .stat-label {
+      font-size: 14px;
+      opacity: 0.7;
+      margin-top: 5px;
+    }
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: var(--highlight);
+      color: white;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      box-shadow: 0 4px 15px rgba(52,152,219,0.3);
+      transition: all 0.3s;
+    }
+    .theme-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(52,152,219,0.4);
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()">
+    <i class="fas fa-moon" id="theme-icon"></i>
+  </button>
+  
+  <div class="header">
+    <i class="fas fa-shield-alt"></i> ADMIN DASHBOARD
+    <button class="logout-btn" onclick="logout()">
+      <i class="fas fa-sign-out-alt"></i> Đăng xuất
+    </button>
+  </div>
+
+  <div class="container">
+    <!-- Statistics Overview -->
+    <div class="card">
+      <h3><i class="fas fa-chart-bar"></i> Thống kê tổng quan</h3>
+      <div class="stats">
+        <div class="stat-item">
+          <span class="stat-number" id="totalUsers">---</span>
+          <div class="stat-label">Tài khoản MST</div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number" id="activeUsers">---</span>
+          <div class="stat-label">Đang hoạt động</div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number" id="totalAdmins">---</span>
+          <div class="stat-label">Admin</div>
+        </div>
+      </div>
+      <button class="btn" onclick="refreshStats()">
+        <i class="fas fa-sync-alt"></i> Cập nhật
+      </button>
+    </div>
+
+    <!-- User Management -->
+    <div class="card">
+      <h3><i class="fas fa-users"></i> Quản lý người dùng (MST)</h3>
+      <p>Tạo, chỉnh sửa hoặc xóa tài khoản theo MST.</p>
+      <a href="admin-user.html" class="btn">
+        <i class="fas fa-user-cog"></i> Quản lý MST
+      </a>
+    </div>
+
+    <!-- Admin Management -->
+    <div class="card">
+      <h3><i class="fas fa-user-shield"></i> Quản lý Admin</h3>
+      <p>Tạo tài khoản admin mới cho hệ thống.</p>
+      <a href="admin-create.html" class="btn">
+        <i class="fas fa-user-plus"></i> Tạo Admin mới
+      </a>
+    </div>
+
+    <!-- Content Management -->
+    <div class="card">
+      <h3><i class="fas fa-edit"></i> Quản lý nội dung</h3>
+      <p>Chỉnh sửa thông tin hiển thị và cấu hình hệ thống.</p>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="admin-content.html" class="btn">
+          <i class="fas fa-file-edit"></i> Nội dung
+        </a>
+        <a href="admin-editor.html" class="btn">
+          <i class="fas fa-edit"></i> Editor
+        </a>
+        <a href="admin-placeholder.html" class="btn">
+          <i class="fas fa-image"></i> Placeholder
+        </a>
+        <a href="admin-template.html" class="btn">
+          <i class="fas fa-code"></i> Template
+        </a>
+      </div>
+    </div>
+
+    <!-- System Tools -->
+    <div class="card">
+      <h3><i class="fas fa-tools"></i> Công cụ hệ thống</h3>
+      <p>Logs, PDF, Token và các công cụ quản trị khác.</p>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="admin-logs.html" class="btn">
+          <i class="fas fa-list"></i> Logs
+        </a>
+        <a href="admin-settings.html" class="btn">
+          <i class="fas fa-cog"></i> Cài đặt
+        </a>
+        <a href="admin-pdf.html" class="btn">
+          <i class="fas fa-file-pdf"></i> PDF
+        </a>
+        <a href="admin-token.html" class="btn">
+          <i class="fas fa-key"></i> Token
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+      <h3><i class="fas fa-bolt"></i> Thao tác nhanh</h3>
+      <p>Các chức năng thường dùng.</p>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="btn" onclick="backupData()">
+          <i class="fas fa-download"></i> Backup
+        </button>
+        <button class="btn" onclick="clearCache()">
+          <i class="fas fa-broom"></i> Clear Cache
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from "../shared/js/firebase-init.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // Auth check
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "admin-login.html";
+        return;
+      }
+      loadStats();
+    });
+
+    // Load statistics
+    async function loadStats() {
+      try {
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        const adminsSnapshot = await getDocs(collection(db, 'admins'));
+        
+        document.getElementById('totalUsers').textContent = usersSnapshot.size;
+        document.getElementById('totalAdmins').textContent = adminsSnapshot.size;
+        document.getElementById('activeUsers').textContent = usersSnapshot.size; // Simplified
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    // Global functions
+    window.logout = async () => {
+      try {
+        await signOut(auth);
+        window.location.href = "admin-login.html";
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    };
+
+    window.refreshStats = loadStats;
+    
+    window.backupData = () => {
+      alert('Chức năng backup đang phát triển');
+    };
+    
+    window.clearCache = () => {
+      if (confirm('Xóa cache hệ thống?')) {
+        localStorage.clear();
+        sessionStorage.clear();
+        alert('Đã xóa cache');
+      }
+    };
+
+    window.toggleTheme = () => {
+      document.body.classList.toggle('dark');
+      const icon = document.getElementById('theme-icon');
+      if (document.body.classList.contains('dark')) {
+        icon.className = 'fas fa-sun';
+        localStorage.setItem('adminTheme', 'dark');
+      } else {
+        icon.className = 'fas fa-moon';
+        localStorage.setItem('adminTheme', 'light');
+      }
+    };
+
+    // Load saved theme
+    if (localStorage.getItem('adminTheme') === 'dark') {
+      document.body.classList.add('dark');
+      document.getElementById('theme-icon').className = 'fas fa-sun';
+    }
+  </script>
+</body>
+</html>

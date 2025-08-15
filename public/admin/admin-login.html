@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang="vi"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#667eea">
+<meta name="msapplication-navbutton-color" content="#667eea">
+<meta name="apple-mobile-web-app-title" content="eTax Admin">
+<title>Admin Login</title>
+<link rel="stylesheet" href="css/admin.css">
+<!-- Firebase Scripts -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+<script>
+  // Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+    authDomain: "etax-7fbf8.firebaseapp.com",
+    databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "etax-7fbf8",
+    storageBucket: "etax-7fbf8.appspot.com",
+    messagingSenderId: "1030026724634",
+    appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3"
+  };
+  
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  window.adminLogin = async ()=>{
+    const email = document.querySelector('#email').value.trim();
+    const pass = document.querySelector('#pass').value;
+    try{
+      await auth.signInWithEmailAndPassword(email, pass);
+      location.href = "admin-home.html";
+    }catch(e){ alert("Đăng nhập thất bại: "+ e.message); }
+  };
+</script>
+</head><body><div class="wrap">
+  <h2>Đăng nhập Admin</h2>
+  <div class="card">
+    <label>Email admin</label>
+    <input id="email" placeholder="admin@email.com">
+    <label>Mật khẩu</label>
+    <input id="pass" type="password" placeholder="••••••">
+    <p><button onclick="adminLogin()">Đăng nhập</button></p>
+    <p class="small">* Sau khi đăng nhập, vào trang <b>Quản lý người dùng (MST)</b> để tạo/sửa hồ sơ.</p>
+  </div>
+</div></body></html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>eTax Mobile - Chi tiết thông báo</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+    body, html { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background-color: #f4f4f9; }
+    .header {
+        background-color: #b71c1c; color: white; padding: 15px 20px;
+        display: flex; align-items: center; justify-content: space-between;
+        position: sticky; top: 0; z-index: 1000;
+    }
+    .header-title { font-size: 18px; font-weight: 500; }
+    .content-area { padding: 20px; }
+    .detail-item { margin-bottom: 15px; }
+    .detail-label { font-weight: bold; color: #333; }
+    .detail-value { color: #555; }
+    .attachment-button {
+        display: inline-block; padding: 12px 20px; background-color: #b71c1c;
+        color: white; text-decoration: none; border-radius: 8px; margin-top: 20px;
+        border: 1px solid #a40000;
+    }
+</style>
+</head>
+<body>
+
+<header class="header">
+    <i class="fas fa-arrow-left" onclick="window.history.back()"></i>
+    <div class="header-title">Chi tiết thông báo</div>
+    <i class="fas fa-house" onclick="window.location.href='index.html'" style="visibility: hidden;"></i>
+</header>
+
+<div class="content-area" id="notificationDetailContainer">
+    <!-- Notification details will be loaded here -->
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+        authDomain: "etax-7fbf8.firebaseapp.com",
+        databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "etax-7fbf8",
+        storageBucket: "etax-7fbf8.appspot.com",
+        messagingSenderId: "1030026724634",
+        appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const notificationId = urlParams.get('id');
+
+        if (!notificationId) {
+            document.getElementById('notificationDetailContainer').innerHTML = '<p>Không tìm thấy thông báo.</p>';
+            return;
+        }
+        loadNotificationDetails(notificationId);
+    });
+
+    async function loadNotificationDetails(id) {
+        const container = document.getElementById('notificationDetailContainer');
+        container.innerHTML = '<p>Đang tải chi tiết...</p>';
+
+        try {
+            const snapshot = await db.ref('notifications/' + id).once('value');
+            if (!snapshot.exists()) {
+                container.innerHTML = '<p>Thông báo không tồn tại.</p>';
+                return;
+            }
+
+            const data = snapshot.val();
+            const publishDate = new Date(data.publishDate);
+            const formattedDate = publishDate.toLocaleDateString('vi-VN');
+            const formattedTime = publishDate.toLocaleTimeString('vi-VN');
+            const notificationNumber = `${formattedDate.replace(/\//g, '')}${formattedTime.replace(/:/g, '')}/${publishDate.getFullYear()}/TB-TÐT`;
+
+            container.innerHTML = `
+                <div class="detail-item">
+                    <p class="detail-value">${data.title}</p>
+                </div>
+                <div class="detail-item">
+                    <p class="detail-label">Số thông báo:</p>
+                    <p class="detail-value">${notificationNumber}</p>
+                </div>
+                <div class="detail-item">
+                    <p class="detail-label">Ngày thông báo:</p>
+                    <p class="detail-value">${publishDate.toLocaleString('vi-VN')}</p>
+                </div>
+                <a href="#" class="attachment-button">Xem tệp đính kèm</a>
+            `;
+
+        } catch (error) {
+            console.error("Error loading notification details:", error);
+            container.innerHTML = '<p>Lỗi khi tải chi tiết thông báo.</p>';
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Quản lý Template HTML</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor/editor.main.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2; 
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            color: var(--dark);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 30px;
+            top: 30px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr 400px;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .editor-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: var(--dark);
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .template-list {
+            list-style: none;
+        }
+
+        .template-item {
+            padding: 12px;
+            border: 1px solid #ecf0f1;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .template-item:hover {
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .template-item.active {
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .template-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-info { background: var(--info); color: white; }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .editor-container {
+            flex: 1;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .preview-frame {
+            flex: 1;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            background: white;
+            margin: 10px 0;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .quick-templates {
+            margin-top: 20px;
+        }
+
+        .quick-template-btn {
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+            text-align: left;
+            background: rgba(var(--info), 0.1);
+            border: 1px solid rgba(52, 152, 219, 0.2);
+            color: var(--info);
+        }
+
+        .quick-template-btn:hover {
+            background: rgba(52, 152, 219, 0.2);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .editor-section, .preview-section {
+                min-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="admin-home.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+            <h1><i class="fas fa-code"></i> Quản lý Template HTML</h1>
+            <p>Tạo và quản lý template để tạo page mới cho user</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Sidebar - Template List -->
+            <div class="sidebar">
+                <div class="section-title">
+                    <i class="fas fa-list"></i>
+                    Danh sách Template
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalTemplates">0</div>
+                        <div class="stat-label">Template</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalPages">0</div>
+                        <div class="stat-label">Pages</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="activePages">0</div>
+                        <div class="stat-label">Active</div>
+                    </div>
+                </div>
+
+                <div class="toolbar">
+                    <button class="btn btn-success" onclick="createNewTemplate()">
+                        <i class="fas fa-plus"></i> Mới
+                    </button>
+                    <button class="btn btn-warning" onclick="importTemplate()">
+                        <i class="fas fa-upload"></i> Import
+                    </button>
+                </div>
+
+                <ul class="template-list" id="templateList">
+                    <!-- Templates will be loaded here -->
+                </ul>
+
+                <div class="quick-templates">
+                    <div class="section-title" style="font-size: 1.1em;">
+                        <i class="fas fa-magic"></i>
+                        Template nhanh
+                    </div>
+                    
+                    <button class="btn quick-template-btn" onclick="loadQuickTemplate('thongbao')">
+                        <i class="fas fa-bell"></i> Trang thông báo
+                    </button>
+                    <button class="btn quick-template-btn" onclick="loadQuickTemplate('huongdan')">
+                        <i class="fas fa-book"></i> Hướng dẫn
+                    </button>
+                    <button class="btn quick-template-btn" onclick="loadQuickTemplate('lienhe')">
+                        <i class="fas fa-phone"></i> Liên hệ
+                    </button>
+                    <button class="btn quick-template-btn" onclick="loadQuickTemplate('cauho')">
+                        <i class="fas fa-question"></i> FAQ
+                    </button>
+                    <button class="btn quick-template-btn" onclick="loadQuickTemplate('tintuc')">
+                        <i class="fas fa-newspaper"></i> Tin tức
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Editor -->
+            <div class="editor-section">
+                <div class="section-title">
+                    <i class="fas fa-code"></i>
+                    Template Editor
+                </div>
+
+                <div class="form-group">
+                    <label for="templateName">Tên template</label>
+                    <input type="text" id="templateName" placeholder="VD: thong-bao-bao-tri">
+                </div>
+
+                <div class="form-group">
+                    <label for="templateTitle">Tiêu đề trang</label>
+                    <input type="text" id="templateTitle" placeholder="VD: Thông báo bảo trì hệ thống">
+                </div>
+
+                <div class="form-group">
+                    <label for="templateCategory">Danh mục</label>
+                    <select id="templateCategory">
+                        <option value="thongbao">Thông báo</option>
+                        <option value="huongdan">Hướng dẫn</option>
+                        <option value="tintuc">Tin tức</option>
+                        <option value="lienhe">Liên hệ</option>
+                        <option value="khac">Khác</option>
+                    </select>
+                </div>
+
+                <div class="toolbar">
+                    <button class="btn btn-success" onclick="saveTemplate()">
+                        <i class="fas fa-save"></i> Lưu
+                    </button>
+                    <button class="btn btn-info" onclick="previewTemplate()">
+                        <i class="fas fa-eye"></i> Preview
+                    </button>
+                    <button class="btn btn-primary" onclick="createPageFromTemplate()">
+                        <i class="fas fa-plus-square"></i> Tạo Page
+                    </button>
+                    <button class="btn btn-warning" onclick="exportTemplate()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+
+                <div class="editor-container">
+                    <div id="htmlEditor" style="height: 100%;"></div>
+                </div>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="preview-section">
+                <div class="section-title">
+                    <i class="fas fa-desktop"></i>
+                    Live Preview
+                </div>
+
+                <div class="toolbar">
+                    <button class="btn btn-info" onclick="refreshPreview()">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="toggleDeviceView()">
+                        <i class="fas fa-mobile"></i> Mobile
+                    </button>
+                </div>
+
+                <iframe id="previewFrame" class="preview-frame" src="about:blank"></iframe>
+
+                <div style="margin-top: 15px;">
+                    <div class="section-title" style="font-size: 1.1em;">
+                        <i class="fas fa-cogs"></i>
+                        Placeholder có sẵn
+                    </div>
+                    <div style="font-size: 12px; color: #666; line-height: 1.4;">
+                        <strong>{{USER_MST}}</strong> - Mã số thuế<br>
+                        <strong>{{USER_NAME}}</strong> - Tên người dùng<br>
+                        <strong>{{USER_COMPANY}}</strong> - Tên công ty<br>
+                        <strong>{{USER_ADDRESS}}</strong> - Địa chỉ<br>
+                        <strong>{{USER_PHONE}}</strong> - Số điện thoại<br>
+                        <strong>{{CURRENT_DATE}}</strong> - Ngày hiện tại<br>
+                        <strong>{{SYSTEM_VERSION}}</strong> - Phiên bản hệ thống
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monaco Editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+    
+    <script type="module">
+        import { auth, db } from "../shared/js/firebase-init.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { collection, addDoc, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        let editor = null;
+        let currentTemplate = null;
+        let templates = [];
+        let isPreviewMobile = false;
+
+        // Auth check
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                location.href = "admin-login.html";
+                return;
+            }
+            initializeEditor();
+            loadTemplates();
+        });
+
+        // Initialize Monaco Editor
+        function initializeEditor() {
+            require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+            require(['vs/editor/editor.main'], function () {
+                editor = monaco.editor.create(document.getElementById('htmlEditor'), {
+                    value: getDefaultTemplate(),
+                    language: 'html',
+                    theme: 'vs',
+                    automaticLayout: true,
+                    fontSize: 13,
+                    minimap: { enabled: true },
+                    wordWrap: 'on',
+                    formatOnPaste: true,
+                    formatOnType: true
+                });
+
+                // Auto preview on change
+                editor.onDidChangeModelContent(() => {
+                    clearTimeout(window.previewTimeout);
+                    window.previewTimeout = setTimeout(refreshPreview, 1000);
+                });
+
+                refreshPreview();
+            });
+        }
+
+        // Load templates from Firebase
+        async function loadTemplates() {
+            try {
+                const querySnapshot = await getDocs(collection(db, 'templates'));
+                templates = [];
+                querySnapshot.forEach((doc) => {
+                    templates.push({ id: doc.id, ...doc.data() });
+                });
+
+                renderTemplateList();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading templates:', error);
+            }
+        }
+
+        // Render template list
+        function renderTemplateList() {
+            const templateList = document.getElementById('templateList');
+            templateList.innerHTML = '';
+
+            templates.forEach(template => {
+                const li = document.createElement('li');
+                li.className = 'template-item';
+                li.innerHTML = `
+                    <div>
+                        <strong>${template.title || template.name}</strong>
+                        <br><small style="color: #666;">${template.category} • ${template.createdAt?.toDate?.()?.toLocaleDateString('vi-VN') || 'N/A'}</small>
+                    </div>
+                    <div class="template-actions">
+                        <button class="btn btn-info" onclick="loadTemplate('${template.id}')" title="Load">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-success" onclick="createPageFromTemplateId('${template.id}')" title="Tạo page">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteTemplate('${template.id}')" title="Xóa">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                templateList.appendChild(li);
+            });
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalTemplates').textContent = templates.length;
+            
+            // Count pages (this would need to be implemented to scan user directory)
+            document.getElementById('totalPages').textContent = '---';
+            document.getElementById('activePages').textContent = '---';
+        }
+
+        // Global functions
+        window.createNewTemplate = () => {
+            currentTemplate = null;
+            document.getElementById('templateName').value = '';
+            document.getElementById('templateTitle').value = '';
+            document.getElementById('templateCategory').value = 'thongbao';
+            
+            if (editor) {
+                editor.setValue(getDefaultTemplate());
+            }
+            
+            // Remove active class from all items
+            document.querySelectorAll('.template-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        };
+
+        window.saveTemplate = async () => {
+            const name = document.getElementById('templateName').value.trim();
+            const title = document.getElementById('templateTitle').value.trim();
+            const category = document.getElementById('templateCategory').value;
+            const html = editor.getValue();
+
+            if (!name || !title || !html) {
+                alert('Vui lòng nhập đầy đủ thông tin template!');
+                return;
+            }
+
+            try {
+                const templateData = {
+                    name: name.toLowerCase().replace(/\\s+/g, '-'),
+                    title,
+                    category,
+                    html,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                };
+
+                if (currentTemplate) {
+                    // Update existing
+                    await setDoc(doc(db, 'templates', currentTemplate.id), templateData);
+                    alert('✅ Đã cập nhật template thành công!');
+                } else {
+                    // Create new
+                    await addDoc(collection(db, 'templates'), templateData);
+                    alert('✅ Đã lưu template mới thành công!');
+                }
+
+                loadTemplates();
+            } catch (error) {
+                console.error('Error saving template:', error);
+                alert('❌ Lỗi khi lưu template: ' + error.message);
+            }
+        };
+
+        window.loadTemplate = (templateId) => {
+            const template = templates.find(t => t.id === templateId);
+            if (!template) return;
+
+            currentTemplate = template;
+            document.getElementById('templateName').value = template.name || '';
+            document.getElementById('templateTitle').value = template.title || '';
+            document.getElementById('templateCategory').value = template.category || 'thongbao';
+            
+            if (editor) {
+                editor.setValue(template.html || '');
+            }
+
+            // Add active class
+            document.querySelectorAll('.template-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.template-item').classList.add('active');
+        };
+
+        window.deleteTemplate = async (templateId) => {
+            if (!confirm('Bạn có chắc muốn xóa template này?')) return;
+
+            try {
+                await deleteDoc(doc(db, 'templates', templateId));
+                alert('✅ Đã xóa template!');
+                loadTemplates();
+                
+                if (currentTemplate && currentTemplate.id === templateId) {
+                    createNewTemplate();
+                }
+            } catch (error) {
+                console.error('Error deleting template:', error);
+                alert('❌ Lỗi khi xóa template: ' + error.message);
+            }
+        };
+
+        window.refreshPreview = () => {
+            if (!editor) return;
+
+            const html = editor.getValue();
+            const previewFrame = document.getElementById('previewFrame');
+            
+            // Create complete HTML with placeholder replacement
+            const previewHtml = html.replace(/{{USER_MST}}/g, '0123456789')
+                                    .replace(/{{USER_NAME}}/g, 'Nguyễn Văn A')
+                                    .replace(/{{USER_COMPANY}}/g, 'Công ty TNHH ABC')
+                                    .replace(/{{USER_ADDRESS}}/g, '123 Đường ABC, Phường XYZ, TP.HCM')
+                                    .replace(/{{USER_PHONE}}/g, '0901234567')
+                                    .replace(/{{CURRENT_DATE}}/g, new Date().toLocaleDateString('vi-VN'))
+                                    .replace(/{{SYSTEM_VERSION}}/g, 'v2.1.0');
+
+            previewFrame.srcdoc = previewHtml;
+        };
+
+        window.previewTemplate = () => {
+            refreshPreview();
+            alert('Preview đã được cập nhật trong panel bên phải!');
+        };
+
+        window.toggleDeviceView = () => {
+            const previewFrame = document.getElementById('previewFrame');
+            const btn = event.target.closest('.btn');
+            
+            if (isPreviewMobile) {
+                previewFrame.style.width = '100%';
+                previewFrame.style.height = '100%';
+                btn.innerHTML = '<i class="fas fa-mobile"></i> Mobile';
+                isPreviewMobile = false;
+            } else {
+                previewFrame.style.width = '375px';
+                previewFrame.style.height = '667px';
+                previewFrame.style.margin = '0 auto';
+                btn.innerHTML = '<i class="fas fa-desktop"></i> Desktop';
+                isPreviewMobile = true;
+            }
+        };
+
+        window.createPageFromTemplate = () => {
+            const name = document.getElementById('templateName').value.trim();
+            const html = editor.getValue();
+
+            if (!name || !html) {
+                alert('Vui lòng nhập tên và nội dung template!');
+                return;
+            }
+
+            const filename = name.toLowerCase().replace(/\\s+/g, '-') + '.html';
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            
+            alert(`✅ Đã tạo file: ${filename}\\nHãy upload file này vào thư mục /user/ để user có thể truy cập!`);
+        };
+
+        window.createPageFromTemplateId = (templateId) => {
+            const template = templates.find(t => t.id === templateId);
+            if (!template) return;
+
+            const filename = template.name + '.html';
+            const blob = new Blob([template.html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            
+            alert(`✅ Đã tạo file: ${filename}\\nHãy upload file này vào thư mục /user/ để user có thể truy cập!`);
+        };
+
+        window.exportTemplate = () => {
+            const templateData = {
+                name: document.getElementById('templateName').value,
+                title: document.getElementById('templateTitle').value,
+                category: document.getElementById('templateCategory').value,
+                html: editor.getValue(),
+                exportedAt: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(templateData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${templateData.name || 'template'}.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+        };
+
+        window.importTemplate = () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const templateData = JSON.parse(e.target.result);
+                        
+                        document.getElementById('templateName').value = templateData.name || '';
+                        document.getElementById('templateTitle').value = templateData.title || '';
+                        document.getElementById('templateCategory').value = templateData.category || 'thongbao';
+                        
+                        if (editor) {
+                            editor.setValue(templateData.html || '');
+                        }
+                        
+                        alert('✅ Đã import template thành công! Nhấn "Lưu" để lưu vào hệ thống.');
+                    } catch (error) {
+                        alert('❌ File không đúng định dạng JSON!');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        };
+
+        window.loadQuickTemplate = (type) => {
+            const templates = getQuickTemplates();
+            const template = templates[type];
+            
+            if (template && editor) {
+                document.getElementById('templateName').value = template.name;
+                document.getElementById('templateTitle').value = template.title;
+                document.getElementById('templateCategory').value = template.category;
+                editor.setValue(template.html);
+                
+                currentTemplate = null;
+                document.querySelectorAll('.template-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+            }
+        };
+
+        // Helper functions
+        function getDefaultTemplate() {
+            return `<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{PAGE_TITLE}}</title>
+    <link href="/user/css/etax-template.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>{{PAGE_TITLE}}</h1>
+            <p>Dành cho: {{USER_NAME}} (MST: {{USER_MST}})</p>
+        </header>
+
+        <main class="content">
+            <div class="info-card">
+                <h2>Nội dung chính</h2>
+                <p>Đây là template mẫu. Hãy chỉnh sửa nội dung theo ý muốn.</p>
+                
+                <div class="user-info">
+                    <p><strong>Công ty:</strong> {{USER_COMPANY}}</p>
+                    <p><strong>Địa chỉ:</strong> {{USER_ADDRESS}}</p>
+                    <p><strong>Điện thoại:</strong> {{USER_PHONE}}</p>
+                    <p><strong>Ngày tạo:</strong> {{CURRENT_DATE}}</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2025 eTax Mobile {{SYSTEM_VERSION}}</p>
+        </footer>
+    </div>
+
+    <script src="/user/js/placeholder-system.js"></script>
+    <script>
+        // Initialize placeholder system
+        if (window.PlaceholderSystem) {
+            const ps = new window.PlaceholderSystem();
+            ps.initialize();
+        }
+    </script>
+</body>
+</html>`;
+        }
+
+        function getQuickTemplates() {
+            return {
+                'thongbao': {
+                    name: 'thong-bao-moi',
+                    title: 'Thông báo quan trọng',
+                    category: 'thongbao',
+                    html: `<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông báo - {{USER_NAME}}</title>
+    <link href="/user/css/etax-template.css" rel="stylesheet">
+    <style>
+        .notification { background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 20px 0; }
+        .urgent { background: #f8d7da; border-left-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <i class="fas fa-bell"></i>
+            <h1>Thông báo quan trọng</h1>
+            <p>Gửi đến: <strong>{{USER_NAME}}</strong> (MST: {{USER_MST}})</p>
+        </header>
+
+        <main class="content">
+            <div class="notification urgent">
+                <h2><i class="fas fa-exclamation-triangle"></i> Tiêu đề thông báo</h2>
+                <p>Nội dung thông báo chi tiết sẽ được điền tại đây...</p>
+                <p><strong>Thời gian:</strong> {{CURRENT_DATE}}</p>
+            </div>
+
+            <div class="info-card">
+                <h3>Thông tin liên hệ</h3>
+                <p><strong>Công ty:</strong> {{USER_COMPANY}}</p>
+                <p><strong>Địa chỉ:</strong> {{USER_ADDRESS}}</p>
+                <p><strong>Điện thoại:</strong> {{USER_PHONE}}</p>
+            </div>
+        </main>
+    </div>
+    <script src="/user/js/placeholder-system.js"></script>
+    <script>if(window.PlaceholderSystem){new window.PlaceholderSystem().initialize();}</script>
+</body>
+</html>`
+                },
+                'huongdan': {
+                    name: 'huong-dan-su-dung',
+                    title: 'Hướng dẫn sử dụng',
+                    category: 'huongdan',
+                    html: `<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng dẫn - {{USER_NAME}}</title>
+    <link href="/user/css/etax-template.css" rel="stylesheet">
+    <style>
+        .step { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 15px 0; }
+        .step-number { background: #28a745; color: white; border-radius: 50%; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <i class="fas fa-book"></i>
+            <h1>Hướng dẫn sử dụng</h1>
+            <p>Dành cho: <strong>{{USER_NAME}}</strong> (MST: {{USER_MST}})</p>
+        </header>
+
+        <main class="content">
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>Bước 1:</strong> Mô tả bước đầu tiên...
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>Bước 2:</strong> Mô tả bước thứ hai...
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>Bước 3:</strong> Mô tả bước cuối cùng...
+            </div>
+
+            <div class="info-card">
+                <h3>Thông tin hỗ trợ</h3>
+                <p><strong>Công ty:</strong> {{USER_COMPANY}}</p>
+                <p><strong>Hotline:</strong> {{USER_PHONE}}</p>
+                <p><strong>Ngày cập nhật:</strong> {{CURRENT_DATE}}</p>
+            </div>
+        </main>
+    </div>
+    <script src="/user/js/placeholder-system.js"></script>
+    <script>if(window.PlaceholderSystem){new window.PlaceholderSystem().initialize();}</script>
+</body>
+</html>`
+                }
+                // Add more quick templates here...
+            };
+        }
+    </script>
+</body>
+</html>

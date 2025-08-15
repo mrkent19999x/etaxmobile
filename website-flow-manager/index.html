@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Flow Manager - Quản lý Website eTAX</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-sitemap"></i> Website Flow Manager</h1>
+            <p>Quản lý Website eTAX - Giao diện trực quan</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="openProject()">
+                <i class="fas fa-folder-open"></i> Mở Dự án
+            </button>
+            <button class="btn btn-secondary" onclick="showHelp()">
+                <i class="fas fa-question-circle"></i> Hướng dẫn
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Project Info Panel -->
+        <div class="panel project-info" id="projectInfo" style="display: none;">
+            <h3><i class="fas fa-info-circle"></i> Thông tin Dự án</h3>
+            <div class="project-details">
+                <div class="detail-item">
+                    <span class="label">Tên dự án:</span>
+                    <span class="value" id="projectName">Chưa chọn</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Số file:</span>
+                    <span class="value" id="fileCount">0</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Trạng thái:</span>
+                    <span class="value status-badge" id="projectStatus">Chưa quét</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Upload Area -->
+        <div class="panel upload-area" id="uploadArea">
+            <div class="upload-content">
+                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                <h3>Kéo thả thư mục dự án vào đây</h3>
+                <p>Hoặc click để chọn thư mục</p>
+                <input type="file" id="folderInput" webkitdirectory directory multiple style="display: none;">
+                <button class="btn btn-primary" onclick="document.getElementById('folderInput').click()">
+                    <i class="fas fa-folder"></i> Chọn Thư mục
+                </button>
+            </div>
+        </div>
+
+        <!-- Flow Diagram -->
+        <div class="panel flow-diagram" id="flowDiagram" style="display: none;">
+            <h3><i class="fas fa-project-diagram"></i> Sơ đồ Luồng Website</h3>
+            <div class="diagram-controls">
+                <button class="btn btn-small" onclick="zoomIn()">
+                    <i class="fas fa-search-plus"></i> Phóng to
+                </button>
+                <button class="btn btn-small" onclick="zoomOut()">
+                    <i class="fas fa-search-minus"></i> Thu nhỏ
+                </button>
+                <button class="btn btn-small" onclick="resetZoom()">
+                    <i class="fas fa-expand-arrows-alt"></i> Reset
+                </button>
+            </div>
+            <div class="diagram-container" id="diagramContainer">
+                <canvas id="flowCanvas" width="1200" height="800"></canvas>
+            </div>
+        </div>
+
+        <!-- File Analysis -->
+        <div class="panel file-analysis" id="fileAnalysis" style="display: none;">
+            <h3><i class="fas fa-file-code"></i> Phân tích File</h3>
+            <div class="analysis-tabs">
+                <button class="tab-btn active" onclick="showTab('html')">HTML Files</button>
+                <button class="tab-btn" onclick="showTab('js')">JavaScript</button>
+                <button class="tab-btn" onclick="showTab('css')">CSS Files</button>
+                <button class="tab-btn" onclick="showTab('issues')">Vấn đề</button>
+            </div>
+            <div class="tab-content" id="tabContent">
+                <!-- Tab content will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Firebase Manager -->
+        <div class="panel firebase-manager" id="firebaseManager" style="display: none;">
+            <h3><i class="fas fa-fire"></i> Quản lý Firebase</h3>
+            <div class="firebase-config">
+                <div class="config-item">
+                    <label>API Key:</label>
+                    <input type="text" id="firebaseApiKey" placeholder="Nhập Firebase API Key">
+                </div>
+                <div class="config-item">
+                    <label>Project ID:</label>
+                    <input type="text" id="firebaseProjectId" placeholder="Nhập Project ID">
+                </div>
+                <div class="config-item">
+                    <label>Storage Bucket:</label>
+                    <input type="text" id="firebaseStorageBucket" placeholder="Nhập Storage Bucket">
+                </div>
+                <div class="config-actions">
+                    <button class="btn btn-success" onclick="saveFirebaseConfig()">
+                        <i class="fas fa-save"></i> Lưu cấu hình
+                    </button>
+                    <button class="btn btn-info" onclick="testFirebaseConnection()">
+                        <i class="fas fa-plug"></i> Kiểm tra kết nối
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-tools"></i> Công cụ</h3>
+        </div>
+        <div class="sidebar-content">
+            <button class="sidebar-btn" onclick="showPanel('flowDiagram')">
+                <i class="fas fa-project-diagram"></i> Sơ đồ luồng
+            </button>
+            <button class="sidebar-btn" onclick="showPanel('fileAnalysis')">
+                <i class="fas fa-file-code"></i> Phân tích file
+            </button>
+            <button class="sidebar-btn" onclick="showPanel('firebaseManager')">
+                <i class="fas fa-fire"></i> Quản lý Firebase
+            </button>
+            <button class="sidebar-btn" onclick="exportProject()">
+                <i class="fas fa-download"></i> Xuất dự án
+            </button>
+        </div>
+    </aside>
+
+    <!-- Modals -->
+    <div class="modal" id="helpModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-question-circle"></i> Hướng dẫn sử dụng</h3>
+                <button class="close-btn" onclick="closeModal('helpModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4>📁 Cách sử dụng:</h4>
+                <ol>
+                    <li><strong>Chọn dự án:</strong> Kéo thả thư mục website vào khu vực upload</li>
+                    <li><strong>Xem sơ đồ:</strong> Click "Sơ đồ luồng" để thấy mối liên kết giữa các file</li>
+                    <li><strong>Phân tích:</strong> Xem tab "Vấn đề" để tìm lỗi và trường trống</li>
+                    <li><strong>Quản lý Firebase:</strong> Cấu hình và kiểm tra kết nối database</li>
+                </ol>
+                
+                <h4>�� Tính năng chính:</h4>
+                <ul>
+                    <li>✅ Tự động phân tích cấu trúc website</li>
+                    <li>✅ Hiển thị sơ đồ luồng trực quan</li>
+                    <li>✅ Tìm và báo cáo vấn đề</li>
+                    <li>✅ Quản lý cấu hình Firebase</li>
+                    <li>✅ Giao diện tiếng Việt 100%</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/file-analyzer.js"></script>
+    <script src="js/flow-diagram.js"></script>
+    <script src="js/firebase-manager.js"></script>
+</body>
+</html>

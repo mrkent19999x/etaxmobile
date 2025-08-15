@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chi tiết thông báo</title>
+  <link rel="stylesheet" href="css/mobile-responsive.css">
+   <script src="js/device-auth-manager.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 1rem; margin: 0; }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #b71c1c;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .item { margin-bottom: 1rem; }
+    .label { font-weight: bold; display: block; margin-bottom: 4px; color: #333; }
+    .value { background: #f9f9f9; padding: 0.5rem; border-radius: 6px; }
+    .back { text-align: center; margin-top: 2rem; }
+    .back a {
+      color: #b71c1c;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">Chi tiết thông báo</div>
+    <div class="item">
+      <div class="label">Số thông báo</div>
+      <div class="value" id="code">...</div>
+    </div>
+    <div class="item">
+      <div class="label">Mã giao dịch điện tử</div>
+      <div class="value" id="transaction">...</div>
+    </div>
+    <div class="item">
+      <div class="label">Tên người nộp thuế</div>
+      <div class="value" id="username">...</div>
+    </div>
+    <div class="item">
+      <div class="label">Mã số thuế (MST)</div>
+      <div class="value" id="mst">...</div>
+    </div>
+    <div class="item">
+      <div class="label">Thời gian tạo</div>
+      <div class="value" id="created">...</div>
+    </div>
+    <div class="item">
+      <div class="label">Nội dung</div>
+      <div class="value" id="content">...</div>
+    </div>
+    <div class="back">
+      <a href="thongbao.html">&larr; Quay lại danh sách</a>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+      authDomain: "etax-7fbf8.firebaseapp.com",
+      databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "etax-7fbf8"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const uid = localStorage.getItem("user") || "";
+    const ts = new URLSearchParams(location.search).get("ts");
+
+    if (!uid || !ts) {
+      alert("Thiếu thông tin. Vui lòng quay lại.");
+    } else {
+      db.ref("notifications/" + uid + "/" + ts).once("value", snap => {
+        const data = snap.val();
+        if (!data) return alert("Không tìm thấy thông báo.");
+
+        document.getElementById("code").textContent = data.code || "Không có";
+        document.getElementById("transaction").textContent = data.transactionCode || "-";
+        document.getElementById("created").textContent = new Date(data.created_at).toLocaleString("vi-VN");
+        document.getElementById("content").textContent = data.content || "-";
+        document.getElementById("mst").textContent = uid;
+
+        db.ref("users/" + uid).once("value", u => {
+          document.getElementById("username").textContent = u.val()?.name || "Không rõ";
+        });
+      });
+    }
+  </script>
+</body>
+</html>

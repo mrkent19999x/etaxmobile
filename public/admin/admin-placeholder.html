@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Placeholder System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2; 
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            color: var(--dark);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 15px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-50%) translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px 30px;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #2ecc71);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #f1c40f);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #c0392b);
+        }
+
+        .placeholder-item {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .placeholder-key {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .placeholder-value {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .placeholder-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .placeholder-actions .btn {
+            padding: 6px 12px;
+            font-size: 0.9em;
+            margin: 0;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    
+        html {
+            overflow-x: hidden !important;
+            touch-action: pan-y;
+            width: 100%;
+        }
+
+        body {
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .container {
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Auth Check -->
+    <script type="module">
+        import { auth } from "../shared/js/firebase-init.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                alert("🔒 Cần đăng nhập admin để truy cập trang này");
+                location.href = "admin-login.html";
+            }
+        });
+    </script>
+
+    <div class="container">
+        <div class="header">
+            <a href="admin-home.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+            <h1><i class="fas fa-tags"></i> Placeholder System</h1>
+            <p>Quản lý placeholder động cho hệ thống eTAX</p>
+        </div>
+
+        <!-- Add New Placeholder -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-plus"></i> Thêm Placeholder Mới
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="placeholderKey">Placeholder Key</label>
+                    <input type="text" id="placeholderKey" class="form-control" placeholder="{{user_name}}" />
+                </div>
+                <div class="form-group">
+                    <label for="placeholderValue">Giá trị mặc định</label>
+                    <textarea id="placeholderValue" class="form-control" rows="3" placeholder="Nhập giá trị mặc định..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="placeholderDescription">Mô tả</label>
+                    <input type="text" id="placeholderDescription" class="form-control" placeholder="Mô tả placeholder này..." />
+                </div>
+                <button class="btn" onclick="addPlaceholder()">
+                    <i class="fas fa-plus"></i> Thêm Placeholder
+                </button>
+                <button class="btn btn-warning" onclick="loadSampleData()">
+                    <i class="fas fa-download"></i> Load Sample Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Placeholder List -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list"></i> Danh sách Placeholder
+            </div>
+            <div class="card-body">
+                <div id="placeholderList">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        Chưa có placeholder nào. Hãy thêm placeholder đầu tiên!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Operations -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-cogs"></i> Thao tác hàng loạt
+            </div>
+            <div class="card-body">
+                <button class="btn btn-success" onclick="exportPlaceholders()">
+                    <i class="fas fa-download"></i> Xuất JSON
+                </button>
+                <button class="btn" onclick="importPlaceholders()">
+                    <i class="fas fa-upload"></i> Import JSON
+                </button>
+                <button class="btn btn-danger" onclick="clearAllPlaceholders()">
+                    <i class="fas fa-trash"></i> Xóa tất cả
+                </button>
+                <input type="file" id="importFile" style="display: none;" accept=".json" onchange="handleImport(event)" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { auth, db } from "../shared/js/firebase-init.js";
+        import { doc, setDoc, getDoc, updateDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        let placeholders = {};
+
+        // Load placeholders from Firestore
+        window.loadPlaceholders = async () => {
+            try {
+                const docRef = doc(db, "system", "placeholders");
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    placeholders = docSnap.data().data || {};
+                    renderPlaceholders();
+                } else {
+                    console.log("No placeholders found");
+                }
+            } catch (error) {
+                console.error("Error loading placeholders:", error);
+            }
+        };
+
+        // Save placeholders to Firestore  
+        window.savePlaceholders = async () => {
+            try {
+                await setDoc(doc(db, "system", "placeholders"), {
+                    data: placeholders,
+                    updated_at: new Date()
+                });
+                showAlert("✅ Lưu placeholder thành công!", "success");
+            } catch (error) {
+                console.error("Error saving placeholders:", error);
+                showAlert("❌ Lỗi lưu placeholder: " + error.message, "danger");
+            }
+        };
+
+        // Add new placeholder
+        window.addPlaceholder = async () => {
+            const key = document.getElementById('placeholderKey').value.trim();
+            const value = document.getElementById('placeholderValue').value.trim();
+            const description = document.getElementById('placeholderDescription').value.trim();
+
+            if (!key || !value) {
+                showAlert("❌ Vui lòng nhập đầy đủ Key và Value!", "danger");
+                return;
+            }
+
+            placeholders[key] = {
+                value: value,
+                description: description,
+                created_at: new Date().toISOString()
+            };
+
+            await savePlaceholders();
+            renderPlaceholders();
+            
+            // Clear form
+            document.getElementById('placeholderKey').value = '';
+            document.getElementById('placeholderValue').value = '';
+            document.getElementById('placeholderDescription').value = '';
+        };
+
+        // Delete placeholder
+        window.deletePlaceholder = async (key) => {
+            if (confirm(`Xóa placeholder "${key}"?`)) {
+                delete placeholders[key];
+                await savePlaceholders();
+                renderPlaceholders();
+            }
+        };
+
+        // Edit placeholder
+        window.editPlaceholder = (key) => {
+            const placeholder = placeholders[key];
+            document.getElementById('placeholderKey').value = key;
+            document.getElementById('placeholderValue').value = placeholder.value;
+            document.getElementById('placeholderDescription').value = placeholder.description || '';
+        };
+
+        // Render placeholders
+        window.renderPlaceholders = () => {
+            const container = document.getElementById('placeholderList');
+            
+            if (Object.keys(placeholders).length === 0) {
+                container.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        Chưa có placeholder nào. Hãy thêm placeholder đầu tiên!
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            for (const [key, data] of Object.entries(placeholders)) {
+                html += `
+                    <div class="placeholder-item">
+                        <div class="placeholder-key">${key}</div>
+                        <div class="placeholder-value">${data.value}</div>
+                        ${data.description ? `<div class="text-muted">${data.description}</div>` : ''}
+                        <div class="placeholder-actions">
+                            <button class="btn" onclick="editPlaceholder('${key}')">
+                                <i class="fas fa-edit"></i> Sửa
+                            </button>
+                            <button class="btn btn-danger" onclick="deletePlaceholder('${key}')">
+                                <i class="fas fa-trash"></i> Xóa
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        };
+
+        // Load sample data
+        window.loadSampleData = () => {
+            placeholders = {
+                "{{user_name}}": { value: "Người dùng", description: "Tên người dùng" },
+                "{{company_name}}": { value: "Công ty ABC", description: "Tên công ty" },
+                "{{tax_id}}": { value: "0123456789", description: "Mã số thuế" },
+                "{{address}}": { value: "123 Đường ABC, Quận 1", description: "Địa chỉ" },
+                "{{phone}}": { value: "0123456789", description: "Số điện thoại" },
+                "{{email}}": { value: "user@company.com", description: "Email" },
+                "{{current_date}}": { value: new Date().toLocaleDateString('vi-VN'), description: "Ngày hiện tại" }
+            };
+            savePlaceholders();
+            renderPlaceholders();
+        };
+
+        // Export placeholders
+        window.exportPlaceholders = () => {
+            const dataStr = JSON.stringify(placeholders, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'etax-placeholders.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        };
+
+        // Import placeholders
+        window.importPlaceholders = () => {
+            document.getElementById('importFile').click();
+        };
+
+        window.handleImport = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        placeholders = { ...placeholders, ...imported };
+                        await savePlaceholders();
+                        renderPlaceholders();
+                        showAlert("✅ Import thành công!", "success");
+                    } catch (error) {
+                        showAlert("❌ Lỗi import file: " + error.message, "danger");
+                    }
+                };
+                reader.readAsText(file);
+            }
+        };
+
+        // Clear all placeholders
+        window.clearAllPlaceholders = async () => {
+            if (confirm("Xóa tất cả placeholders? Hành động này không thể hoàn tác!")) {
+                placeholders = {};
+                await savePlaceholders();
+                renderPlaceholders();
+            }
+        };
+
+        // Show alert
+        window.showAlert = (message, type) => {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = message;
+            
+            document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.container').firstChild.nextSibling);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        };
+
+        // Load placeholders on page load
+        document.addEventListener('DOMContentLoaded', loadPlaceholders);
+    </script>
+</body>
+</html>

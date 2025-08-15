@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <!-- PWA Meta Tags -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <!-- 🔒 KHÓA ORIENTATION CHỈ CHO PHÉP DỌC -->
+  <meta name="screen-orientation" content="portrait">
+  <meta name="mobile-web-app-orientations" content="portrait">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="eTax Mobile">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#b71c1c">
+
+  <!-- PWA Icons -->
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <!-- 🔧 FIX: Conditional manifest để tránh CORS lỗi với file:// -->
+  <script>
+    if (window.location.protocol !== 'file:') {
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = 'manifest.json';
+      document.head.appendChild(link);
+    }
+  </script>
+  
+  <title>Tra cứu chứng từ - eTax Mobile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <link rel="stylesheet" href="css/etax-template.css">
+  <style>
+    /* ===== PAGE SPECIFIC STYLES ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Roboto', Arial, sans-serif;
+      touch-action: manipulation;
+      -webkit-overflow-scrolling: touch;
+      -webkit-tap-highlight-color: transparent;
+      /* ✅ PERFORMANCE OPTIMIZATION */
+      animation-duration: 0s !important;
+      animation-delay: 0s !important;
+      transition-duration: 0s !important;
+      transition-delay: 0s !important;
+      transform: none !important;
+    }
+
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      min-height: 100vh;
+      min-width: 100vw;
+      width: 100vw;
+      height: 100vh;
+      background: #000 !important;
+      box-sizing: border-box;
+      overflow: hidden !important;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      /* 🔒 KHÓA XOAY NGANG */
+      transform-origin: center center;
+      /* 🔒 PWA Safe Area Support */
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+
+    body {
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+      margin: 0 auto;
+      color: #000;
+      /* 🔒 KHÓA SCROLL HOÀN TOÀN */
+      overflow: hidden;
+      touch-action: manipulation;
+      /* ✅ Bỏ chức năng vuốt back */
+      overscroll-behavior: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    .phone-frame {
+      width: 100vw !important;
+      min-height: 100vh;
+      background: #f5f5f5;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center center;
+      border-radius: 0;
+      margin: 0 auto;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+    }
+
+    @media (min-width: 601px) {
+      .phone-frame {
+        border-radius: 30px;
+        margin: 32px auto;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        width: 400px !important;
+      }
+    }
+
+    /* ✅ HEADER CHUẨN APP GỐC - EXTENDED TO TAX PERIOD */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background-color: #b71c1c; /* 🔴 Đỏ sẫm hơn thay vì #d62828 */
+      color: white;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 100px; /* 🔧 Tăng chiều cao xuống đến vị trí chữ "Kỳ thuế" */
+      /* 🔒 PWA Safe Area */
+      padding-top: max(12px, env(safe-area-inset-top));
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .header .back-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 500;
+      flex-grow: 1;
+      text-align: center;
+      margin: 0 16px;
+      letter-spacing: 0.5px;
+    }
+
+    .header .home-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ✅ CONTENT SCROLLABLE */
+    .content {
+      flex: 1;
+      background: #ffffff;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding: 16px;
+    }
+
+    .content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* ===== FORM STYLES ===== */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    /* ===== TAX ITEM CARDS - 100% CHUẨN ẢNH GỐC ===== */
+    .tax-item-card {
+      background: white;
+      border-radius: 0;
+      padding: 16px;
+      margin-bottom: 1px;
+      box-shadow: none;
+      border: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .tax-item-card:hover {
+      background-color: #f8f9fa;
+    }
+
+    .tax-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .tax-office {
+      font-weight: 600;
+      color: #333;
+      font-size: 16px;
+    }
+
+    .tax-status-btn {
+      color: #dc3545;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      transition: background-color 0.2s;
+      min-width: 24px;
+      text-align: center;
+      line-height: 1;
+    }
+
+    .tax-status-btn:hover {
+      background-color: rgba(220, 53, 69, 0.1);
+    }
+
+    .tax-details {
+      font-size: 14px;
+    }
+
+    .tax-row {
+      display: flex;
+      margin-bottom: 6px;
+      align-items: flex-start;
+      min-height: 20px;
+    }
+
+    .tax-label {
+      color: #666;
+      font-size: 14px;
+      min-width: 85px;
+      flex-shrink: 0;
+      margin-right: 10px;
+    }
+
+    .tax-value {
+      color: #333;
+      font-size: 14px;
+      flex: 1;
+      line-height: 1.3;
+    }
+
+    .tax-amount {
+      color: #dc3545;
+      font-weight: 600;
+      font-size: 14px;
+      flex: 1;
+    }
+
+    .tax-action {
+      color: #28a745;
+      font-weight: 500;
+      font-size: 14px;
+      flex: 1;
+      line-height: 1.2;
+    }
+
+    .form-group label .required {
+      color: #d62828;
+      margin-left: 4px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      background: #fff;
+      position: relative;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #d62828;
+    }
+
+    .date-input {
+      position: relative;
+    }
+
+    .date-input input {
+      padding-right: 40px;
+    }
+
+    .date-input::after {
+      content: "📅";
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: #d62828;
+    }
+
+    /* ===== BUTTON STYLES ===== */
+    .btn-search {
+      width: 100%;
+      padding: 16px;
+      background: #d62828;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 24px 0;
+    }
+
+    .btn-print {
+      width: 100%;
+      padding: 16px;
+      background: #d62828;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 24px;
+    }
+
+    /* ===== RESULT TABLE ===== */
+    .result-table {
+      margin-top: 24px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .result-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .result-table th,
+    .result-table td {
+      padding: 12px 8px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+      font-size: 13px;
+    }
+
+    .result-table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .result-table td {
+      color: #555;
+    }
+
+    .status-success {
+      color: #28a745;
+      font-weight: 500;
+    }
+
+    .print-icon {
+      color: #d62828;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    /* ✅ PWA Native App Appearance */
+    @supports (-webkit-touch-callout: none) {
+      .phone-frame {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="phone-frame">
+    <!-- ✅ HEADER CHUẨN APP GỐC -->
+    <header class="header">
+      <button class="back-btn" onclick="goBack()">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <h1>Thông tin nghĩa vụ thuế</h1>
+      <button class="home-btn" onclick="goHome()">
+        <i class="fas fa-home"></i>
+      </button>
+    </header>
+
+    <!-- ✅ CONTENT SCROLLABLE -->
+    <main class="content">
+      <!-- Search Form -->
+      <form id="searchForm">
+        <div class="form-group">
+          <label for="mstInput">Mã số thuế <span class="required" style="color: red;">*</span></label>
+          <input type="text" id="mstInput" class="form-input" value="8583688911-001" placeholder="Nhập mã số thuế">
+        </div>
+
+        
+
+
+        <button type="button" class="btn-search" onclick="searchTaxInfo()">
+          Tra cứu
+        </button>
+      </form>
+
+      <!-- Tax Info Results -->
+      <div id="taxResults" style="display: none; margin-top: 30px;">
+        <!-- Section Header -->
+        <div style="margin-bottom: 20px;">
+          <h3 style="color: #333; font-size: 18px; margin-bottom: 8px;">Thông tin chi tiết</h3>
+          <p style="color: #666; font-size: 14px; line-height: 1.4;">(Các khoản còn phải nộp, nộp thừa, còn được hoàn đã được ghi nhận trong hệ thống ứng dụng quản lý thuế)</p>
+        </div>
+
+        <!-- Main Section -->
+        <div style="margin-bottom: 30px;">
+          <h4 style="color: #333; font-size: 20px; font-weight: 600; margin-bottom: 15px;">Các khoản còn phải nộp</h4>
+          
+          <div style="margin-bottom: 20px;">
+            <h5 style="color: #333; font-size: 16px; margin-bottom: 15px;">1. Các khoản thuế, tiền phạt</h5>
+            
+            <!-- Tax Item 1 -->
+            <div class="tax-item-card" onclick="viewTaxDetail('item1')">
+              <div class="tax-header">
+                <div class="tax-office">Đội Thuế thành phố Hạ Long</div>
+                <div class="tax-status-btn">●</div>
+              </div>
+              
+              <div class="tax-details">
+                <div class="tax-row">
+                  <span class="tax-label">Loại nghiệp vụ</span>
+                  <span class="tax-value">Còn phải nộp</span>
+                </div>
+                <div class="tax-row">
+                  <span class="tax-label">Tiêu mục</span>
+                  <span class="tax-value">Thuế giá trị gia tăng hàng sản xuất, kinh doanh trong nước (gồm cả dịch vụ trong lĩnh vực dầu khí) (1701)</span>
+                </div>
+                <div class="tax-row">
+                  <span class="tax-label">Số tiền</span>
+                  <span class="tax-amount">2,500,000 VND</span>
+                </div>
+                <div class="tax-row">
+                  <span class="tax-label">Gợi ý xử lý</span>
+                  <span class="tax-action">Nộp thuế<br>Tra soát</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tax Item 2 -->
+            <div class="tax-item-card" onclick="viewTaxDetail('item2')">
+              <div class="tax-header">
+                <div class="tax-office">Đội Thuế thành phố Hạ Long</div>
+                <div class="tax-status-btn">●</div>
+              </div>
+              
+              <div class="tax-details">
+                <div class="tax-row">
+                  <span class="tax-label">Loại nghiệp vụ</span>
+                  <span class="tax-value">Còn phải nộp</span>
+                </div>
+                <div class="tax-row">
+                  <span class="tax-label">Tiêu mục</span>
+                  <span class="tax-value">Thuế thu nhập từ hoạt động sản xuất, kinh doanh của cá nhân (1003)</span>
+                </div>
+                <div class="tax-row">
+                  <span class="tax-label">Số tiền</span>
+                  <span class="tax-amount">1,250,000 VND</span>
+                </div>
+                <div class="tax-row">
+                  <span class="tax-label">Gợi ý xử lý</span>
+                  <span class="tax-action">Nộp thuế<br>Tra soát</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Other sections -->
+          <div style="margin: 25px 0; padding: 15px 0; border-top: 1px solid #eee;">
+            <p style="margin: 8px 0; color: #333;">2. Các khoản tiền chậm nộp</p>
+            <p style="margin: 8px 0; color: #333;">3. Các khoản thu khác thuộc NSNN trừ tiền chậm nộp, tiền phạt</p>
+            <p style="margin: 8px 0; color: #333;">4. Khoản thuế đang chờ xử lý</p>
+          </div>
+
+          <div style="margin: 25px 0; padding: 15px 0; border-top: 1px solid #eee;">
+            <p style="margin: 8px 0; color: #333; font-weight: 600;">Các khoản thuế đã nộp</p>
+            <p style="margin: 8px 0; color: #333; font-weight: 600;">Các khoản thuế còn được hoàn</p>
+          </div>
+        </div>
+      </div>
+      <div  id="resultsTable" style="display: none; border: none; padding: 0;">
+        <div style="color: red; margin: 5px;">Thông tin chi tiết</div>
+        <div style="margin: 5px; font-size: 13px">(Các khoản còn phải nộp, nộp thừa, còn được hoàn đã<br>được ghi nhận trong hệ thống ứng dụng quản lý thuế)</div>
+        <div style="margin: 5px;"> Các khoản còn phải nộp</div>
+        <div style="margin: 5px;">1. Các khoản thuế, tiền phạt</div>
+        <div style="margin: 5px;">2. Các khoản tiền chậm nộp</div>
+        <div style="margin: 5px;">3. Các khoản thu khác thuộc NSNN trừ tiền chậm<br>nộp, tiền phạt</div>
+        <div style="margin: 5px;">4. Khoản thuế đang chờ xử lý</div>
+        <div style="margin: 5px;">Các khoản thuế đã nộp</div>
+      </div>
+
+      
+
+    </main>
+  </div>
+
+  <script>
+    // ✅ PWA Navigation Functions
+    function goBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    function goHome() {
+      window.location.href = 'index_main.html';
+    }
+
+    // Tax Info Search Function
+    function searchTaxInfo() {
+      const mstInput = document.getElementById('mstInput').value.trim();
+      
+      if (!mstInput) {
+        alert('⚠️ Vui lòng nhập mã số thuế!');
+        return;
+      }
+
+      // Show loading
+      const btn = document.querySelector('.btn-search');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tra cứu...';
+      btn.disabled = true;
+
+      // Simulate API call
+      setTimeout(() => {
+        // Show results
+        document.getElementById('taxResults').style.display = 'block';
+        
+        // Reset button
+        btn.innerHTML = 'Tra cứu';
+        btn.disabled = false;
+        
+        // Scroll to results
+        document.getElementById('taxResults').scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 1500);
+    }
+
+    // View Tax Detail Function
+    function viewTaxDetail(itemId) {
+      // Store selected item data
+      const taxData = {
+        'item1': {
+          id: '04057866369400001',
+          decision: '1866/TB-CCT',
+          date: '07/01/2025',
+          office: 'Đội Thuế thành phố Hạ Long',
+          chapter: '757',
+          period: '00/06/2025',
+          type: 'Thuế giá trị gia tăng hàng sản xuất, kinh doanh trong nước (gồm cả dịch vụ trong lĩnh vực dầu khí) (1701)',
+          region: 'Thành phố Hạ Long (193HH)',
+          dueDate: '30/06/2025',
+          amount: '2,500,000 VND',
+          paid: '0 VND',
+          status: 'Còn phải nộp',
+          reference: '11020250031907891'
+        },
+        'item2': {
+          id: '04057866369400002',
+          decision: '1867/TB-CCT',
+          date: '07/01/2025',
+          office: 'Đội Thuế thành phố Hạ Long',
+          chapter: '757',
+          period: '00/06/2025',
+          type: 'Thuế thu nhập từ hoạt động sản xuất, kinh doanh của cá nhân (1003)',
+          region: 'Thành phố Hạ Long (193HH)',
+          dueDate: '30/06/2025',
+          amount: '1,250,000 VND',
+          paid: '0 VND',
+          status: 'Còn phải nộp',
+          reference: '11020250031907891'
+        }
+      };
+
+      // Store in localStorage
+      localStorage.setItem('selectedTaxDetail', JSON.stringify(taxData[itemId]));
+      
+      // Navigate to detail page
+      window.location.href = 'thongtin-chitiet.html';
+    }
+
+    // Search functionality
+    function searchDocuments() {
+  const resultsDiv = document.getElementById('resultsTable');
+  resultsDiv.style.display = 'block';
+  resultsDiv.scrollIntoView({ behavior: 'smooth' }); // scroll xuống cho mượt
+}
+
+
+     
+
+    // Print functionality
+    function printDocument(referenceCode) {
+      alert(`In chứng từ: ${referenceCode}`);
+    }
+
+    function printAllDocuments() {
+      alert('In tất cả chứng từ');
+    }
+
+    // ✅ PWA Performance
+    if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
+      navigator.serviceWorker.register('service-worker.js').catch(console.error);
+    }
+  </script>
+</body>
+</html>

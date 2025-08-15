@@ -1,0 +1,300 @@
+/* ===== ETAX MOBILE TEMPLATE CSS - CHUẨN HÓA ===== */
+/* Extracted từ ho-tro-qtt.html và cải tiến */
+/* THEME COLOR: #b71c1c (từ dangky.html) */
+
+/* ===== RESET & FOUNDATION ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', Arial, sans-serif;
+  touch-action: manipulation;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+  /* ✅ PERFORMANCE OPTIMIZATION */
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  transform: none !important;
+}
+
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw;
+  height: 100vh;
+  background: #f5f5f5 !important; /* ✅ ĐỔI TỪ ĐEN SANG SÁNG */
+  box-sizing: border-box;
+  overflow: hidden !important; /* ✅ KHÓA HOÀN TOÀN - KHÔNG VƯỢT QUÁ MÀN HÌNH */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  /* ✅ NATIVE APP BEHAVIOR - CỐ ĐỊNH */
+  overscroll-behavior: none;
+  -webkit-overscroll-behavior: none;
+  /* ✅ VÔ HIỆU HÓA GESTURE BACK CỦA PWA */
+  touch-action: pan-y;
+  /* 🔒 PWA Safe Area Support */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+body {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+  width: 100vw !important; /* ✅ FULL WIDTH - Bỏ MAX-WIDTH */
+  margin: 0 !important; /* ✅ Bỏ MARGIN AUTO */
+  color: #000;
+  /* ✅ KHÓA TOÀN BỘ GESTURE */
+  overflow: hidden !important;
+  touch-action: pan-y; /* ✅ CHỈ CHO PHÉP SCROLL DỌC, KHÓA GESTURE NGANG */
+  overscroll-behavior: none;
+  -webkit-overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  /* ✅ CỐ ĐỊNH CHIỀU CAO KHÔNG VƯỢT QUÁ MÀN HÌNH */
+  height: 100vh;
+  max-height: 100vh;
+}
+
+/* ===== PHONE FRAME LAYOUT ===== */
+.phone-frame {
+  width: 100vw !important;
+  min-height: 100vh;
+  background: #f5f5f5;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  border-radius: 0;
+  margin: 0 !important; /* ✅ Bỏ margin auto */
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+/* ✅ RESPONSIVE DESKTOP - GIỮ PHONE FRAME */
+@media (min-width: 768px) {
+  html, body {
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3c72 100%) !important; /* ✅ Nền xanh đẹp */
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .phone-frame {
+    border-radius: 30px;
+    margin: 32px auto !important;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+    width: 414px !important;
+    max-width: 414px !important;
+    background: #ffffff !important;
+  }
+  
+  .header {
+    width: 100% !important; /* ✅ Desktop header full width của phone-frame */
+    border-radius: 30px 30px 0 0; /* ✅ Bo góc theo phone-frame */
+  }
+}
+
+/* ===== HEADER CHUẨN APP GỐC ===== */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #b71c1c; /* 🔴 Đỏ sẫm chuẩn từ dangky.html */
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100px;
+  width: 100vw !important; /* ✅ FULL WIDTH HEADER */
+  margin: 0 !important; /* ✅ Bỏ MARGIN AUTO */
+  left: 0;
+  right: 0;
+  /* 🔒 PWA Safe Area */
+  padding-top: max(12px, env(safe-area-inset-top));
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-family: 'Segoe UI', 'Tahoma', 'Microsoft Sans Serif', 'Arial', sans-serif; /* ✅ Font VN chuẩn */
+}
+
+.header .back-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header h1 {
+  font-size: 20px;
+  font-weight: 500;
+  flex-grow: 1;
+  text-align: center;
+  margin: 0 16px;
+  letter-spacing: 0.5px;
+}
+
+.header .home-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== CONTENT SCROLLABLE ===== */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 0; /* ✅ BỎ GAP ĐỂ KIỂM SOÁT KHOẢNG CÁCH TỪNG SECTION */
+  /* ✅ MỞ KHÓA SCROLL TOÀN TRANG - KHÔNG ĐÁ VĂNG XUỐNG DƯỚI */
+  overflow-y: auto; /* ✅ CHO PHÉP SCROLL TOÀN TRANG */
+  overflow-x: hidden; /* ✅ KHÓA SCROLL TRÁI PHẢI */
+  height: auto; /* ✅ ĐỂ TỰ ĐỘNG ĐIỀU CHỈNH THEO NỘI DUNG */
+  touch-action: pan-y; /* ✅ CHỈ CHO SCROLL DỌC */
+  overscroll-behavior-y: contain; /* ✅ KHÔNG ĐÁ VĂNG - GIỮA CẢM GIÁC ĐIỆN THOẠI THẬT */
+  overscroll-behavior-x: none; /* ✅ KHÓA HOÀN TOÀN SCROLL TRÁI PHẢI */
+  -webkit-overscroll-behavior: contain;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+  /* ✅ CHO PHÉP MỞ RỘNG THEO NỘI DUNG */
+  min-height: calc(100vh - 100px);
+  background: #ffffff;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===== FORM STYLES ===== */
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 24px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.form-group {
+  flex: 1;
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group label .required {
+  color: #d62828;
+  margin-left: 4px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  background: #fff;
+  position: relative;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #d62828;
+}
+
+/* ===== BUTTON STYLES ===== */
+.btn-search {
+  width: 100%;
+  padding: 16px;
+  background: #d62828;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 32px 0 24px;
+}
+
+.btn-search:hover {
+  background: #b71c1c;
+}
+
+/* ===== RESULT MESSAGE ===== */
+.result-message {
+  text-align: center;
+  padding: 40px 20px;
+  color: #d62828;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* ===== PWA OPTIMIZATIONS ===== */
+@supports (-webkit-touch-callout: none) {
+  .phone-frame {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ===== RESPONSIVE MOBILE ===== */
+@media screen and (max-width: 375px) {
+  .header h1 {
+    font-size: 18px;
+  }
+  
+  .content {
+    padding: 16px 12px;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+/* ===== NO TRANSITION PERFORMANCE ===== */
+*, *::before, *::after {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  transform: none !important;
+}

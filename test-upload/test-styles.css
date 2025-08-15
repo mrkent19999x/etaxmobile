@@ -1,0 +1,70 @@
+/* ===== TEST STYLES - Kiểm tra Upload CSS ===== */
+
+.test-css-file {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.test-css-file h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.test-css-file p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.test-css-file .highlight {
+    background: rgba(255,255,255,0.2);
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.test-css-file .button {
+    background: #e74c3c;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 10px;
+}
+
+.test-css-file .button:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.test-css-file .icon {
+    font-size: 48px;
+    margin: 20px 0;
+    display: block;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .test-css-file {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .test-css-file h2 {
+        font-size: 20px;
+    }
+    
+    .test-css-file .button {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+}

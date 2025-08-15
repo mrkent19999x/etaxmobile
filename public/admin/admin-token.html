@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Token Generator</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2; 
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            color: var(--dark);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 30px;
+            top: 30px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            margin: 5px;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-info { background: var(--info); color: white; }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .token-display {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            word-break: break-all;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--info);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .qr-code {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .token-list {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+
+        .token-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #ecf0f1;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .token-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .token-info {
+            flex: 1;
+        }
+
+        .token-title {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .token-meta {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .token-preview {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #666;
+            background: #f8f9fa;
+            padding: 5px 8px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        .token-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .action-btn.copy {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--info);
+        }
+
+        .action-btn.qr {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success);
+        }
+
+        .action-btn.delete {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active { background: rgba(39, 174, 96, 0.1); color: var(--success); }
+        .status-expired { background: rgba(231, 76, 60, 0.1); color: var(--danger); }
+        .status-used { background: rgba(149, 165, 166, 0.1); color: #95a5a6; }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .token-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .token-actions {
+                align-self: flex-end;
+            }
+        }
+    
+        html {
+            overflow-x: hidden !important;
+            touch-action: pan-y;
+            width: 100%;
+        }
+
+        body {
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .container {
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="admin-home.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+            <h1><i class="fas fa-key"></i> Token Generator</h1>
+            <p>Tạo token đăng nhập và link truy cập cho người dùng</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Generate Token -->
+            <div class="content-card">
+                <div class="card-title">
+                    <i class="fas fa-plus-circle"></i>
+                    Tạo token mới
+                </div>
+
+                <div class="form-group">
+                    <label for="tokenMST">MST người dùng *</label>
+                    <input type="text" id="tokenMST" placeholder="Ví dụ: 0123456789">
+                </div>
+
+                <div class="form-group">
+                    <label for="tokenType">Loại token</label>
+                    <select id="tokenType">
+                        <option value="login">Đăng nhập một lần</option>
+                        <option value="session">Phiên làm việc</option>
+                        <option value="api">API Access</option>
+                        <option value="temp">Truy cập tạm thời</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="tokenExpiry">Thời gian hết hạn</label>
+                    <select id="tokenExpiry">
+                        <option value="1h">1 giờ</option>
+                        <option value="24h" selected>24 giờ</option>
+                        <option value="7d">7 ngày</option>
+                        <option value="30d">30 ngày</option>
+                        <option value="never">Không hết hạn</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="tokenPurpose">Mục đích sử dụng</label>
+                    <textarea id="tokenPurpose" rows="3" placeholder="Mô tả ngắn về mục đích tạo token này..."></textarea>
+                </div>
+
+                <div style="text-align: center;">
+                    <button class="btn btn-primary" onclick="generateToken()">
+                        <i class="fas fa-magic"></i> Tạo Token
+                    </button>
+                    <button class="btn btn-warning" onclick="generateBulkTokens()">
+                        <i class="fas fa-layer-group"></i> Tạo hàng loạt
+                    </button>
+                </div>
+
+                <div id="generatedToken" style="display: none;">
+                    <h4 style="margin-top: 20px; color: var(--success);">
+                        <i class="fas fa-check-circle"></i> Token đã được tạo
+                    </h4>
+                    <div class="token-display" id="tokenDisplay">
+                        <button class="copy-btn" onclick="copyToken()">Copy</button>
+                        <span id="tokenValue"></span>
+                    </div>
+                    <div class="qr-code" id="qrCode">
+                        <div style="width: 200px; height: 200px; background: #f0f0f0; margin: 0 auto; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #999;">
+                            <i class="fas fa-qrcode" style="font-size: 3em;"></i>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 0.9em; color: #666;">QR Code cho token</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Token Templates -->
+            <div class="content-card">
+                <div class="card-title">
+                    <i class="fas fa-template"></i>
+                    Templates nhanh
+                </div>
+
+                <div style="display: grid; gap: 15px;">
+                    <button class="btn btn-info" onclick="createLoginToken()">
+                        <i class="fas fa-sign-in-alt"></i> Token đăng nhập nhanh
+                    </button>
+                    
+                    <button class="btn btn-success" onclick="createTempAccess()">
+                        <i class="fas fa-clock"></i> Truy cập tạm thời (1h)
+                    </button>
+                    
+                    <button class="btn btn-warning" onclick="createAPIToken()">
+                        <i class="fas fa-code"></i> API Access Token
+                    </button>
+                    
+                    <button class="btn btn-danger" onclick="createEmergencyToken()">
+                        <i class="fas fa-exclamation-triangle"></i> Token khẩn cấp
+                    </button>
+
+                    <hr style="margin: 20px 0;">
+
+                    <div class="form-group">
+                        <label>Tạo link truy cập trực tiếp</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="directMST" placeholder="MST" style="flex: 1;">
+                            <button class="btn btn-primary" onclick="createDirectLink()">
+                                <i class="fas fa-link"></i> Tạo Link
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="directLink" style="display: none;">
+                        <div class="token-display">
+                            <button class="copy-btn" onclick="copyDirectLink()">Copy</button>
+                            <span id="directLinkValue"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Tokens -->
+        <div class="token-list">
+            <div class="card-title">
+                <i class="fas fa-list"></i>
+                Tokens đang hoạt động
+            </div>
+
+            <div id="tokensList">
+                <!-- Sample tokens -->
+                <div class="token-item">
+                    <div class="token-info">
+                        <div class="token-title">Token đăng nhập - MST: 0123456789</div>
+                        <div class="token-meta">
+                            <span class="status-badge status-active">Hoạt động</span>
+                            <span>• Tạo: 09/08/2025 15:30 • Hết hạn: 10/08/2025 15:30</span>
+                        </div>
+                        <div class="token-preview">tk_etx_abc123def456...</div>
+                    </div>
+                    <div class="token-actions">
+                        <button class="action-btn copy" onclick="copyExistingToken(1)">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="action-btn qr" onclick="showQR(1)">
+                            <i class="fas fa-qrcode"></i>
+                        </button>
+                        <button class="action-btn delete" onclick="revokeToken(1)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="token-item">
+                    <div class="token-info">
+                        <div class="token-title">API Access - MST: 9876543210</div>
+                        <div class="token-meta">
+                            <span class="status-badge status-active">Hoạt động</span>
+                            <span>• Tạo: 08/08/2025 10:15 • Hết hạn: 15/08/2025 10:15</span>
+                        </div>
+                        <div class="token-preview">tk_api_xyz789uvw012...</div>
+                    </div>
+                    <div class="token-actions">
+                        <button class="action-btn copy" onclick="copyExistingToken(2)">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="action-btn qr" onclick="showQR(2)">
+                            <i class="fas fa-qrcode"></i>
+                        </button>
+                        <button class="action-btn delete" onclick="revokeToken(2)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="token-item">
+                    <div class="token-info">
+                        <div class="token-title">Truy cập tạm thời - MST: 5555666777</div>
+                        <div class="token-meta">
+                            <span class="status-badge status-expired">Hết hạn</span>
+                            <span>• Tạo: 07/08/2025 14:45 • Hết hạn: 07/08/2025 15:45</span>
+                        </div>
+                        <div class="token-preview">tk_tmp_mno345pqr678...</div>
+                    </div>
+                    <div class="token-actions">
+                        <button class="action-btn copy" onclick="copyExistingToken(3)" disabled>
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="action-btn qr" onclick="showQR(3)" disabled>
+                            <i class="fas fa-qrcode"></i>
+                        </button>
+                        <button class="action-btn delete" onclick="revokeToken(3)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth } from "../shared/js/firebase-init.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // Auth check
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                location.href = "admin-login.html";
+            }
+        });
+
+        // Generate random token
+        function generateRandomToken(type = 'login') {
+            const prefix = {
+                'login': 'tk_etx',
+                'session': 'tk_ses',
+                'api': 'tk_api',
+                'temp': 'tk_tmp'
+            };
+            
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = prefix[type] + '_';
+            
+            for (let i = 0; i < 32; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            
+            return result;
+        }
+
+        // Generate token
+        window.generateToken = () => {
+            const mst = document.getElementById('tokenMST').value.trim();
+            const type = document.getElementById('tokenType').value;
+            const expiry = document.getElementById('tokenExpiry').value;
+            const purpose = document.getElementById('tokenPurpose').value.trim();
+
+            if (!mst) {
+                alert('Vui lòng nhập MST');
+                return;
+            }
+
+            const token = generateRandomToken(type);
+            
+            document.getElementById('tokenValue').textContent = token;
+            document.getElementById('generatedToken').style.display = 'block';
+            
+            // Add to active tokens list (in real app, save to Firebase)
+            addTokenToList({
+                mst: mst,
+                type: type,
+                token: token,
+                expiry: expiry,
+                purpose: purpose || 'Không có mô tả',
+                created: new Date(),
+                status: 'active'
+            });
+
+            alert(`✅ Đã tạo token thành công cho MST: ${mst}`);
+        };
+
+        // Template functions
+        window.createLoginToken = () => {
+            const mst = prompt('Nhập MST để tạo token đăng nhập nhanh:');
+            if (mst) {
+                document.getElementById('tokenMST').value = mst;
+                document.getElementById('tokenType').value = 'login';
+                document.getElementById('tokenExpiry').value = '24h';
+                document.getElementById('tokenPurpose').value = 'Token đăng nhập nhanh';
+                generateToken();
+            }
+        };
+
+        window.createTempAccess = () => {
+            const mst = prompt('Nhập MST để tạo truy cập tạm thời:');
+            if (mst) {
+                document.getElementById('tokenMST').value = mst;
+                document.getElementById('tokenType').value = 'temp';
+                document.getElementById('tokenExpiry').value = '1h';
+                document.getElementById('tokenPurpose').value = 'Truy cập tạm thời 1 giờ';
+                generateToken();
+            }
+        };
+
+        window.createAPIToken = () => {
+            const mst = prompt('Nhập MST để tạo API token:');
+            if (mst) {
+                document.getElementById('tokenMST').value = mst;
+                document.getElementById('tokenType').value = 'api';
+                document.getElementById('tokenExpiry').value = '30d';
+                document.getElementById('tokenPurpose').value = 'API Access Token';
+                generateToken();
+            }
+        };
+
+        window.createEmergencyToken = () => {
+            if (confirm('Tạo token khẩn cấp cho admin?')) {
+                document.getElementById('tokenMST').value = 'ADMIN_EMERGENCY';
+                document.getElementById('tokenType').value = 'login';
+                document.getElementById('tokenExpiry').value = '1h';
+                document.getElementById('tokenPurpose').value = 'Token khẩn cấp cho admin';
+                generateToken();
+            }
+        };
+
+        window.generateBulkTokens = () => {
+            const count = prompt('Số lượng token cần tạo:', '5');
+            if (count && parseInt(count) > 0) {
+                alert(`🔄 Sẽ tạo ${count} tokens - Tính năng đang được phát triển`);
+            }
+        };
+
+        // Direct link functions
+        window.createDirectLink = () => {
+            const mst = document.getElementById('directMST').value.trim();
+            if (!mst) {
+                alert('Vui lòng nhập MST');
+                return;
+            }
+
+            const token = generateRandomToken('login');
+            const link = `${window.location.origin}/user/index.html?mst=${mst}&token=${token}`;
+            
+            document.getElementById('directLinkValue').textContent = link;
+            document.getElementById('directLink').style.display = 'block';
+        };
+
+        window.copyDirectLink = () => {
+            const linkValue = document.getElementById('directLinkValue').textContent;
+            navigator.clipboard.writeText(linkValue);
+            alert('📋 Đã copy link truy cập!');
+        };
+
+        // Token management
+        window.copyToken = () => {
+            const tokenValue = document.getElementById('tokenValue').textContent;
+            navigator.clipboard.writeText(tokenValue);
+            alert('📋 Đã copy token!');
+        };
+
+        window.copyExistingToken = (id) => {
+            // In real app, get actual token from database
+            const sampleTokens = [
+                'tk_etx_abc123def456ghi789jkl012mno345',
+                'tk_api_xyz789uvw012rst345def678ghi',
+                'tk_tmp_mno345pqr678stu901vwx234yza'
+            ];
+            
+            navigator.clipboard.writeText(sampleTokens[id-1]);
+            alert(`📋 Đã copy token #${id}!`);
+        };
+
+        window.showQR = (id) => {
+            alert(`📱 Hiển thị QR code cho token #${id} - Tính năng sẽ được triển khai`);
+        };
+
+        window.revokeToken = (id) => {
+            if (confirm('Thu hồi token này? Token sẽ không thể sử dụng nữa.')) {
+                alert(`🔒 Đã thu hồi token #${id}`);
+                // In real app, update status in database
+            }
+        };
+
+        // Helper function to add token to list
+        function addTokenToList(tokenData) {
+            const list = document.getElementById('tokensList');
+            const item = document.createElement('div');
+            item.className = 'token-item';
+            item.innerHTML = `
+                <div class="token-info">
+                    <div class="token-title">${getTypeText(tokenData.type)} - MST: ${tokenData.mst}</div>
+                    <div class="token-meta">
+                        <span class="status-badge status-${tokenData.status}">${getStatusText(tokenData.status)}</span>
+                        <span>• Tạo: ${tokenData.created.toLocaleString('vi-VN')} • Hết hạn: ${getExpiryText(tokenData.expiry)}</span>
+                    </div>
+                    <div class="token-preview">${tokenData.token.substring(0, 25)}...</div>
+                </div>
+                <div class="token-actions">
+                    <button class="action-btn copy" onclick="copyTokenDirect('${tokenData.token}')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    <button class="action-btn qr" onclick="showQRDirect('${tokenData.token}')">
+                        <i class="fas fa-qrcode"></i>
+                    </button>
+                    <button class="action-btn delete" onclick="revokeTokenDirect('${tokenData.token}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            list.insertBefore(item, list.firstChild);
+        }
+
+        // Helper functions
+        function getTypeText(type) {
+            const types = {
+                'login': 'Token đăng nhập',
+                'session': 'Phiên làm việc',
+                'api': 'API Access',
+                'temp': 'Truy cập tạm thời'
+            };
+            return types[type] || type;
+        }
+
+        function getStatusText(status) {
+            const statuses = {
+                'active': 'Hoạt động',
+                'expired': 'Hết hạn',
+                'used': 'Đã sử dụng',
+                'revoked': 'Đã thu hồi'
+            };
+            return statuses[status] || status;
+        }
+
+        function getExpiryText(expiry) {
+            const now = new Date();
+            const expiryMap = {
+                '1h': new Date(now.getTime() + 60 * 60 * 1000),
+                '24h': new Date(now.getTime() + 24 * 60 * 60 * 1000),
+                '7d': new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
+                '30d': new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000),
+                'never': 'Không hết hạn'
+            };
+            
+            return expiry === 'never' ? 'Không hết hạn' : expiryMap[expiry]?.toLocaleString('vi-VN') || 'Không xác định';
+        }
+
+        // Direct token actions
+        window.copyTokenDirect = (token) => {
+            navigator.clipboard.writeText(token);
+            alert('📋 Đã copy token!');
+        };
+
+        window.showQRDirect = (token) => {
+            alert(`📱 Hiển thị QR code cho token: ${token.substring(0, 20)}...`);
+        };
+
+        window.revokeTokenDirect = (token) => {
+            if (confirm('Thu hồi token này?')) {
+                alert(`🔒 Đã thu hồi token: ${token.substring(0, 20)}...`);
+            }
+        };
+    </script>
+</body>
+</html>

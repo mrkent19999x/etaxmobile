@@ -1,0 +1,105 @@
+<!DOCTYPE html><html lang="vi"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#667eea">
+<meta name="msapplication-navbutton-color" content="#667eea">
+<meta name="apple-mobile-web-app-title" content="eTax Admin">
+<title>Tạo tài khoản Admin</title>
+<link rel="stylesheet" href="css/admin.css">
+<!-- Firebase Scripts -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+<script>
+  // Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+    authDomain: "etax-7fbf8.firebaseapp.com",
+    databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "etax-7fbf8",
+    storageBucket: "etax-7fbf8.appspot.com",
+    messagingSenderId: "1030026724634",
+    appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3"
+  };
+  
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+  
+  window.createAdmin = async ()=>{
+    const email = document.querySelector('#email').value.trim();
+    const pass = document.querySelector('#pass').value;
+    const confirmPass = document.querySelector('#confirmPass').value;
+    const fullName = document.querySelector('#fullName').value.trim();
+    
+    if(!email || !pass || !confirmPass || !fullName) {
+      alert("Vui lòng điền đầy đủ thông tin!");
+      return;
+    }
+    
+    if(pass !== confirmPass) {
+      alert("Mật khẩu xác nhận không khớp!");
+      return;
+    }
+    
+    if(pass.length < 6) {
+      alert("Mật khẩu phải có ít nhất 6 ký tự!");
+      return;
+    }
+    
+    try{
+      const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, pass);
+      
+      // Save admin info to Realtime Database
+      await db.ref('admins/' + userCredential.user.uid).set({
+        email: email,
+        fullName: fullName,
+        role: 'admin',
+        createdAt: new Date().toISOString(),
+        isActive: true
+      });
+      
+      alert(`✅ Tạo tài khoản admin thành công!\n📧 Email: ${email}\n👤 Tên: ${fullName}\n🆔 UID: ${userCredential.user.uid}`);
+      
+      // Clear form
+      document.querySelector('#email').value = '';
+      document.querySelector('#pass').value = '';
+      document.querySelector('#confirmPass').value = '';
+      document.querySelector('#fullName').value = '';
+      
+    }catch(e){ 
+      alert("Lỗi tạo tài khoản: "+ e.message); 
+    }
+  };
+</script>
+</head><body><div class="wrap">
+  <div style="text-align: center; margin-bottom: 20px;">
+    <a href="admin-home.html" style="color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+      <i class="fa fa-arrow-left"></i> Về trang chủ Admin
+    </a>
+  </div>
+  <h2>Tạo tài khoản Admin</h2>
+  <div class="card">
+    <label>Họ và tên</label>
+    <input id="fullName" placeholder="Nguyễn Văn A">
+    
+    <label>Email admin</label>
+    <input id="email" type="email" placeholder="admin@company.com">
+    
+    <label>Mật khẩu</label>
+    <input id="pass" type="password" placeholder="••••••••">
+    
+    <label>Xác nhận mật khẩu</label>
+    <input id="confirmPass" type="password" placeholder="••••••••">
+    
+    <p><button onclick="createAdmin()">Tạo tài khoản Admin</button></p>
+    <p class="small">
+      <a href="admin-login.html">← Quay lại đăng nhập</a><br><br>
+      * Tài khoản admin sẽ có quyền truy cập tất cả chức năng quản lý.<br>
+      * Email và mật khẩu sẽ được lưu vào Firebase Authentication.
+    </p>
+  </div>
+</div></body></html>

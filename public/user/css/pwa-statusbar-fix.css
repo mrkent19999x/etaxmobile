@@ -1,0 +1,19 @@
+/* ===== PWA STATUSBAR FIX CHO TẤT CẢ THIẾT BỊ ===== */
+
+/* Universal Fix */
+.header, .topbar {
+  background-color: #b71c1c !important;
+  color: white !important;
+}
+
+/* Notification Bar Color */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background-color: #b71c1c;
+  z-index: 9999;
+}

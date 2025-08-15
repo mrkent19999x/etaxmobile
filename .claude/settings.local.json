@@ -4,7 +4,13 @@
       "Bash(grep:*)",
       "Bash(node:*)",
       "Bash(rm:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(firebase deploy:*)",
+      "Bash(del claude.cmd clean_project.bat)",
+      "Bash(git checkout:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }

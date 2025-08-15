@@ -1,0 +1,33 @@
+{
+  "allowedTools": [
+    "Bash(*)",
+    "Edit(*)", 
+    "Read(*)",
+    "Write(*)",
+    "MultiEdit(*)",
+    "LS(*)",
+    "Glob(*)",
+    "Grep(*)",
+    "WebFetch(*)",
+    "Task(*)"
+  ],
+  "autonomousMode": {
+    "autoTest": true,
+    "autoDebug": true,
+    "autoDeploy": false,
+    "autoCommit": true
+  },
+  "testCommands": [
+    "npm test",
+    "npm run lint",
+    "npm run build",
+    "firebase deploy --only hosting"
+  ],
+  "debugWorkflow": [
+    "1. Phát hiện lỗi",
+    "2. Phân tích nguyên nhân",
+    "3. Tạo fix",
+    "4. Test fix", 
+    "5. Deploy nếu OK"
+  ]
+}

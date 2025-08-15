@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>eTax Mobile - Tra cứu thông báo</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+    <style>
+    body, html { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background-color: #f4f4f9; }
+    .header {
+        background-color: #b71c1c; color: white; padding: 15px 20px;
+        display: flex; align-items: center; justify-content: space-between;
+        position: sticky; top: 0; z-index: 1000;
+    }
+    .header-title { font-size: 18px; font-weight: 500; }
+
+    /* Tabs Section */
+    eight: normal; color: #333; font-size: 16px; }
+</style>
+</style>
+</head>
+<body>
+
+<header class="header">
+    <i class="fas fa-arrow-left" onclick="window.location.href='index.html'"></i>
+    <div class="header-title">Tra cứu thông báo</div>
+    <i class="fas fa-house" onclick="window.location.href='index.html'" style="visibility: hidden;"></i>
+</header>
+
+<div class="tabs-container">
+    <div class="tabs-inner">
+        <div class="tab-item active">
+            <div class="tab-badge">0</div>
+            <div>Thông báo<br>hành chính của<br>CQT</div>
+        </div>
+        <div class="tab-item">
+            <div class="tab-badge">0</div>
+            <div>Biến động<br>nghĩa vụ thuế</div>
+        </div>
+        <div class="tab-item">
+            <div class="tab-badge">0</div>
+            <div>Thông báo<br>khác</div>
+        </div>
+    </div>
+</div>
+
+<div class="search-container">
+    <div class="search-bar">
+        <input type="text" class="search-input" placeholder="Tìm theo nội dung hoặc ngày">
+        <button class="advanced-btn">
+            <i class="fas fa-plus"></i> Nâng cao
+        </button>
+    </div>
+</div>
+
+<div class="notification-list" id="notificationListContainer">
+    <!-- Notifications will be loaded here -->
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyD_rJgBFgBulheVenQUE2KXr4PBpSpTCxw",
+        authDomain: "etax-7fbf8.firebaseapp.com",
+        databaseURL: "https://etax-7fbf8-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "etax-7fbf8",
+        storageBucket: "etax-7fbf8.appspot.com",
+        messagingSenderId: "1030026724634",
+        appId: "1:1030026724634:web:d76f5f9dad43bad6fd58a3"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const loggedInMST = localStorage.getItem('etax_logged_in_user');
+        if (!loggedInMST) {
+            window.location.href = 'login.html';
+            return;
+        }
+        loadNotifications(loggedInMST);
+    });
+
+    async function loadNotifications(mst) {
+        const container = document.getElementById('notificationListContainer');
+        container.innerHTML = '<p>Đang tải thông báo...</p>';
+
+        try {
+            const snapshot = await db.ref('notifications').orderByChild('publishDate').once('value');
+            const allNotifications = snapshot.val() || {};
+
+            const userNotifications = Object.entries(allNotifications).filter(([key, notif]) => {
+                return notif.type === 'general' || (notif.type === 'personal' && notif.targetUser === mst);
+            });
+
+            if (userNotifications.length === 0) {
+                container.innerHTML = '<p>Không có thông báo nào.</p>';
+                return;
+            }
+
+            // Sort by publishDate descending (newest first)
+            userNotifications.sort((a, b) => b[1].publishDate - a[1].publishDate);
+
+            container.innerHTML = ''; // Clear loading message
+
+            userNotifications.forEach(([key, notif]) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'notification-item-wrapper';
+
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'notification-time-standalone';
+                timeDiv.textContent = new Date(notif.publishDate).toLocaleString('vi-VN');
+
+                const itemLink = document.createElement('a');
+                itemLink.className = 'notification-item';
+                itemLink.href = `chi-tiet-thong-bao.html?id=${key}`;
+                itemLink.innerHTML = `<div class="notification-title">${notif.title}</div>`;
+
+                wrapper.appendChild(timeDiv);
+                wrapper.appendChild(itemLink);
+                container.appendChild(wrapper);
+            });
+
+        } catch (error) {
+            console.error("Error loading notifications:", error);
+            container.innerHTML = '<p>Lỗi khi tải thông báo.</p>';
+        }
+    }
+
+    // ✅ PWA LOCK SETTINGS
+    // Block double-tap zoom
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e) {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+
+    // Block context menu
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    // Block iOS swipe back gesture
+    document.addEventListener('touchstart', function(e) {
+        if (e.touches.length > 1) {
+            e.preventDefault();
+        }
+    });
+
+    // Block drag and drop
+    document.addEventListener('dragstart', function(e) {
+        e.preventDefault();
+    });
+</script>
+
+</body>
+</html>

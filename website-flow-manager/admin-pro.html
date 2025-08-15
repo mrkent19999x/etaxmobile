@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Admin Pro - Quản lý Website eTAX</title>
+    <link rel="stylesheet" href="css/admin-pro.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-cogs"></i> Website Admin Pro</h1>
+            <p>Quản lý Website eTAX - Quản trị toàn diện</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="openProject()" aria-label="Mở dự án website">
+                <i class="fas fa-folder-open"></i> Mở Dự án
+            </button>
+            <button class="btn btn-secondary" onclick="showHelp()" aria-label="Xem hướng dẫn sử dụng">
+                <i class="fas fa-question-circle"></i> Hướng dẫn
+            </button>
+            <button class="btn btn-info" onclick="showMobilePreview()" aria-label="Xem preview trên điện thoại">
+                <i class="fas fa-mobile-alt"></i> Mobile Preview
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Left Column - Flow Management -->
+        <div class="left-column">
+            <!-- Project Info -->
+            <div class="panel project-info" id="projectInfo">
+                <h3><i class="fas fa-info-circle"></i> Thông tin Dự án eTAX</h3>
+                <div class="project-details">
+                    <div class="detail-item">
+                        <span class="label">Tên dự án:</span>
+                        <span class="value" id="projectName">Chưa chọn</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Số file:</span>
+                        <span class="value" id="fileCount">0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Trạng thái:</span>
+                        <span class="value status-badge" id="projectStatus">Chưa quét</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Luồng chính:</span>
+                        <span class="value" id="mainFlow">Chưa xác định</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flow Manager -->
+            <div class="panel flow-manager" id="flowManager">
+                <h3><i class="fas fa-project-diagram"></i> Quản lý Luồng Website</h3>
+                <div class="flow-controls">
+                    <button class="btn btn-primary" onclick="addNewPage()" aria-label="Thêm trang mới vào luồng">
+                        <i class="fas fa-plus"></i> + Thêm Trang Mới
+                    </button>
+                    <button class="btn btn-success" onclick="editFlow()" aria-label="Chỉnh sửa thứ tự các trang trong luồng">
+                        <i class="fas fa-edit"></i> Chỉnh Sửa Luồng
+                    </button>
+                    <button class="btn btn-success" onclick="testFlow()" aria-label="Kiểm tra luồng website hoạt động">
+                        <i class="fas fa-play"></i> ► Test Luồng
+                    </button>
+                </div>
+                
+                <div class="flow-container" id="flowContainer">
+                    <!-- Flow pages will be loaded here -->
+                    <div class="flow-placeholder">
+                        <p>Chưa có trang nào trong luồng</p>
+                        <p>Hãy chọn dự án để bắt đầu</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Mobile Preview -->
+        <div class="right-column">
+            <!-- File Upload -->
+            <div class="panel file-upload" id="fileUpload">
+                <h3><i class="fas fa-cloud-upload-alt"></i> Tải lên Dự án</h3>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-content">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <h4>Kéo thả thư mục dự án eTAX vào đây</h4>
+                        <p>Hoặc click để chọn thư mục</p>
+                        <input type="file" id="folderInput" webkitdirectory directory multiple style="display: none;" 
+                               aria-label="Chọn thư mục dự án website">
+                        <button class="btn btn-primary" onclick="document.getElementById('folderInput').click()" 
+                                aria-label="Mở hộp thoại chọn thư mục">
+                            <i class="fas fa-folder"></i> Chọn Thư mục eTAX
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Preview -->
+            <div class="panel mobile-preview" id="mobilePreview">
+                <h3><i class="fas fa-mobile-alt"></i> Mobile Preview - Xem như Điện thoại Thật</h3>
+                <div class="device-selector">
+                    <button class="device-btn active" data-device="iphone" aria-label="Chuyển sang chế độ xem iPhone">
+                        <i class="fas fa-mobile-alt"></i> iPhone
+                    </button>
+                    <button class="device-btn" data-device="android" aria-label="Chuyển sang chế độ xem Android">
+                        <i class="fab fa-android"></i> Android
+                    </button>
+                    <button class="device-btn" data-device="tablet" aria-label="Chuyển sang chế độ xem Tablet">
+                        <i class="fas fa-tablet-alt"></i> Tablet
+                    </button>
+                </div>
+                
+                <div class="preview-controls">
+                    <button class="btn btn-small" onclick="rotateScreen()" aria-label="Xoay màn hình preview">
+                        <i class="fas fa-redo"></i> Xoay màn hình
+                    </button>
+                    <button class="btn btn-small" onclick="toggleFullscreen()" aria-label="Chuyển sang chế độ toàn màn hình">
+                        <i class="fas fa-expand"></i> Toàn màn hình
+                    </button>
+                </div>
+                
+                <div class="preview-frame" id="previewFrame" role="application" aria-label="Khung xem trước trang web trên thiết bị di động">
+                    <div class="preview-placeholder">
+                        <i class="fas fa-mobile-alt"></i>
+                        <p>Chọn trang để xem Mobile Preview</p>
+                        <p>Click vào nút 'Xem' ở các trang trong Flow Manager</p>
+                        <div class="usage-tips">
+                            <h5>Mẹo sử dụng:</h5>
+                            <ul>
+                                <li><kbd>Ctrl+1</kbd>: Chuyển sang iPhone</li>
+                                <li><kbd>Ctrl+2</kbd>: Chuyển sang Android</li>
+                                <li><kbd>Ctrl+3</kbd>: Chuyển sang Tablet</li>
+                                <li><kbd>Ctrl+R</kbd>: Xoay màn hình</li>
+                                <li><kbd>Ctrl+F</kbd>: Toàn màn hình</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <div class="modal" id="helpModal" role="dialog" aria-labelledby="helpModalTitle" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="helpModalTitle"><i class="fas fa-question-circle"></i> Hướng dẫn sử dụng</h3>
+                <button class="close-btn" onclick="closeModal('helpModal')" aria-label="Đóng hộp thoại hướng dẫn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4>📁 Cách sử dụng:</h4>
+                <ol>
+                    <li><strong>Chọn dự án:</strong> Kéo thả thư mục website vào khu vực upload</li>
+                    <li><strong>Xem luồng:</strong> Luồng website sẽ hiển thị ở cột trái</li>
+                    <li><strong>Mobile Preview:</strong> Click 'Xem' để xem trang trên điện thoại</li>
+                    <li><strong>Quản lý luồng:</strong> Sử dụng các nút để thêm/sửa/xóa trang</li>
+                </ol>
+                
+                <h4>🎯 Tính năng chính:</h4>
+                <ul>
+                    <li>✅ Tự động phân tích cấu trúc website</li>
+                    <li>✅ Hiển thị luồng trực quan</li>
+                    <li>✅ Mobile preview chính xác</li>
+                    <li>✅ Quản lý luồng dễ dàng</li>
+                    <li>✅ Giao diện tiếng Việt 100%</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add New Page Modal -->
+    <div class="modal" id="addPageModal" role="dialog" aria-labelledby="addPageModalTitle" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="addPageModalTitle"><i class="fas fa-plus"></i> Thêm Trang Mới</h3>
+                <button class="close-btn" onclick="closeModal('addPageModal')" aria-label="Đóng hộp thoại thêm trang">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addPageForm">
+                    <div class="form-group">
+                        <label for="pageName">Tên trang:</label>
+                        <input type="text" id="pageName" name="pageName" required 
+                               placeholder="Ví dụ: about.html" aria-describedby="pageNameHelp">
+                        <small id="pageNameHelp">Nhập tên file HTML (ví dụ: about.html)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pageType">Loại trang:</label>
+                        <select id="pageType" name="pageType" required aria-describedby="pageTypeHelp">
+                            <option value="">Chọn loại trang</option>
+                            <option value="required">Bắt buộc (User phải qua)</option>
+                            <option value="optional">Tùy chọn (User có thể bỏ qua)</option>
+                            <option value="admin">Chỉ Admin</option>
+                        </select>
+                        <small id="pageTypeHelp">Chọn loại trang để xác định quyền truy cập</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pageDescription">Mô tả:</label>
+                        <textarea id="pageDescription" name="pageDescription" rows="3" 
+                                  placeholder="Mô tả chức năng của trang" aria-describedby="pageDescriptionHelp"></textarea>
+                        <small id="pageDescriptionHelp">Mô tả ngắn gọn về chức năng của trang</small>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('addPageModal')">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Thêm Trang</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/admin-pro.js"></script>
+    <script src="js/flow-manager.js"></script>
+    <script src="js/mobile-preview.js"></script>
+    <script src="js/content-editor.js"></script>
+    <script src="js/clone-tool.js"></script>
+    <script src="js/file-analyzer.js"></script>
+</body>
+</html>

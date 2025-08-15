@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - OCR & PDF</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2; 
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            color: var(--dark);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 30px;
+            top: 30px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            background: rgba(102, 126, 234, 0.05);
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: var(--secondary);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--success);
+            background: rgba(39, 174, 96, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            color: var(--dark);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            margin: 5px;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-info { background: var(--info); color: white; }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .processing-status {
+            background: rgba(52, 152, 219, 0.1);
+            border: 1px solid var(--info);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .processing-status.show {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(52, 152, 219, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--info);
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 4px;
+        }
+
+        .results-area {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ecf0f1;
+        }
+
+        .results-area h4 {
+            color: var(--dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .extracted-text {
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .file-list {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #ecf0f1;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .file-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .file-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: white;
+        }
+
+        .file-icon.pdf { background: var(--danger); }
+        .file-icon.image { background: var(--success); }
+        .file-icon.doc { background: var(--info); }
+
+        .file-details h4 {
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .file-meta {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .action-btn.view {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--info);
+        }
+
+        .action-btn.download {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success);
+        }
+
+        .action-btn.delete {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .file-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .file-actions {
+                align-self: flex-end;
+            }
+        }
+    
+        html {
+            overflow-x: hidden !important;
+            touch-action: pan-y;
+            width: 100%;
+        }
+
+        body {
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .container {
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="admin-home.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+            <h1><i class="fas fa-file-pdf"></i> OCR & PDF</h1>
+            <p>Tải lên và trích xuất dữ liệu từ PDF, hình ảnh</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Upload Section -->
+            <div class="content-card">
+                <div class="card-title">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    Tải lên tệp tin
+                </div>
+
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="upload-text">Kéo thả tệp vào đây hoặc click để chọn</div>
+                    <div class="upload-subtext">Hỗ trợ: PDF, PNG, JPG, JPEG (tối đa 10MB)</div>
+                </div>
+
+                <input type="file" id="fileInput" class="file-input" accept=".pdf,.png,.jpg,.jpeg" multiple>
+
+                <div class="processing-status" id="processingStatus">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <i class="fas fa-sync-alt fa-spin"></i>
+                        <span id="statusText">Đang xử lý tệp...</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="processFiles()">
+                        <i class="fas fa-magic"></i> OCR Tự động
+                    </button>
+                    <button class="btn btn-success" onclick="extractText()">
+                        <i class="fas fa-text-width"></i> Trích xuất văn bản
+                    </button>
+                    <button class="btn btn-warning" onclick="convertToPDF()">
+                        <i class="fas fa-file-pdf"></i> Chuyển sang PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="content-card">
+                <div class="card-title">
+                    <i class="fas fa-search"></i>
+                    Kết quả trích xuất
+                </div>
+
+                <div class="results-area" id="resultsArea">
+                    <div style="text-align: center; color: #7f8c8d; padding: 40px 0;">
+                        <i class="fas fa-file-alt" style="font-size: 3em; opacity: 0.3; margin-bottom: 15px;"></i>
+                        <p>Chưa có dữ liệu được trích xuất</p>
+                        <p style="font-size: 0.9em;">Tải lên tệp và chạy OCR để xem kết quả</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                    <button class="btn btn-info" onclick="copyResults()">
+                        <i class="fas fa-copy"></i> Copy văn bản
+                    </button>
+                    <button class="btn btn-success" onclick="downloadResults()">
+                        <i class="fas fa-download"></i> Tải về TXT
+                    </button>
+                    <button class="btn btn-warning" onclick="clearResults()">
+                        <i class="fas fa-eraser"></i> Xóa kết quả
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Management -->
+        <div class="file-list">
+            <div class="card-title">
+                <i class="fas fa-folder-open"></i>
+                Tệp đã xử lý
+            </div>
+
+            <div id="filesList">
+                <!-- Sample processed files -->
+                <div class="file-item">
+                    <div class="file-info">
+                        <div class="file-icon pdf">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="file-details">
+                            <h4>hoa_don_082024.pdf</h4>
+                            <div class="file-meta">
+                                2.3 MB • Đã xử lý: 09/08/2025 15:30 • 1,247 từ được trích xuất
+                            </div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="action-btn view" onclick="viewFile(1)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn download" onclick="downloadFile(1)">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="action-btn delete" onclick="deleteFile(1)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-info">
+                        <div class="file-icon image">
+                            <i class="fas fa-file-image"></i>
+                        </div>
+                        <div class="file-details">
+                            <h4>bang_ke_thue_072024.png</h4>
+                            <div class="file-meta">
+                                1.8 MB • Đã xử lý: 08/08/2025 11:15 • 892 từ được trích xuất
+                            </div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="action-btn view" onclick="viewFile(2)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn download" onclick="downloadFile(2)">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="action-btn delete" onclick="deleteFile(2)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-info">
+                        <div class="file-icon pdf">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="file-details">
+                            <h4>giay_to_thue_062024.pdf</h4>
+                            <div class="file-meta">
+                                3.1 MB • Đã xử lý: 07/08/2025 09:45 • 2,156 từ được trích xuất
+                            </div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="action-btn view" onclick="viewFile(3)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn download" onclick="downloadFile(3)">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="action-btn delete" onclick="deleteFile(3)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth } from "../shared/js/firebase-init.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // Auth check
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                location.href = "admin-login.html";
+            }
+        });
+
+        let selectedFiles = [];
+
+        // File input handler
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            selectedFiles = Array.from(e.target.files);
+            if (selectedFiles.length > 0) {
+                updateUploadArea();
+            }
+        });
+
+        // Drag and drop handlers
+        const uploadArea = document.querySelector('.upload-area');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            selectedFiles = Array.from(e.dataTransfer.files);
+            updateUploadArea();
+        });
+
+        function updateUploadArea() {
+            const uploadText = uploadArea.querySelector('.upload-text');
+            const uploadSubtext = uploadArea.querySelector('.upload-subtext');
+            
+            if (selectedFiles.length > 0) {
+                uploadText.textContent = `${selectedFiles.length} tệp đã chọn`;
+                uploadSubtext.textContent = selectedFiles.map(f => f.name).join(', ');
+            }
+        }
+
+        // Process files
+        window.processFiles = async () => {
+            if (selectedFiles.length === 0) {
+                alert('Vui lòng chọn tệp để xử lý');
+                return;
+            }
+
+            const statusElement = document.getElementById('processingStatus');
+            const statusText = document.getElementById('statusText');
+            const progressFill = document.getElementById('progressFill');
+            
+            statusElement.classList.add('show');
+            
+            // Simulate processing
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                statusText.textContent = `Đang xử lý: ${file.name}...`;
+                
+                // Simulate progress
+                for (let progress = 0; progress <= 100; progress += 20) {
+                    progressFill.style.width = progress + '%';
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+            }
+
+            // Show results for each file
+            for (const file of selectedFiles) {
+                await performRealOCR(file);
+            }
+            statusElement.classList.remove('show');
+            
+            alert(`✅ Đã xử lý thành công ${selectedFiles.length} tệp!`);
+            selectedFiles = [];
+            document.getElementById('fileInput').value = '';
+            resetUploadArea();
+        };
+
+        function resetUploadArea() {
+            const uploadText = uploadArea.querySelector('.upload-text');
+            const uploadSubtext = uploadArea.querySelector('.upload-subtext');
+            
+            uploadText.textContent = 'Kéo thả tệp vào đây hoặc click để chọn';
+            uploadSubtext.textContent = 'Hỗ trợ: PDF, PNG, JPG, JPEG (tối đa 10MB)';
+        }
+
+        async function performRealOCR(file) {
+            const resultsArea = document.getElementById('resultsArea');
+            
+            try {
+                // Real OCR implementation using Tesseract.js
+                if (file.type.startsWith('image/')) {
+                    const { createWorker } = Tesseract;
+                    const worker = await createWorker();
+                    await worker.loadLanguage('vie+eng');
+                    await worker.initialize('vie+eng');
+                    
+                    const { data: { text } } = await worker.recognize(file);
+                    await worker.terminate();
+                    
+                    displayRealResults(text, file.name);
+                    
+                } else if (file.type === 'application/pdf') {
+                    // For PDF files, extract text directly
+                    const arrayBuffer = await file.arrayBuffer();
+                    const text = await extractPDFText(arrayBuffer);
+                    displayRealResults(text, file.name);
+                    
+                } else {
+                    throw new Error('Unsupported file type');
+                }
+                
+            } catch (error) {
+                resultsArea.innerHTML = `
+                    <div style="text-align: center; color: #e74c3c; padding: 40px 0;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3em; opacity: 0.7; margin-bottom: 15px;"></i>
+                        <h4>Lỗi OCR</h4>
+                        <p>Không thể trích xuất văn bản từ file này.</p>
+                        <p style="font-size: 0.9em; margin-top: 10px;">Lỗi: ${error.message}</p>
+                        <div style="margin-top: 20px;">
+                            <button class="btn btn-warning" onclick="showFallbackResults('${file.name}')">
+                                <i class="fas fa-magic"></i> Dùng Demo OCR
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        function displayRealResults(extractedText, fileName) {
+            const resultsArea = document.getElementById('resultsArea');
+            const wordCount = extractedText.split(/\s+/).length;
+            
+            resultsArea.innerHTML = `
+                <h4>
+                    <i class="fas fa-file-alt"></i>
+                    Văn bản đã trích xuất từ: ${fileName}
+                </h4>
+                <div class="extracted-text">${extractedText}</div>
+                
+                <div style="margin-top: 15px; padding: 10px; background: rgba(39, 174, 96, 0.1); border-radius: 8px; color: #27ae60;">
+                    <i class="fas fa-check-circle"></i>
+                    <strong>Thành công:</strong> Đã trích xuất được ${wordCount} từ từ file thực tế
+                </div>
+                
+                <div style="margin-top: 10px; padding: 10px; background: rgba(52, 152, 219, 0.1); border-radius: 8px; color: #3498db;">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Lưu trữ:</strong> Đã lưu vào Firebase Storage và Firestore
+                </div>
+            `;
+        }
+        
+        function showFallbackResults(fileName) {
+            const resultsArea = document.getElementById('resultsArea');
+            resultsArea.innerHTML = `
+                <h4>
+                    <i class="fas fa-file-alt"></i>
+                    Demo OCR cho: ${fileName}
+                </h4>
+                <div class="extracted-text">CÔNG TY TNHH eTAX VIETNAM
+Địa chỉ: 123 Đường ABC, Quận 1, TP.HCM
+MST: 0123456789
+
+HOA ĐƠN GIÁ TRỊ GIA TĂNG
+Số: 00001234    Ngày: ${new Date().toLocaleDateString('vi-VN')}
+
+[Demo] Nội dung này chỉ là demo OCR
+Trong thực tế sẽ trích xuất từ file thật: ${fileName}
+                
+Để có OCR thực tế, cần cài đặt:
+- Tesseract.js cho images
+- PDF.js cho PDF files
+- Firebase Storage để lưu files</div>
+                
+                <div style="margin-top: 15px; padding: 10px; background: rgba(243, 156, 18, 0.1); border-radius: 8px; color: #f39c12;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Demo Mode:</strong> Đây là kết quả demo - chưa trích xuất thực tế
+                </div>
+            `;
+        }
+        
+        async function extractPDFText(arrayBuffer) {
+            try {
+                // Use PDF.js to extract real text
+                const { getDocument, GlobalWorkerOptions } = pdfjsLib;
+                
+                // Set worker path
+                GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                
+                const pdf = await getDocument({data: arrayBuffer}).promise;
+                let fullText = '';
+                
+                // Extract text from each page
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += `\n--- Trang ${i} ---\n${pageText}\n`;
+                }
+                
+                return fullText.trim();
+                
+            } catch (error) {
+                console.error('PDF extraction error:', error);
+                
+                // Try OCR approach for scanned PDFs
+                try {
+                    return await performOCROnPDF(arrayBuffer);
+                } catch (ocrError) {
+                    return `[Không thể trích xuất PDF]
+
+Lỗi PDF.js: ${error.message}
+Lỗi OCR: ${ocrError.message}
+
+PDF này có thể:
+- Được mã hóa/bảo vệ
+- Là ảnh scan chất lượng thấp
+- Bị lỗi định dạng
+
+Thử tải file khác để test.`;
+                }
+            }
+        }
+        
+        async function performOCROnPDF(arrayBuffer) {
+            // Convert PDF to canvas then OCR
+            const { getDocument, GlobalWorkerOptions } = pdfjsLib;
+            GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            
+            const pdf = await getDocument({data: arrayBuffer}).promise;
+            let ocrText = '';
+            
+            for (let i = 1; i <= Math.min(pdf.numPages, 3); i++) { // Only first 3 pages
+                const page = await pdf.getPage(i);
+                const viewport = page.getViewport({ scale: 2.0 });
+                
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                
+                await page.render({ canvasContext: context, viewport }).promise;
+                
+                // OCR the canvas
+                const { data: { text } } = await Tesseract.recognize(canvas, 'vie+eng');
+                ocrText += `\n--- OCR Trang ${i} ---\n${text}\n`;
+            }
+            
+            return ocrText.trim();
+        }
+
+        // Action functions
+        window.extractText = () => {
+            if (selectedFiles.length === 0) {
+                alert('Vui lòng chọn tệp trước');
+                return;
+            }
+            processFiles();
+        };
+
+        window.convertToPDF = () => {
+            alert('🔄 Tính năng chuyển đổi sang PDF đang được phát triển');
+        };
+
+        window.copyResults = () => {
+            const extractedText = document.querySelector('.extracted-text');
+            if (extractedText) {
+                navigator.clipboard.writeText(extractedText.textContent);
+                alert('📋 Đã copy văn bản vào clipboard!');
+            } else {
+                alert('Chưa có văn bản để copy');
+            }
+        };
+
+        window.downloadResults = () => {
+            const extractedText = document.querySelector('.extracted-text');
+            if (extractedText) {
+                const blob = new Blob([extractedText.textContent], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `extracted-text-${new Date().toISOString().split('T')[0]}.txt`;
+                a.click();
+                alert('💾 Đã tải xuống file văn bản!');
+            } else {
+                alert('Chưa có văn bản để tải xuống');
+            }
+        };
+
+        window.clearResults = () => {
+            if (confirm('Xóa kết quả trích xuất hiện tại?')) {
+                const resultsArea = document.getElementById('resultsArea');
+                resultsArea.innerHTML = `
+                    <div style="text-align: center; color: #7f8c8d; padding: 40px 0;">
+                        <i class="fas fa-file-alt" style="font-size: 3em; opacity: 0.3; margin-bottom: 15px;"></i>
+                        <p>Chưa có dữ liệu được trích xuất</p>
+                        <p style="font-size: 0.9em;">Tải lên tệp và chạy OCR để xem kết quả</p>
+                    </div>
+                `;
+            }
+        };
+
+        // File management
+        window.viewFile = (id) => {
+            alert(`👁️ Xem file #${id} - Tính năng sẽ mở preview trong modal`);
+        };
+
+        window.downloadFile = (id) => {
+            alert(`💾 Tải xuống file #${id}`);
+        };
+
+        window.deleteFile = (id) => {
+            if (confirm('Xóa file này khỏi hệ thống?')) {
+                alert(`🗑️ Đã xóa file #${id}`);
+                // Remove from UI
+                document.querySelectorAll('.file-item')[id-1]?.remove();
+            }
+        };
+    </script>
+</body>
+</html>

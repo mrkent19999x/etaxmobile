@@ -1,0 +1,177 @@
+/* ================================================================
+   🎨 FILE CẤU HÌNH GIAO DIỆN - DỄ DÀNG CHỈNH SỬA
+   Anh có thể thay đổi các giá trị ở đây để điều chỉnh giao diện
+================================================================ */
+
+:root {
+  /* 📝 KÍCH THƯỚC FONT CHỮ */
+  --font-size-tiny: 10px;      /* Font rất nhỏ (cho ghi chú) */
+  --font-size-small: 12px;     /* Font nhỏ (cho label phụ) */
+  --font-size-normal: 14px;    /* Font thường (cho nội dung chính) */
+  --font-size-medium: 16px;    /* Font vừa (cho tiêu đề nhỏ) */
+  --font-size-large: 18px;     /* Font lớn (cho tiêu đề) */
+  --font-size-xlarge: 20px;    /* Font rất lớn (cho tên người dùng) */
+  --font-size-huge: 24px;      /* Font khổng lồ (cho tiêu đề chính) */
+
+  /* 🎨 MÀU SẮC CHỦ ĐẠO */
+  --primary-color: #b71c1c;    /* Màu đỏ chính của eTax */
+  --secondary-color: #a40000;  /* Màu đỏ đậm */
+  --text-color: #333333;       /* Màu chữ chính */
+  --text-light: #666666;       /* Màu chữ nhạt */
+  --background-white: #ffffff; /* Màu nền trắng */
+  --border-color: #e0e0e0;     /* Màu viền */
+
+  /* 📏 KHOẢNG CÁCH */
+  --spacing-xs: 4px;   /* Khoảng cách rất nhỏ */
+  --spacing-sm: 8px;   /* Khoảng cách nhỏ */
+  --spacing-md: 12px;  /* Khoảng cách vừa */
+  --spacing-lg: 16px;  /* Khoảng cách lớn */
+  --spacing-xl: 20px;  /* Khoảng cách rất lớn */
+  --spacing-xxl: 24px; /* Khoảng cách khổng lồ */
+
+  /* 🔘 BÁN KÍNH BO GÓC */
+  --border-radius-sm: 6px;   /* Bo góc nhỏ */
+  --border-radius-md: 10px;  /* Bo góc vừa */
+  --border-radius-lg: 15px;  /* Bo góc lớn */
+}
+
+/* ================================================================
+   📱 CÁC CLASS FONT SIZE DỄ SỬ DỤNG
+================================================================ */
+
+.font-tiny { font-size: var(--font-size-tiny) !important; }
+.font-small { font-size: var(--font-size-small) !important; }
+.font-normal { font-size: var(--font-size-normal) !important; }
+.font-medium { font-size: var(--font-size-medium) !important; }
+.font-large { font-size: var(--font-size-large) !important; }
+.font-xlarge { font-size: var(--font-size-xlarge) !important; }
+.font-huge { font-size: var(--font-size-huge) !important; }
+
+/* ================================================================
+   🏷️ CÁC CLASS CHO PLACEHOLDER VÀ DỮ LIỆU
+================================================================ */
+
+/* Placeholder đang tải */
+.loading-placeholder {
+  color: var(--text-light);
+  font-style: italic;
+  font-size: var(--font-size-small);
+  animation: pulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  from { opacity: 0.5; }
+  to { opacity: 1; }
+}
+
+/* Dữ liệu đã load */
+.user-data {
+  color: var(--text-color);
+  font-weight: 500;
+  font-size: var(--font-size-normal);
+}
+
+/* Label/tiêu đề */
+.data-label {
+  color: var(--text-light);
+  font-size: var(--font-size-small);
+  font-weight: normal;
+  margin-bottom: var(--spacing-xs);
+}
+
+/* Giá trị quan trọng (như MST, tên) */
+.important-data {
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: var(--font-size-medium);
+}
+
+/* ================================================================
+   📋 CÁC CLASS CHO FORM VÀ INPUT
+================================================================ */
+
+.custom-input {
+  font-size: var(--font-size-normal);
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--background-white);
+}
+
+.custom-button {
+  font-size: var(--font-size-normal);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-weight: 500;
+}
+
+/* ================================================================
+   📊 CÁC CLASS CHO BẢNG DỮ LIỆU
+================================================================ */
+
+.data-table {
+  font-size: var(--font-size-small);
+}
+
+.data-table th {
+  font-size: var(--font-size-normal);
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.data-table td {
+  font-size: var(--font-size-small);
+  color: var(--text-color);
+}
+
+/* ================================================================
+   🔧 RESPONSIVE - TỰ ĐỘNG ĐIỀU CHỈNH THEO MÀN HÌNH
+================================================================ */
+
+/* Màn hình nhỏ (điện thoại) - font nhỏ hơn */
+@media (max-width: 480px) {
+  :root {
+    --font-size-tiny: 9px;
+    --font-size-small: 11px;
+    --font-size-normal: 13px;
+    --font-size-medium: 15px;
+    --font-size-large: 17px;
+    --font-size-xlarge: 19px;
+    --font-size-huge: 22px;
+  }
+}
+
+/* Màn hình lớn (tablet trở lên) - font lớn hơn */
+@media (min-width: 768px) {
+  :root {
+    --font-size-tiny: 11px;
+    --font-size-small: 13px;
+    --font-size-normal: 15px;
+    --font-size-medium: 17px;
+    --font-size-large: 19px;
+    --font-size-xlarge: 21px;
+    --font-size-huge: 26px;
+  }
+}
+
+/* ================================================================
+   💡 HƯỚNG DẪN SỬ DỤNG (CHỈ LÀ COMMENT)
+   
+   1. THAY ĐỔI FONT SIZE:
+      - Chỉnh các biến --font-size-* ở đầu file
+      - Hoặc dùng class .font-small, .font-large, etc.
+   
+   2. THÊM PLACEHOLDER MỚI:
+      - Dùng class .loading-placeholder cho dữ liệu đang tải
+      - Dùng class .user-data cho dữ liệu đã load
+   
+   3. VÍ DỤ HTML:
+      <span class="loading-placeholder" data-placeholder="user-name">Đang tải...</span>
+      <span class="font-large important-data" data-placeholder="user-mst">MST</span>
+      
+   4. THAY ĐỔI MÀU SẮC:
+      - Chỉnh các biến --primary-color, --text-color, etc.
+================================================================ */
